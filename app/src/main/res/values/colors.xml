@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="md_theme_primary">#2F6F6D</color>
+    <color name="md_theme_onPrimary">@android:color/white</color>
+    <color name="md_theme_primaryContainer">#A3E9E5</color>
+    <color name="md_theme_secondary">#4E605C</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_secondaryContainer">#D1E6DF</color>
+    <color name="md_theme_tertiary">#B33A27</color>
+    <color name="md_theme_onTertiary">#FFFFFF</color>
+    <color name="md_theme_background">#FEFFFE</color>
+    <color name="md_theme_onBackground">#1A1C1A</color>
+    <color name="md_theme_surface">@android:color/white</color>
+    <color name="md_theme_onSurface">#1A1C1A</color>
+    <color name="md_theme_error">#BF2B2B</color>
+
+    <!-- Dark theme -->
+    <color name="md_theme_dark_primary">#7CD1CE</color>
+    <color name="md_theme_dark_onPrimary">@android:color/black</color>
+    <color name="md_theme_dark_primaryContainer">#0A504E</color>
+    <color name="md_theme_dark_secondary">#B6CAC4</color>
+    <color name="md_theme_dark_onSecondary">#1F312C</color>
+    <color name="md_theme_dark_secondaryContainer">#354742</color>
+    <color name="md_theme_dark_tertiary">#FDA38D</color>
+    <color name="md_theme_dark_background">#1A1C1A</color>
+    <color name="md_theme_dark_onBackground">#E2E3DB</color>
+    <color name="md_theme_dark_surface">#1A1C1A</color>
+    <color name="md_theme_dark_onSurface">#E2E3DB</color>
+
+    <!-- Block screen -->
+    <color name="block_bg_start">#0F2B4C</color>
+    <color name="block_bg_end">#1A4A6D</color>
+    <color name="block_timer_text_white">@android:color/white</color>
+    <color name="block_progress">#E53935</color>
+
+    <!-- Placeholder colors for shimmer loading -->
+    <color name="shimmer_base">#2C2F32</color>
+    <color name="shimmer_highlight">#383A3D</color>
+</resources>

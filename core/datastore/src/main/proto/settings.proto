@@ -1,0 +1,28 @@
+// settings.proto
+syntax = "proto3";
+
+package focus.datastore;
+
+option java_package = "app.focus.android.datastore";
+option java_multiple_files = true;
+
+message UserSettings {
+  enum Theme {
+    SYSTEM = 0;
+    LIGHT = 1;
+    DARK = 2;
+  }
+
+  Theme theme = 1;
+  bool dynamic_color = 2;
+  string language_tag = 3;
+  bool onboarding_completed = 4;
+  bool block_vibration = 5;
+  bool block_sound = 6;
+  bool quotes_enabled = 7;
+  string custom_goal_default = 8;
+  string last_used_profile_id = 9;
+  int32 last_used_duration_minutes = 10;
+  bool accessibility_disclosure_accepted = 11;
+  int64 event_log_retention_days = 12;
+}

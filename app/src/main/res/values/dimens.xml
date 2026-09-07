@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. Material3 -->
+    <style name="Theme.Focus" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">?attr/isLightTheme</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="30">false</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="30">false</item>
+    </style>
+
+    <!-- BlockActivity theme - translucent full-screen per TR-02 -->
+    <style name="Theme.Focus.Block" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <!-- Spacer for vertical gaps -->
+    <dimen name="spacer_4sp">4sp</dimen>
+    <dimen name="spacer_8sp">8sp</dimen>
+    <dimen name="spacer_12sp">12sp</dimen>
+    <dimen name="spacer_16sp">16sp</dimen>
+    <dimen name="spacer_24sp">24sp</dimen>
+    <dimen name="spacer_32sp">32sp</dimen>
+
+    <!-- Touch target minimum -->
+    <dimen name="touch_target">48dp</dimen>
+    <dimen name="spacing_tight">8dp</dimen>
+    <dimen name="spacing_medium">16dp</dimen>
+    <dimen name="spacing_large">24dp</dimen>
+    <dimen name="card_radius">16dp</dimen>
+    <dimen name="app_icon_size">48dp</dimen>
+
+    <!-- Timer dial -->
+    <dimen name="timer_dial_stroke">8dp</dimen>
+    <dimen name="timer_tiny_font_size">20sp</dimen>
+    <dimen name="timer_small_font_size">32sp</dimen>
+    <dimen name="timer_medium_font_size">48sp</dimen>
+    <dimen name="timer_large_font_size">64sp</dimen>
+    <dimen name="timer_xlarge_font_size">80sp</dimen>
+
+    <!-- Block screen -->
+    <dimen name="block_timer_size">72sp</dimen>
+    <dimen name="block_profile_icon">56dp</dimen>
+</resources>

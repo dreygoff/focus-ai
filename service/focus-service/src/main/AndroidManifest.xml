@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.BROADCAST_STOP_FROM_SCREENLOCK" />
+
+    <application>
+
+        <service
+            android:name=".FocusForegroundService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="app.focus.service.focus" />
+        </service>
+
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:directBootAware="true"
+            android:label="@string/boot_receiver_label">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".AlarmReceiver"
+            android:enabled="true"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="app.focus.service.focus.ACTION_SESSION_START_ALARM" />
+                <action android:name="app.focus.service.focus.ACTION_SESSION_END_ALARM" />
+            </intent-filter>
+        </receiver>
+
+        <!-- PackageChangeReceiver is debug-only, registered via DebugFocusComponent -->
+
+    </application>
+
+</manifest>

@@ -1,0 +1,19 @@
+// active_session.proto
+syntax = "proto3";
+
+package focus.datastore;
+
+option java_package = "app.focus.android.datastore";
+option java_multiple_files = true;
+
+message ActiveSessionSnapshot {
+  string session_id = 1;
+  string lock_mode = 2;
+  int64 planned_end_at = 3;
+  repeated string target_packages = 4;
+  repeated string hard_lock_extra_packages = 5;
+  string default_launcher = 6;
+  bool pomodoro = 7;
+  int64 phase_end_at = 8;
+  string phase = 9;
+}

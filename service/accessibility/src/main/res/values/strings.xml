@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">Monitors foreground apps to enforce focus session blocks and prevent app distraction.</string>
+    <string name="accessibility_service_summary">Foreground monitoring</string>
+</resources>

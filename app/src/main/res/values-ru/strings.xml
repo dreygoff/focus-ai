@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Фокус</string>
+    <string name="accessibility_service_summary">Фокус - доступность для обнаруженияForeground приложений во время сессий фокуса</string>
+    <string name="boot_receiver_label">Фоус Приёмник загрузки</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">верните контроль над вниманием</string>
+    <string name="onboarding_welcome_description">Фокус помогает освободиться от отвлекающих приложений. Без интернета, без аналитики - всё остаётся на вашем устройстве.</string>
+
+    <string name="onboarding_app_selection_title">выберите что блокировать</string>
+    <string name="onboarding_app_selection_description">Выберите приложения, которые вас больше всего отвлекают. Вы всегда сможете изменить это позже в настройках.</string>
+
+    <string name="onboarding_permissions_title">включите защиты</string>
+    <string name="onboarding_permissions_description">Фокусу нужно несколько разрешений для работы. Мы объясним зачем нужно каждое из них.</string>
+
+    <string name="onboarding_create_first_profile_title">создайте первый профиль</string>
+    <string name="onboarding_create_first_profile_description">Профиль группирует правила блокировки. Начните с «Глубокой работы» или создайте свой собственный.</string>
+
+    <string name="onboarding_next">Далее</string>
+    <string name="onboarding_skip">Пропустить</string>
+    <string name="onboarding_start">Начать</string>
+
+    <!-- Home -->
+    <string name="home_title">Фокус</string>
+    <string name="home_no_session">Готовы фокусироваться?</string>
+    <string name="home_start_focus">Начать фокус</string>
+    <string name="home_quick_start">Быстрый старт</string>
+    <plurals name="home_today_minutes">
+        <item quantity="one">%d мин. фокуса сегодня</item>
+        <item quantity="few">%d мин. фокуса сегодня</item>
+        <item quantity="many">%d мин. фокуса сегодня</item>
+        <item quantity="other">%d мин. фокуса сегодня</item>
+    </plurals>
+
+    <string name="home_streak">Серия: %d дней</string>
+    <string name="home_permission_warning">Некоторые разрешения потеряны. Нажмите для восстановления.</string>
+
+    <!-- Session -->
+    <string name="session_start">Старт</string>
+    <string name="session_cancelled">Сессия отменена</string>
+    <string name="session_completed">Сессия завершена</string>
+    <string name="session_elapsed">Затраченное время</string>
+    <string name="session_remaining">Оставшееся время</string>
+    <string name="session_goal_text">Ваша цель (необязательно):</string>
+
+    <!-- Pomodoro -->
+    <string name="pomodoro_enabled">Помодоро включён</string>
+    <plurals name="pomodoro_focus_phase">
+        <item quantity="one">Фокус %d мин</item>
+        <item quantity="few">Фокус %d мин</item>
+        <item quantity="many">Фокус %d мин</item>
+        <item quantity="other">Фокус %d мин</item>
+    </plurals>
+
+    <plurals name="pomodoro_short_break">
+        <item quantity="one">Короткий перерыв %d мин</item>
+        <item quantity="few">Короткий перерыв %d мин</item>
+        <item quantity="many">Короткий перерыв %d мин</item>
+        <item quantity="other">Короткий перерыв %d мин</item>
+    </plurals>
+
+    <plurals name="pomodoro_long_break">
+        <item quantity="one">Длинный перерыв %d мин</item>
+        <item quantity="few">Длинный перерыв %d мин</item>
+        <item quantity="many">Длинный перерыв %d мин</item>
+        <item quantity="other">Длинный перерыв %d мин</item>
+    </plurals>
+
+    <string name="pomodoro_cycles_left">%d циклов осталось</string>
+
+    <!-- Profile editor -->
+    <string name="profile_edit_title">Редактирование профиля</string>
+    <string name="profile_name_hint">Имя профиля</string>
+    <string name="profile_mode_soft">Мягкая блокировка</string>
+    <string name="profile_mode_hard">Жёсткая блокировка</string>
+    <string name="profile_default_duration">Длительность по умолчанию (мин.)</string>
+    <string name="profile_bypass_delay">Задержка пропуска (сек.)</string>
+    <string name="profile_breathing_enabled">Включить дыхательное упражнение</string>
+    <string name="profile_reason_required">Требовать причину для пропуска</string>
+    <string name="profile_emergency_none">Отключён</string>
+    <string name="profile_emergency_delay_10min">Задержка 10 мин</string>
+    <string name="profile_emergency_retype">Перепечатать текст</string>
+    <string name="profile_device_admin">Защита администратора устройства</string>
+    <string name="profile_block_new_apps">Блокировать новые приложения</string>
+    <string name="profile_save">Сохранить</string>
+    <string name="profile_delete">Удалить профиль</string>
+
+    <!-- Block screen -->
+    <string name="block_return_to_work">Вернуться к делу</string>
+    <string name="block_i_really_need">Мне правда нужно…</string>
+    <string name="block_enter_reason">Введите причину (мин. 10 символов):</string>
+    <string name="block_enter_phrase">Напечатайте фразу точно:</string>
+    <string name="block_enter_phrase_default">Я осознанно отвлекаюсь от своей цели</string>
+    <string name="bypass_limit_reached">Пропуски исчерпаны для этой сессии</string>
+    <plurals name="access_window_remaining">
+        <item quantity="one">%d минута осталась</item>
+        <item quantity="few">%d минуты осталось</item>
+        <item quantity="many">%d минут осталось</item>
+        <item quantity="other">%d минут осталось</item>
+    </plurals>
+    
+    <!-- Permissions -->
+    <string name="permissions_title">Требуемые разрешения</string>
+    <string name="permission_usage_stats">Доступ к статистике</string>
+    <string name="permission_accessibility">Служба специальных возможностей</string>
+    <string name="permission_overlay">Показ поверх других окон</string>
+    <string name="permission_notifications">Уведомления</string>
+    <string name="permission_battery_ignore">Игнорирование оптимизации батареи</string>
+    <string name="permission_exact_alarm">Точные будильники</string>
+    <string name="permission_device_admin">Администратор устройства (опционально)</string>
+    <string name="permissions_all_done">Все обязательные разрешения получены!</string>
+
+    <!-- Profiles -->
+    <string name="profiles_title">Профили</string>
+    <string name="profiles_add">Добавить профиль</string>
+    <string name="profiles_default_deep_work">Глубокая работа</string>
+    <string name="profiles_default_sleep">Сон</string>
+    <string name="profiles_default_detox">Детокс</string>
+
+    <!-- Schedules -->
+    <plurals name="schedule_sessions_per_week">
+        <item quantity="one">%d session per week</item>
+        <item quantity="few">%d sessions per week</item>
+        <item quantity="many">%d sessions per week</item>
+        <item quantity="other">%d sessions per week</item>
+    </plurals>
+    <string name="schedule_starting_at">Начиная с %s</string>
+    <string name="schedule_enabled">Включено</string>
+    <string name="schedule_disabled">Отключено</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">Статистика</string>
+    <string name="stats_period_today">Сегодня</string>
+    <plurals name="stats_sessions_completed">
+        <item quantity="one">%d сессия завершена</item>
+        <item quantity="few">%d сессии завершены</item>
+        <item quantity="many">%d сессий завершено</item>
+        <item quantity="other">%d сессий завершено</item>
+    </plurals>
+
+    <plurals name="stats_focus_minutes">
+        <item quantity="one">%d минута фокуса</item>
+        <item quantity="few">%d минуты фокуса</item>
+        <item quantity="many">%d минут фокуса</item>
+        <item quantity="other">%d минут фокуса</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_appearance">Внешний вид</string>
+    <string name="settings_theme_system">Как в системе</string>
+    <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_dynamic_color">Динамический цвет</string>
+    <string name="settings_language">Язык</string>
+    <string name="settings_allowlist">Белый список</string>
+    <string name="settings_data_export_csv">Экспорт данных в CSV</string>
+    <string name="settings_data_clear_stats">Очистить статистику</string>
+    <string name="settings_data_clear_all">Удалить все данные</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_open_source_licenses">Лицензии с открытым кодом</string>
+    <string name="settings_how_protection_works">Как работает защита</string>
+    <string name="settings_diagnostics">Диагностика</string>
+
+    <!-- About -->
+    <string name="about_version">Версия %s</string>
+    <string name="about_privacy_policy">Политика конфиденциальности</string>
+
+    <!-- How protection works -->
+    <string name="protection_heading">Как Фокус защищает ваши сессии</string>
+    <string name="protection_text_hard_lock">Во время жёсткой блокировки Фокус блокирует Настройки, Play Store, переключатель лаунчеров и известные «убийцы задач». Вы всё ещё можете вызывать экстренные службы.</string>
+    <string name="protection_limitations">Жёсткая блокировка не может быть обойдена через Безопасный режим, ADB или Сброс к заводским настройкам - вам необходимо отключить администратора устройства при следующей загрузке.</string>
+
+    <!-- Emergency exit -->
+    <string name="emergency_exit_title">Аварийный выход</string>
+    <string name="emergency_exit_10min_body">Ваша сессия жёсткой блокировки приостановлена на 10 минут. После этого периода сессия завершится, если вы не отмените этот запрос.</string>
+    <string name="emergency_cancel_request">Отменить запрос</string>
+    <string name="emergency_retype_body">Завершите текст ниже без ошибок:</string>
+
+    <!-- App picker -->
+    <string name="app_pick_search">Поиск приложений…</string>
+    <string name="app_pick_sort_alpha">Сортировка по имени</string>
+    <string name="app_pick_sort_usage">Сортировка по использованию</string>
+    <string name="app_pick_system_apps">Системные приложения</string>
+
+    <plurals name="app_pick_selected_count">
+        <item quantity="one">%d выбрано</item>
+        <item quantity="few">%d выбрано</item>
+        <item quantity="many">%d выбрано</item>
+        <item quantity="other">%d выбрано</item>
+    </plurals>
+
+    <!-- Blocker screen -->
+    <string name="block_screen_blocked_app">Заблокировано приложение: %s</string>
+    <string name="block_screen_profile_name">Активна сессия «%s»</string>
+    <string name="bypass_attempt_counter">%d-я попытка</string>
+
+    <!-- Stats -->
+    <plurals name="stats_attempts_blocked">
+        <item quantity="one">%d попытка заблокирована</item>
+        <item quantity="few">%d попытки заблокированы</item>
+        <item quantity="many">%d попыток заблокировано</item>
+        <item quantity="other">%d попыток заблокировано</item>
+    </plurals>
+
+    <plurals name="stats_bypasses_used">
+        <item quantity="one">%d пропуск использован</item>
+        <item quantity="few">%d пропуска использовано</item>
+        <item quantity="many">%d пропусков использовано</item>
+        <item quantity="other">%d пропусков использовано</item>
+    </plurals>
+
+    <string name="stats_completed_sessions">Завершённые сессии</string>
+    <string name="stats_total_blocks">Всего блокировок</string>
+    <string name="app_stats_top_5">Топ 5 приложений</string>
+    <string name="stats_export_failed">Не удалось экспортировать статистику: %s</string>
+
+    <!-- Pomodoro -->
+    <string name="pomodoro_settings_title">Настройки помодоро</string>
+    <plurals name="pomodoro_focus_duration">
+        <item quantity="one">%d мин фокус</item>
+        <item quantity="few">%d мин фокус</item>
+        <item quantity="many">%d мин фокус</item>
+        <item quantity="other">%d мин фокус</item>
+    </plurals>
+
+    <string name="pomodoro_short_break_duration">Короткий перерыв (мин.)</string>
+    <string name="pomodoro_long_break_duration">Длинный перерыв (мин.)</string>
+    <string name="pomodoro_cycles_long_break">Циклы до длинного перерыва</string>
+    <string name="pomodoro_total_cycles">Всего циклов</string>

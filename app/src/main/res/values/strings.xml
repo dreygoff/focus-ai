@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Focus</string>
+    <string name="accessibility_service_summary">Focus Accessibility - detects foreground apps to enforce focus sessions</string>
+    <string name="boot_receiver_label">Focus Boot Receiver</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">regain control of your attention</string>
+    <string name="onboarding_welcome_description">Focus helps you break free from distracting apps. No internet, no analytics - everything stays on your device.</string>
+    <string name="onboarding_app_selection_title">choose what to block</string>
+    <string name="onboarding_app_selection_description">Select the apps that distract you most. You can always change this later in settings.</string>
+    <string name="onboarding_permissions_title">enable protections</string>
+    <string name="onboarding_permissions_description">Focus needs a few permissions to work properly. We explain exactly what each one is for.</string>
+    <string name="onboarding_create_first_profile_title">create your first profile</string>
+    <string name="onboarding_create_first_profile_description">A profile groups blocking rules. Start with \"Deep Work\" or customize your own.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_start">Get started</string>
+
+    <!-- Home screen -->
+    <string name="home_title">Focus</string>
+    <string name="home_no_session">Ready to focus?</string>
+    <string name="home_start_focus">Start Focus</string>
+    <string name="home_quick_start">Quick start</string>
+    <string name="home_today_minutes">%d min focused today</string>
+    <string name="home_streak">Streak: %d days</string>
+    <string name="home_permission_warning">Some permissions have been lost. Tap to re-enable.</string>
+
+    <!-- Session -->
+    <string name="session_start">Start</string>
+    <string name="session_cancelled">Session cancelled</string>
+    <string name="session_completed">Session completed</string>
+    <string name="session_elapsed">Elapsed time</string>
+    <string name="session_remaining">Remaining time</string>
+    <string name="session_goal_text">Your goal (optional):</string>
+
+    <!-- Pomodoro -->
+    <string name="pomodoro_enabled">Pomodoro enabled</string>
+    <string name="pomodoro_focus_phase">Focus %d min</string>
+    <string name="pomodoro_short_break">Short break %d min</string>
+    <string name="pomodoro_long_break">Long break %d min</string>
+    <string name="pomodoro_cycles_left">%d cycles remaining</string>
+
+    <!-- Profile editor -->
+    <string name="profile_edit_title">Edit profile</string>
+    <string name="profile_name_hint">Profile name</string>
+    <string name="profile_mode_soft">Soft lock</string>
+    <string name="profile_mode_hard">Hard lock</string>
+    <string name="profile_default_duration">Default duration (minutes)</string>
+    <string name="profile_bypass_delay">Bypass delay (seconds)</string>
+    <string name="profile_breathing_enabled">Include breathing exercise</string>
+    <string name="profile_reason_required">Require bypass reason</string>
+    <string name="profile_emergency_noneDisabled">No emergency exit</string>
+    <string name="profile_emergency_delay_10min">10 min delay</string>
+    <string name="profile_emergency_retype">Retype text</string>
+    <string name="profile_device_admin">Device admin protection</string>
+    <string name="profile_block_new_appsBlock new installs</string>
+    <string name="profile_save">Save</string>
+    <string name="profile_delete">Delete profile</string>
+    
+    <!-- Block screen -->
+    <string name="block_return_to_work">Back to work</string>
+    <string name="block_i_really_need">I really need this…</string>
+    <string name="block_enter_reason">Enter your reason (min 10 chars):</string>
+    <string name="block_enter_phrase">Type the phrase exactly:</string>
+    <string name="block_enter_phrase_default">Я осознанно отвлекаюсь от своей цели</string>
+    <string name="bypass_limit_reached">Bypasses exhausted for this session</string>
+    <string name="access_window_remaining">%d minutes remaining</string>
+
+    <!-- Permissions screen -->
+    <string name="permissions_title">Required permissions</string>
+    <string name="permission_usage_stats">Usage access</string>
+    <string name="permission_usage_stats_descriptionAllows Focus to detect which apps you are using</string>
+    <string name="permission_accessibility">Accessibility service</string>
+    <string name="permission_accessibility_description">For instant detection of foreground apps without polling</string>
+    <string name="permission_overlay">Overlapp screens</string>
+    <string name="permission_overlay_description">Allows Focus to show the blocking screen over other apps</string>
+    <string name="permission_notifications">Notifications</string>
+    <string name="permission_notifications_description">Show session progress and alerts in the status bar</string>
+    <string name="permission_battery_ignore">Ignore battery optimization</string>
+    <string name="permission_battery_description">Prevents Focus from being killed by battery saver</string>
+    <string name="permission_exact_alarm">Exact alarms</string>
+    <string name="permission_exact_alarm_description">Required for scheduled focus sessions and reminders</string>
+    <string name="permission_device_admin">Device admin (optional)</string>
+    <string name="permission_device_admin_description">Protects Focus from being uninstalled during a Hard Lock session</string>
+    <string name="permissions_all_done">All required permissions granted!</string>
+
+    <!-- Profiles -->
+    <string name="profiles_title">Profiles</string>
+    <string name="profiles_add">Add profile</string>
+    <string name="profiles_default_deep_work">Deep Work</string>
+    <string name="profiles_default_sleep">Sleep</string>
+    <string name="profiles_default_detox">Detox</string>
+
+    <!-- Schedules -->
+    <String name="schedules_title">Schedules</string>
+    <string name="schedules_add_schedule">Add schedule</string>
+    <plurals name="days_selected">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+
+    <!-- Statistics -->
+    <string name="stats_title">Statistics</string>
+    <string name="stats_period_today">Today</string>
+    <string name="stats_period_week">7 days</string>
+    <string name="stats_period_month">30 days</string>
+    <plurals name="stats_sessions_completed">
+        <item quantity="one">%d session completed</item>
+        <item quantity="other">%d sessions completed</item>
+    </plurals>
+    <plurals name="stats_focus_minutes">
+        <item quantity="one">%d minute focused</item>
+        <item quantity="other">%d minutes focused</item>
+    </plurals>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme_system">System default</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_dynamic_color">Dynamic color</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_allowlist">Allowlist</string>
+    <string name="settings_data_export_csv">Export data as CSV</string>
+    <string name="settings_data_clear_stats">Clear statistics</string>
+    <string name="settings_data_clear_all">Delete all data</string>
+    <string name="settings_about">About</string>
+    <string name="settings_open_source_licenses">Open source licenses</string>
+    <string name="settings_how_protection_works">How protection works</string>
+    <string name="settings_diagnostics">Diagnostics</string>
+
+    <!-- About -->
+    <string name="about_version">Version %s</string>
+    <string name="about_privacy_policy">Privacy policy</string>
+    
+    <!-- How protection works -->
+    <string name="protection_heading">How Focus protects your sessions</string>
+    <string name="protection_text_hard_lock">During Hard Lock, Focus blocks Settings, Play Store, launcher switcher and known task killers. You can still make emergency calls.</string>
+    <string name="protection_limitations">Hard Lock cannot be bypassed by Safe Mode, ADB or Factory Reset - you will need to disable Device Admin first on next boot.</string>
+
+    <!-- Pomodoro settings -->
+    <string name="pomodoro_settings_title">Pomodoro settings</string>
+    <string name="pomodoro_focus_duration">Focus duration (min)</string>
+    <string name="pomodoro_short_break_duration">Short Break (min)</string>
+    <string name="pomodoro_long_break_duration">Long Break (min)</string>
+    <string name="pomodoro_cycles_long_break">Cycles before long break</string>
+    <string name="pomodoro_total_cycles">Total cycles</string>
+
+    <!-- Blocker screen -->
+    <string name="block_screen_blocked_app">Blocked app: %s</string>
+    <string name="block_screen_profile_name">%s session active</string>
+    <string name="bypass_attempt_counter">%d-th attempt</string>
+    
+    <!-- App picker -->
+    <string name="app_pick_search">Search apps…</string>
+    <string name="app_pick_sort_alpha">Sort by name</string>
+    <string name="app_pick_sort_usage">Sort by usage</string>
+    <string name="app_pick_system_apps">System apps</string>
+    <plurals name="app_pick_selected_count">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+
+    <!-- Duration presets -->
+    <string name="duration_15min">15 min</string>
+    <string name="duration_25min">25 min</string>
+    <string name="duration_45min">45 min</string>
+    <string name="duration_60min">60 min</string>
+    <string name="duration_90min">90 min</string>
+    <string name="duration_120min">120 min</string>
+
+    <!-- Schedule -->
+    <string name="schedule_days_mon">Mon</string>
+    <string name="schedule_days_tue">Tue</string>
+    <string name="schedule_days_wed">Wed</string>
+    <string name="schedule_days_thu">Thu</string>
+    <string name="schedule_days_fri">Fri</string>
+    <string name="schedule_days_sat">Sat</string>
+    <string name="schedule_days_sun">Sun</string>
+
+    <!-- Accessibility disclosure -->
+    <string name="accessibility_disclosure_title">Understanding Accessibility Service</string>
+    <string name="accessibility_disclosure_body">This service monitors only the name of the currently active app (not content or personal data). It is used solely for detecting when blocked applications are opened during a focus session. Please confirm you understand.</string>
+    <string name="accessibility_disclosure_understand">I understand</string>
+
+    <!-- Emergency text -->
+    <string name="emergency_exit_title">Emergency exit</string>
+    <string name="emergency_exit_10min_body">Your Hard Lock session has been paused for 10 minutes. After this period the session will end unless you cancel this request.</string>
+    <string name="emergency_cancel_request">Cancel request</string>
+    <string name="emergency_retype_body">Complete the text below with no errors:</string>
+
+    <!-- Stats -->
+    <plurals name="stats_attempts_blocked">
+        <item quantity="one">%d attempt blocked</item>
+        <item quantity="other">%d attempts blocked</item>
+    </plurals>
+    <plurals name="stats_bypasses_used">
+        <item quantity="one">%d bypass used</item>
+        <item quantity="other">%d bypasses used</item>
+    </plurals>
+    <string name="stats_completed_sessions">Completed sessions</string>
+    <string name="stats_total_blocks">Total blocks</string>
+    <string name="app_stats_top_5">Top 5 apps</string>
+    <string name="stats_export_failed">Failed to export statistics: %s</string>
+
+    <!-- Schedules -->
+    <plurals name="schedule_sessions_per_week">
+        <item quantity="one">%d session per week</item>
+        <item quantity="other">%d sessions per week</item>
+    </plurals>
+    <string name="schedule_starting_at">Starting at %s</string>
+    <string name="schedule_enabled">Enabled</string>
+    <string name="schedule_disabled">Disabled</string>
+
+    <!-- General -->
+    <string name="action_enable">Enable</string>
+    <string name="action_configure">Configure</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_done">Done</string>
+    <string name="action_save">Save</string>
+    
+    <!-- Vendor hints -->
+    <string name="vendor_hint_title" translatable="false">%s tips</string>
+    <string name="vendor_text_autostart" translatable="false">Enable autostart for Focus in your %s settings to prevent it from being killed.</string>
+    <string name="vendor_text_battery" translatable="false">Set battery optimization to \"Not optimized\" for Focus.</string>

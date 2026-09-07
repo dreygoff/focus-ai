@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Фокус</string>
+    <string name="session_notification_channel_name">Активная сессия</string>
+    <string name="session_notification_channel_description">Показывает статус активной фокус-сессии</string>
+    <string name="session_foreground_title">Фокус-сессия активна</string>
+    <string name="session_foreground_text">Сосредоточьтесь на своём профиле</string>
+    <string name="action_finish_session">Завершить</string>
+    <string name="notification_pending_stop_service_permission">Для работы в фоне нужны разрешения</string>
+    <string name="boot_receiver_label">Приёмник загрузки</string>
+    <string name="session_started">Фокус-сессия начата</string>
+    <string name="session_completed">Фокус-сессия завершена</string>
+    <string name="session_interrupted">Фокус-сессия прервана</string>
+    <string name="schedule_updated">Расписание сессий обновлено</string>
+    <string name="blocked_app_notification">Приложение заблокировано: %s</string>
+    <string name="new_app_prompt_title">Обнаружено новое приложение</string>
+    <string name="new_app_prompt_message">Хотите добавить \"%s\" в текущий профиль?</string>
+    <string name="new_app_add">Да, добавить</string>
+    <string name="dismiss">Отмена</string>
+</resources>

@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Focus</string>
+    <string name="session_notification_channel_name">Active Session</string>
+    <string name="session_notification_channel_description">Shows the status of your active focus session</string>
+    <string name="session_foreground_title">Focus Session Active</string>
+    <string name="session_foreground_text">Stay focused on your profile</string>
+    <string name="action_finish_session">Finish</string>
+    <string name="notification_pending_stop_service_permission">Permission needed to run in background</string>
+    <string name="boot_receiver_label">Boot Receiver</string>
+    <string name="session_started">Focus session started</string>
+    <string name="session_completed">Focus session completed</string>
+    <string name="session_interrupted">Focus session interrupted</string>
+    <string name="schedule_updated">Session schedule updated</string>
+    <string name="blocked_app_notification">App blocked: %s</string>
+    <string name="new_app_prompt_title">New app detected during session</string>
+    <string name="new_app_prompt_message">Would you like to add %s to your current profile?</string>
+    <string name="new_app_add">Yes, add it</string>
+    <string name="dismiss">Dismiss</string>
+</resources>
