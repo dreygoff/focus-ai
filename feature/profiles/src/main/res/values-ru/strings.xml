@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profiles_title">Профили</string>
+    <string name="profiles_empty_title">Профилей пока нет</string>
+    <string name="profiles_empty_body">Создайте первый профиль фокуса.</string>
+    <string name="profiles_create">Создать профиль</string>
+    <string name="app_picker_title">Выбор приложений</string>
+    <string name="app_picker_search">Поиск</string>
+    <string name="app_picker_sort_alpha">А–Я</string>
+    <string name="app_picker_sort_usage">По использованию</string>
+    <string name="app_picker_system_section">Системные приложения</string>
+    <string name="app_picker_allowlisted">В белом списке — нельзя блокировать</string>
+    <string name="app_picker_selected_count">Выбрано: %1$d</string>
+    <string name="app_picker_done">Готово</string>
+    <string name="profile_editor_new_title">Новый профиль</string>
+    <string name="profile_editor_edit_title">Редактирование профиля</string>
+    <string name="profile_editor_name">Название профиля</string>
+    <string name="profile_editor_lock_mode">Режим блокировки</string>
+    <string name="profile_editor_soft_lock">Мягкая</string>
+    <string name="profile_editor_hard_lock">Жёсткая</string>
+    <string name="profile_editor_duration">Длительность по умолчанию</string>
+    <string name="profile_editor_duration_minutes">%1$d мин</string>
+    <string name="profile_editor_apps_selected">Приложения (выбрано: %1$d)</string>
+    <string name="profile_editor_save">Сохранить</string>
+    <string name="profile_editor_locked">Редактирование профилей недоступно во время активной жёсткой сессии.</string>
+    <string name="profiles_editing_locked">Редактирование профилей недоступно во время активной жёсткой сессии.</string>
+    <string name="profiles_delete">Удалить</string>
+    <string name="profiles_start_session">Запустить сессию %1$d мин</string>
+</resources>

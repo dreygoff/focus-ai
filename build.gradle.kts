@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless) apply false
+    alias(libs.plugins.protobuf) apply false
 }
 
 detekt {

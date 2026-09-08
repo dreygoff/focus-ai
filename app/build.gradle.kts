@@ -70,7 +70,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    implementation(libs.androidx.datastore.preferences)
     implementation(libs.org.jetbrains.kotlinx.json)
 
     implementation(libs.com.jakewharton.timber)
@@ -86,6 +85,7 @@ dependencies {
     api(project(":core:notifications"))
 
     api(project(":feature:onboarding"))
+    api(project(":feature:permissions"))
     api(project(":feature:home"))
     api(project(":feature:profiles"))
     api(project(":feature:session"))

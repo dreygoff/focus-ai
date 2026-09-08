@@ -20,6 +20,7 @@ interface ProfileRepository {
     suspend fun getProfile(id: String): app.focus.domain.model.Profile?
     suspend fun getDefaultProfileId(): String?
     suspend fun setDefaultProfileId(id: String)
+    suspend fun updateTargetApps(profileId: String, packageNames: List<String>)
 }
 
 interface ScheduleRepository {

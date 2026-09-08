@@ -14,22 +14,28 @@ object OnboardingRoutes {
 fun NavGraphBuilder.onboardingGraph(
     navController: NavHostController,
     onComplete: () -> Unit,
-    onSkip: () -> Unit
+    onSkip: () -> Unit,
 ) {
     composable(OnboardingRoutes.WELCOME) {
         WelcomeScreen(
-            onNext = { navController.navigate(OnboardingRoutes.PICK_APPS) { popUpTo(OnboardingRoutes.WELCOME) { inclusive = true } } },
-            onSkip = onSkip
+            onNext = { navController.navigate(OnboardingRoutes.PICK_APPS) },
+            onSkip = onSkip,
         )
     }
     composable(OnboardingRoutes.PICK_APPS) {
         PickAppsScreen(onDone = { navController.navigate(OnboardingRoutes.PERMISSIONS) })
     }
     composable(OnboardingRoutes.PERMISSIONS) {
-        OnboardingPermissionsScreen(
-            onAllGranted = { navController.navigate(OnboardingRoutes.FIRST_PROFILE) { popUpTo(OnboardingRoutes.WELCOME) { inclusive = true } } },
-            onSkip = onSkip
+        app.focus.feature.permissions.PermissionsRoute(
+            onAllGranted = {
+                navController.navigate(OnboardingRoutes.FIRST_PROFILE) {
+                    popUpTo(OnboardingRoutes.WELCOME) { inclusive = true }
+                }
+            },
+            onBack = onSkip,
         )
     }
-    composable(OnboardingRoutes.FIRST_PROFILE) { FirstProfileCreatorScreen(onCreated = onComplete) }
+    composable(OnboardingRoutes.FIRST_PROFILE) {
+        FirstProfileCreatorScreen(onCreated = onComplete, onSkip = onComplete)
+    }
 }

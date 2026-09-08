@@ -56,6 +56,12 @@ object ServiceModule {
 
     @Provides
     @Singleton
+    fun providePackageRepository(
+        @ApplicationContext context: Context,
+    ): app.focus.system.PackageRepository = app.focus.system.DefaultPackageRepository(context)
+
+    @Provides
+    @Singleton
     fun provideSessionTimerManager(
         @ApplicationContext context: Context,
         snapshotStore: ActiveSessionSnapshotStorage

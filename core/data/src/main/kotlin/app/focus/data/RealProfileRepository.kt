@@ -4,8 +4,7 @@ import app.focus.database.dao.ProfileAppDao
 import app.focus.database.dao.ProfileDao
 import app.focus.data.mapper.toDomain
 import app.focus.data.mapper.toEntity as toDomainToEntity
-import app.focus.domain.model.LockMode
-import app.focus.domain.model.SessionStatus
+import app.focus.data.mapper.toJsonList
 import app.focus.domain.usecase.ProfileRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -17,9 +16,9 @@ class RealProfileRepository(
 
     companion object {
         const val DEFAULT_SORT = 100
-        private const val SETTINGS_PREFS = "core_settings"
-        private const val KEY_DEFAULT_PROFILE = "default_profile_id"
     }
+
+    private var defaultProfileId: String? = null
 
     override suspend fun insert(profile: app.focus.domain.model.Profile): Long {
         val entity = profile.toDomainToEntity()
@@ -41,23 +40,39 @@ class RealProfileRepository(
     }
 
     override suspend fun getProfile(id: String): app.focus.domain.model.Profile? {
+        val entity = profileDao.getById(id) ?: return null
         val packages = profileAppDao.getPackageNames(id)
-        return profileDao.getById(id)?.toDomain()
-            ?: run {
-                app.focus.domain.model.Profile(
-                    id = id, name = "Loaded Profile", emoji = null, colorArgb = 0xFF2F6F6D.toInt(),
-                    lockMode = LockMode.Soft, defaultDurationMinutes = 25, bypassDelaySeconds = 30,
-                    bypassBreathingEnabled = true, bypassReasonRequired = true, bypassPhrase = null,
-                    bypassLimitPerSession = 3, accessWindowMinutes = 5, bypassAppliesToAllApps = false,
-                    emergencyExitMode = app.focus.domain.model.EmergencyExitMode.DELAY_10_MIN,
-                    blockNewApps = true, deviceAdminProtection = false, allowedSettingsShortcuts = emptySet(),
-                    hideTargetNotifications = false, targetPackageNames = packages,
-                    createdAt = System.currentTimeMillis() - 86400000L, updatedAt = System.currentTimeMillis(),
-                    sortOrder = DEFAULT_SORT
-                )
-            }
+        val profile = entity.toDomain()
+        return profile.copy(
+            targetPackageNames = packages.ifEmpty { profile.targetPackageNames },
+        )
     }
 
-    override suspend fun getDefaultProfileId(): String? = null
-    override suspend fun setDefaultProfileId(id: String) {}
+    override suspend fun getDefaultProfileId(): String? = defaultProfileId
+
+    override suspend fun setDefaultProfileId(id: String) {
+        defaultProfileId = id
+    }
+
+    override suspend fun updateTargetApps(profileId: String, packageNames: List<String>) {
+        profileAppDao.deleteAllForProfile(profileId)
+        val now = System.currentTimeMillis()
+        packageNames.forEach { pkg ->
+            profileAppDao.insert(
+                app.focus.database.entity.ProfileAppEntity(
+                    profileId = profileId,
+                    packageName = pkg,
+                    addedAt = now,
+                ),
+            )
+        }
+        profileDao.getById(profileId)?.let { entity ->
+            profileDao.update(
+                entity.copy(
+                    targetPackageNames = packageNames.toJsonList(),
+                    updatedAt = now,
+                ),
+            )
+        }
+    }
 }

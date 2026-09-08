@@ -148,8 +148,8 @@ class DetectorOrchestrator(
     }
 
     private fun detectSource(perms: Set<PermissionState>): DetectorSource {
-        val hasAccessibility = perms.any { p ->
-            p.granted && p.type == PermissionType.MANDATORY
+        val hasAccessibility = perms.any { permission ->
+            permission.name == app.focus.system.PermissionChecker.ID_ACCESSIBILITY && permission.granted
         }
         return if (hasAccessibility && accessibilityDetector != null) {
             DetectorSource.ACCESSIBILITY

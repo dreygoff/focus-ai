@@ -12,6 +12,10 @@ class FakeSessionRepository : app.focus.domain.usecase.SessionRepository {
     private val sessions = mutableMapOf<String, app.focus.domain.model.Session>()
     private val currentFlow = kotlinx.coroutines.flow.MutableSharedFlow<app.focus.domain.model.Session?>(replay = 1)
 
+    init {
+        currentFlow.tryEmit(null)
+    }
+
     override suspend fun insert(session: app.focus.domain.model.Session): Long {
         sessions[session.id] = session
         return session.id.hashCode().toLong()
@@ -34,38 +38,65 @@ class FakeSessionRepository : app.focus.domain.usecase.SessionRepository {
 
 class FakeProfileRepository : app.focus.domain.usecase.ProfileRepository {
     private val profiles = mutableMapOf<String, app.focus.domain.model.Profile>()
+    private val profilesFlow =
+        kotlinx.coroutines.flow.MutableStateFlow<List<app.focus.domain.model.Profile>>(emptyList())
 
     init {
         profiles["seed-work"] = app.focus.domain.model.Profile(
-            id = "seed-work", name = "Work", emoji = "\uD83D\uDE80", colorArgb = 0xFF2F6F6D.toInt(),
-            lockMode = app.focus.domain.model.LockMode.Soft, defaultDurationMinutes = 50,
-            bypassDelaySeconds = 30, bypassBreathingEnabled = true, bypassReasonRequired = true,
-            bypassPhrase = null, bypassLimitPerSession = 3, accessWindowMinutes = 5,
-            bypassAppliesToAllApps = false, emergencyExitMode = app.focus.domain.model.EmergencyExitMode.NONE,
-            blockNewApps = true, deviceAdminProtection = false, allowedSettingsShortcuts = emptySet(),
+            id = "seed-work",
+            name = "Work",
+            emoji = "\uD83D\uDE80",
+            colorArgb = 0xFF2F6F6D.toInt(),
+            lockMode = app.focus.domain.model.LockMode.Soft,
+            defaultDurationMinutes = 50,
+            bypassDelaySeconds = 30,
+            bypassBreathingEnabled = true,
+            bypassReasonRequired = true,
+            bypassPhrase = null,
+            bypassLimitPerSession = 3,
+            accessWindowMinutes = 5,
+            bypassAppliesToAllApps = false,
+            emergencyExitMode = app.focus.domain.model.EmergencyExitMode.NONE,
+            blockNewApps = true,
+            deviceAdminProtection = false,
+            allowedSettingsShortcuts = emptySet(),
             hideTargetNotifications = false,
         )
+        emitProfiles()
+    }
+
+    private fun emitProfiles() {
+        profilesFlow.value = profiles.values.toList()
     }
 
     override suspend fun insert(profile: app.focus.domain.model.Profile): Long {
         profiles[profile.id] = profile
+        emitProfiles()
         return profile.id.hashCode().toLong()
     }
 
     override suspend fun update(profile: app.focus.domain.model.Profile) {
         profiles[profile.id] = profile
+        emitProfiles()
     }
 
     override suspend fun delete(id: String) {
         profiles.remove(id)
+        emitProfiles()
     }
 
     override fun observeProfiles(): kotlinx.coroutines.flow.Flow<List<app.focus.domain.model.Profile>> =
-        kotlinx.coroutines.flow.flowOf(profiles.values.toList())
+        profilesFlow
 
     override suspend fun getProfile(id: String): app.focus.domain.model.Profile? = profiles[id]
     override suspend fun getDefaultProfileId(): String? = "seed-work"
     override suspend fun setDefaultProfileId(id: String) {}
+    override suspend fun updateTargetApps(profileId: String, packageNames: List<String>) {
+        profiles[profileId]?.let { profile ->
+            profiles[profileId] = profile.copy(targetPackageNames = packageNames)
+            emitProfiles()
+        }
+    }
 }
 
 class FakeScheduleRepository : app.focus.domain.usecase.ScheduleRepository {

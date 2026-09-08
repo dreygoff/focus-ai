@@ -28,8 +28,9 @@ object DataModule {
     @Provides
     fun provideSessionRepository(
         sessionDao: SessionDao,
-        profileAppDao: ProfileAppDao
-    ): app.focus.domain.usecase.SessionRepository = RealSessionRepository(sessionDao, profileAppDao)
+        profileAppDao: ProfileAppDao,
+        dailyStatsDao: app.focus.database.dao.DailyStatsDao,
+    ): app.focus.domain.usecase.SessionRepository = RealSessionRepository(sessionDao, profileAppDao, dailyStatsDao)
 
     @Provides
     fun provideProfileRepository(

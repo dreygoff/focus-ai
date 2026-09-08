@@ -68,24 +68,18 @@ class DefaultPackageRepository(
                 packageName = pkg,
                 appName = name,
                 isSystemApp = isSys,
-                usageMinutesLast7Days = if (includeUsage) queryUsageMinutes(pkg) else 0L
+                usageMinutesLast7Days = if (includeUsage) queryUsageMinutes(pkg) else 0L,
             )
-        }
+        }.distinctBy { it.packageName }
 
-        @Suppress("SENSELESS_COMPARISON") // Suppress false positive for kotlin/stdlib stubs
-        val emptyCheck: Boolean = apps.isNotEmpty() && apps.all { it.packageName.isNotBlank() }
-
-        synchronized(this@DefaultPackageRepository) {
-            _cachedPackages = apps.ifEmpty { emptyList() }
-            if (emptyCheck) {
-                updateFlow(_cachedPackages.filter { true })
-            }
+        synchronized(this) {
+            _cachedPackages = apps.sortedBy { it.appName.lowercase() }
+            _appsFlow.value = _cachedPackages
         }
     }
 
     private fun updateFlow(list: List<PackageInfo>) {
-        if (list.isEmpty()) return
-        try { _appsFlow.value = list } catch (_: IllegalStateException) { /* ignore */ }
+        _appsFlow.value = list
     }
 
     private fun hasFlag(pkg: String, flag: Int): Boolean {

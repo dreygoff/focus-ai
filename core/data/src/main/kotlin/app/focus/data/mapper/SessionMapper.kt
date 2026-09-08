@@ -282,6 +282,16 @@ object EventTypeMapper {
     }
 }
 
+fun app.focus.database.entity.DailyStatsEntity.toDomain(): app.focus.domain.model.DailyStats =
+    app.focus.domain.model.DailyStats(
+        dateEpochDay = dateEpochDay,
+        focusMinutes = focusMinutes,
+        sessionsCompleted = sessionsCompleted,
+        sessionsTotal = sessionsTotal,
+        blockAttempts = blockAttempts,
+        bypasses = bypasses,
+    )
+
 /* ============== STRING EXTENSIONS ============== */
 
 fun List<String>.toJsonList(): String {

@@ -2,6 +2,7 @@ package app.focus.android.di
 
 import android.content.Context
 import androidx.room.Room
+import app.focus.data.ProfileSeeder
 import app.focus.database.FocusDatabase
 import app.focus.database.dao.AccessWindowDao
 import app.focus.database.dao.AllowlistDao
@@ -31,11 +32,13 @@ object DatabaseModule {
     fun provideFocusDatabase(
         @ApplicationContext context: Context,
     ): FocusDatabase {
-        return Room.databaseBuilder(
+        val database = Room.databaseBuilder(
             context.applicationContext,
             FocusDatabase::class.java,
             "focus_db",
         ).build()
+        ProfileSeeder.seedIfEmptyBlocking(database.profileDao())
+        return database
     }
 
     @Provides

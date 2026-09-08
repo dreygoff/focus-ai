@@ -3,7 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>FunctionOnlyReturningConstant:HardLockEnforcer.kt$HardLockEnforcer$fun isRestrictedMode(): Boolean</ID>
-    <ID>LongMethod:PermissionChecker.kt$PermissionChecker$fun refreshPermissions(): Set&lt;PermissionState&gt;</ID>
     <ID>MagicNumber:PackageRepository.kt$DefaultPackageRepository$1000</ID>
     <ID>MagicNumber:PackageRepository.kt$DefaultPackageRepository$24L</ID>
     <ID>MagicNumber:PackageRepository.kt$DefaultPackageRepository$60</ID>
@@ -18,8 +17,10 @@
     <ID>MagicNumber:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector.&lt;no name provided&gt;$300</ID>
     <ID>MatchingDeclarationName:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector : UsageStatsPollingDetector</ID>
     <ID>MaxLineLength:DefaultAppsResolver.kt$DefaultAppsResolver$val resolved = context.packageManager.resolveActivity(intent, android.content.pm.PackageManager.MATCH_DEFAULT_ONLY)</ID>
-    <ID>MaxLineLength:PermissionChecker.kt$PermissionChecker$val adminComponent = android.content.ComponentName(context, app.focus.system.internal.DummyAdminReceiver::class.java)</ID>
-    <ID>MaxLineLength:PermissionChecker.kt$PermissionChecker$val devicePolicyManager = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager</ID>
+    <ID>MaxLineLength:PermissionChecker.kt$PermissionChecker$permissionState(ID_ACCESSIBILITY, PermissionGrantChecks.accessibilityGranted(context), PermissionType.RECOMMENDED)</ID>
+    <ID>MaxLineLength:PermissionChecker.kt$PermissionChecker$permissionState(ID_BATTERY, PermissionGrantChecks.batteryOptimizationIgnored(context), PermissionType.RECOMMENDED)</ID>
+    <ID>MaxLineLength:PermissionChecker.kt$PermissionChecker$permissionState(ID_EXACT_ALARM, PermissionGrantChecks.exactAlarmsGranted(context), PermissionType.RECOMMENDED)</ID>
+    <ID>MaxLineLength:PermissionChecker.kt$PermissionChecker$permissionState(ID_NOTIFICATIONS, PermissionGrantChecks.notificationsGranted(context), PermissionType.RECOMMENDED)</ID>
     <ID>MaxLineLength:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector.&lt;no name provided&gt;$val statsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return</ID>
     <ID>MaxLineLength:VendorHintsProvider.kt$VendorHintsProvider$"HUAWEI" -&gt; "To allow Focus to work correctly, please add it to the Protected apps list in Huawei battery optimization settings."</ID>
     <ID>ReturnCount:HardLockEnforcer.kt$HardLockEnforcer$@SuppressLint("WrongConstant") fun canBlockLauncherSwitching(): Boolean</ID>

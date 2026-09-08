@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="permissions_title">Permissions</string>
+    <string name="permissions_loading">Checking permissions…</string>
+    <string name="permissions_all_granted">All required permissions granted</string>
+    <string name="permissions_missing">Required permissions missing</string>
+    <string name="permissions_continue">Continue</string>
+    <string name="permissions_back">Go back</string>
+    <string name="permissions_retry">Retry</string>
+    <string name="permissions_grant">Configure</string>
+    <string name="permissions_granted">Granted</string>
+    <string name="permissions_skip">Skip</string>
+    <string name="permissions_required">Required</string>
+
+    <string name="permission_usage_stats_title">Usage access</string>
+    <string name="permission_usage_stats_desc">Detects which app is in the foreground. Required for blocking.</string>
+    <string name="permission_overlay_title">Display over other apps</string>
+    <string name="permission_overlay_desc">Shows the block screen over distracting apps.</string>
+    <string name="permission_accessibility_title">Accessibility service</string>
+    <string name="permission_accessibility_desc">Enables faster detection and Home actions. Recommended.</string>
+    <string name="permission_notifications_title">Notifications</string>
+    <string name="permission_notifications_desc">Shows session status and alerts.</string>
+    <string name="permission_battery_title">Battery optimization</string>
+    <string name="permission_battery_desc">Keeps Focus running reliably in the background.</string>
+    <string name="permission_exact_alarm_title">Exact alarms</string>
+    <string name="permission_exact_alarm_desc">Precise session and schedule timing.</string>
+    <string name="permission_device_admin_title">Device admin</string>
+    <string name="permission_device_admin_desc">Optional protection from uninstall during hard lock.</string>
+
+    <string name="accessibility_disclosure_title">Accessibility disclosure</string>
+    <string name="accessibility_disclosure_body">Focus uses the Accessibility service to detect when a blocked app opens and to return you to the home screen. Focus does not read screen content or collect personal data.</string>
+    <string name="accessibility_disclosure_accept">Open settings</string>
+    <string name="accessibility_disclosure_cancel">Cancel</string>
+
+    <string name="restricted_settings_title">Allow restricted settings</string>
+    <string name="restricted_settings_body">On Android 13+, sideloaded apps must allow restricted settings before enabling Accessibility: Settings → Apps → Focus → ⋮ → Allow restricted settings.</string>
+</resources>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="permissions_title">Разрешения</string>
+    <string name="permissions_loading">Проверка разрешений…</string>
+    <string name="permissions_all_granted">Все обязательные разрешения получены</string>
+    <string name="permissions_missing">Не хватает обязательных разрешений</string>
+    <string name="permissions_continue">Продолжить</string>
+    <string name="permissions_back">Назад</string>
+    <string name="permissions_retry">Повторить</string>
+    <string name="permissions_grant">Настроить</string>
+    <string name="permissions_granted">Получено</string>
+    <string name="permissions_skip">Пропустить</string>
+    <string name="permissions_required">Обязательно</string>
+
+    <string name="permission_usage_stats_title">Доступ к статистике</string>
+    <string name="permission_usage_stats_desc">Определяет приложение на переднем плане. Нужно для блокировки.</string>
+    <string name="permission_overlay_title">Показ поверх приложений</string>
+    <string name="permission_overlay_desc">Показывает экран блокировки поверх отвлекающих приложений.</string>
+    <string name="permission_accessibility_title">Спец. возможности</string>
+    <string name="permission_accessibility_desc">Быстрая детекция и действие «Домой». Рекомендуется.</string>
+    <string name="permission_notifications_title">Уведомления</string>
+    <string name="permission_notifications_desc">Статус сессии и предупреждения.</string>
+    <string name="permission_battery_title">Оптимизация батареи</string>
+    <string name="permission_battery_desc">Надёжная работа Focus в фоне.</string>
+    <string name="permission_exact_alarm_title">Точные будильники</string>
+    <string name="permission_exact_alarm_desc">Точное завершение сессий и расписаний.</string>
+    <string name="permission_device_admin_title">Администратор устройства</string>
+    <string name="permission_device_admin_desc">Опциональная защита от удаления в hard lock.</string>
+
+    <string name="accessibility_disclosure_title">Использование Accessibility</string>
+    <string name="accessibility_disclosure_body">Focus использует службу спец. возможностей, чтобы определять открытие заблокированных приложений и возвращать на главный экран. Focus не читает содержимое экрана и не собирает данные.</string>
+    <string name="accessibility_disclosure_accept">Открыть настройки</string>
+    <string name="accessibility_disclosure_cancel">Отмена</string>
+
+    <string name="restricted_settings_title">Разрешить ограниченные настройки</string>
+    <string name="restricted_settings_body">На Android 13+ для sideload-приложений: Настройки → Приложения → Focus → ⋮ → Разрешить ограниченные настройки, затем включите Accessibility.</string>
+</resources>

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b36659ef3ad85de1838f793626c210bd",
+    "identityHash": "0ea51700a61661820321330d46197336",
     "entities": [
       {
         "tableName": "profiles",
@@ -452,7 +452,19 @@
           "columnNames": [
             "id"
           ]
-        }
+        },
+        "indices": [
+          {
+            "name": "index_event_log_sessionId_timestamp",
+            "unique": false,
+            "columnNames": [
+              "sessionId",
+              "timestamp"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_event_log_sessionId_timestamp` ON `${TABLE_NAME}` (`sessionId`, `timestamp`)"
+          }
+        ]
       },
       {
         "tableName": "allowlist",
@@ -523,7 +535,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b36659ef3ad85de1838f793626c210bd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0ea51700a61661820321330d46197336')"
     ]
   }
 }
