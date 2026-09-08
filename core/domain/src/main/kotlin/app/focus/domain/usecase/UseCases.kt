@@ -9,7 +9,17 @@ import java.util.UUID
 
 data class StartSessionResult(
     val session: app.focus.domain.model.Session,
-    val alarmScheduled: Boolean
+    val alarmScheduled: Boolean,
+)
+
+data class StartSessionRequest(
+    val profileId: String,
+    val durationMinutes: Int,
+    val goalText: String? = null,
+    val source: app.focus.domain.model.SessionSource = app.focus.domain.model.SessionSource.MANUAL,
+    val pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null,
+    val scheduleId: String? = null,
+    val targetPackagesOverride: List<String>? = null,
 )
 
 class StartSessionUseCase(
@@ -22,73 +32,38 @@ class StartSessionUseCase(
     private val hardLockLifecycle: HardLockLifecycleController,
     private val clock: Clock
 ) {
-    suspend fun execute(
-        profileId: String,
-        durationMinutes: Int,
-        goalText: String?,
-        source: app.focus.domain.model.SessionSource = app.focus.domain.model.SessionSource.MANUAL,
-        pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null
-    ): StartSessionResult = withContext(Dispatchers.IO) {
-        val profile = profileRepo.getProfile(profileId)
-            ?: throw IllegalArgumentException("Profile not found: $profileId")
+    suspend fun execute(request: StartSessionRequest): StartSessionResult = withContext(Dispatchers.IO) {
+        val profile = profileRepo.getProfile(request.profileId)
+            ?: throw IllegalArgumentException("Profile not found: ${request.profileId}")
 
         val startedAt = clock.nowMillis()
-        val plannedEndAt = startedAt + durationMinutes * 60L * 1000L
-        val targetPackages = profile.targetPackageNames
+        val plannedEndAt = startedAt + request.durationMinutes * 60L * 1000L
+        val targetPackages = request.targetPackagesOverride ?: profile.targetPackageNames
 
-        val session = app.focus.domain.model.Session(
-            id = UUID.randomUUID().toString(),
-            profileId = profileId,
-            profileNameSnapshot = profile.name,
-            lockMode = profile.lockMode,
-            targetPackagesSnapshot = targetPackages,
-            goalText = goalText,
-            startedAt = startedAt,
-            plannedEndAt = plannedEndAt,
-            actualEndAt = null,
-            status = app.focus.domain.model.SessionStatus.Running,
-            source = source,
-            pomodoroConfig = pomodoroConfig,
-            bypassesUsed = 0,
-            blockAttempts = 0,
-            pausesUsed = 0,
-            scheduleId = null
-        )
-
+        val session = buildSession(request, profile, startedAt, plannedEndAt, targetPackages)
         sessionRepo.insert(session)
 
         val isHardLock = session.lockMode is app.focus.domain.model.LockMode.Hard
         val hardExtras = if (isHardLock) hardLockExtras.resolveExtras() else HardLockExtras(emptyList(), null)
+        val phaseEndAt = pomodoroPhaseEndAt(startedAt, request.pomodoroConfig, plannedEndAt)
 
-        snapshotStore.save(
-            app.focus.domain.internal.statemachine.SessionSnapshot(
-                sessionId = session.id,
-                lockMode = if (isHardLock) "HARD" else "SOFT",
-                plannedEndAtMillis = plannedEndAt,
+        saveSnapshot(
+            SnapshotWrite(
+                session = session,
                 targetPackages = targetPackages,
-                hardLockExtraPackages = hardExtras.extraPackages,
-                defaultLauncherPkg = hardExtras.defaultLauncherPkg,
-                isPomodoro = pomodoroConfig != null,
-                currentPhase = "FOCUS",
-                phaseEndAtMillis = plannedEndAt
-            )
+                isHardLock = isHardLock,
+                hardExtras = hardExtras,
+                pomodoroConfig = request.pomodoroConfig,
+                phaseEndAt = phaseEndAt,
+            ),
         )
 
         if (isHardLock) {
             hardLockLifecycle.onHardLockSessionStarted(profile.deviceAdminProtection)
         }
 
-        val alarmScheduled = try {
-            alarmScheduler.scheduleExact(
-                alarmMillis = plannedEndAt,
-                operationCode = session.id.hashCode(),
-                receiverClassName = "app.focus.service.focus.AlarmReceiver",
-                sessionId = session.id,
-            )
-            true
-        } catch (e: Exception) {
-            false
-        }
+        schedulePomodoroPhaseAlarm(session.id, request.pomodoroConfig, phaseEndAt)
+        val alarmScheduled = scheduleSessionEndAlarm(session.id, plannedEndAt)
 
         sessionRuntime.onSessionStarted(
             sessionId = session.id,
@@ -98,6 +73,101 @@ class StartSessionUseCase(
 
         StartSessionResult(session, alarmScheduled)
     }
+
+    private fun buildSession(
+        request: StartSessionRequest,
+        profile: app.focus.domain.model.Profile,
+        startedAt: Long,
+        plannedEndAt: Long,
+        targetPackages: List<String>,
+    ): app.focus.domain.model.Session = app.focus.domain.model.Session(
+        id = UUID.randomUUID().toString(),
+        profileId = request.profileId,
+        profileNameSnapshot = profile.name,
+        lockMode = profile.lockMode,
+        targetPackagesSnapshot = targetPackages,
+        goalText = request.goalText,
+        startedAt = startedAt,
+        plannedEndAt = plannedEndAt,
+        actualEndAt = null,
+        status = app.focus.domain.model.SessionStatus.Running,
+        source = request.source,
+        pomodoroConfig = request.pomodoroConfig,
+        bypassesUsed = 0,
+        blockAttempts = 0,
+        pausesUsed = 0,
+        scheduleId = request.scheduleId,
+    )
+
+    private fun pomodoroPhaseEndAt(
+        startedAt: Long,
+        pomodoroConfig: app.focus.domain.model.PomodoroConfig?,
+        plannedEndAt: Long,
+    ): Long = if (pomodoroConfig != null) {
+        startedAt + pomodoroConfig.focusMinutes * 60L * 1000L
+    } else {
+        plannedEndAt
+    }
+
+    private data class SnapshotWrite(
+        val session: app.focus.domain.model.Session,
+        val targetPackages: List<String>,
+        val isHardLock: Boolean,
+        val hardExtras: HardLockExtras,
+        val pomodoroConfig: app.focus.domain.model.PomodoroConfig?,
+        val phaseEndAt: Long,
+    )
+
+    private suspend fun saveSnapshot(write: SnapshotWrite) {
+        snapshotStore.save(
+            app.focus.domain.internal.statemachine.SessionSnapshot(
+                sessionId = write.session.id,
+                lockMode = if (write.isHardLock) "HARD" else "SOFT",
+                plannedEndAtMillis = write.session.plannedEndAt ?: write.phaseEndAt,
+                targetPackages = write.targetPackages,
+                hardLockExtraPackages = write.hardExtras.extraPackages,
+                defaultLauncherPkg = write.hardExtras.defaultLauncherPkg,
+                isPomodoro = write.pomodoroConfig != null,
+                currentPhase = "FOCUS",
+                phaseEndAtMillis = write.phaseEndAt,
+                pomodoroFocusCyclesDone = 0,
+            ),
+        )
+    }
+
+    private suspend fun schedulePomodoroPhaseAlarm(
+        sessionId: String,
+        pomodoroConfig: app.focus.domain.model.PomodoroConfig?,
+        phaseEndAt: Long,
+    ) {
+        if (pomodoroConfig == null) return
+        alarmScheduler.scheduleExact(
+            alarmMillis = phaseEndAt,
+            operationCode = pomodoroPhaseCode(sessionId),
+            receiverClassName = ALARM_RECEIVER,
+            sessionId = sessionId,
+            action = ACTION_POMODORO_PHASE_END,
+        )
+    }
+
+    private suspend fun scheduleSessionEndAlarm(sessionId: String, plannedEndAt: Long): Boolean = try {
+        alarmScheduler.scheduleExact(
+            alarmMillis = plannedEndAt,
+            operationCode = sessionId.hashCode(),
+            receiverClassName = ALARM_RECEIVER,
+            sessionId = sessionId,
+        )
+        true
+    } catch (_: Exception) {
+        false
+    }
+
+    companion object {
+        const val ACTION_POMODORO_PHASE_END = "app.focus.service.focus.ACTION_POMODORO_PHASE_END"
+        private const val ALARM_RECEIVER = "app.focus.service.focus.AlarmReceiver"
+
+        fun pomodoroPhaseCode(sessionId: String): Int = "pomodoro_$sessionId".hashCode()
+    }
 }
 
 data class StopSessionResult(
@@ -106,13 +176,10 @@ data class StopSessionResult(
 )
 
 class StopSessionUseCase(
-    private val sessionRepo: SessionRepository,
-    private val profileRepo: ProfileRepository,
-    private val snapshotStore: ActiveSessionSnapshotStorage,
-    private val alarmScheduler: AlarmSchedulerService,
-    private val sessionRuntime: SessionRuntimeController,
-    private val hardLockLifecycle: HardLockLifecycleController,
-    private val clock: Clock
+    private val deps: StopSessionDependencies,
+    private val updateDailyStats: UpdateDailyStatsOnSessionEndUseCase,
+    private val logSessionEndEvent: LogSessionEndEventUseCase,
+    private val clock: Clock,
 ) {
     suspend fun execute(
         sessionId: String,
@@ -120,24 +187,25 @@ class StopSessionUseCase(
         stopForegroundService: Boolean = true,
     ): StopSessionResult {
         return withContext(Dispatchers.IO) {
-            val session = sessionRepo.observeSessions(clock.nowMillis() - 86400000L, clock.nowMillis())
+            val session = deps.sessionRepo.observeSessions(clock.nowMillis() - 86400000L, clock.nowMillis())
                 .first()
                 .firstOrNull { it.id == sessionId }
                 ?: throw IllegalArgumentException("Session not found: $sessionId")
 
             val updated = session.copy(actualEndAt = clock.nowMillis(), status = status)
-            sessionRepo.update(updated)
+            deps.sessionRepo.update(updated)
+            logSessionEndEvent.execute(sessionId, status)
+            updateDailyStats.execute(updated)
 
             if (session.lockMode is app.focus.domain.model.LockMode.Hard) {
-                val profile = profileRepo.getProfile(session.profileId)
-                hardLockLifecycle.onHardLockSessionStopped(profile?.deviceAdminProtection == true)
+                val profile = deps.profileRepo.getProfile(session.profileId)
+                deps.hardLockLifecycle.onHardLockSessionStopped(profile?.deviceAdminProtection == true)
             }
 
-            // Clear snapshot and cancel alarm (TR-05)
-            snapshotStore.clear()
+            deps.snapshotStore.clear()
             try { cancelAlarm(session) } catch(e: Exception) { /* ignore */ }
             if (stopForegroundService) {
-                sessionRuntime.syncStopService()
+                deps.sessionRuntime.syncStopService()
             }
 
             return@withContext StopSessionResult(oldStatus = session.status, newStatus = status)
@@ -145,7 +213,7 @@ class StopSessionUseCase(
     }
 
     private suspend fun cancelAlarm(session: app.focus.domain.model.Session) {
-        alarmScheduler.cancelAlarm(session.id.hashCode(), "app.focus.service.focus.AlarmReceiver")
+        deps.alarmScheduler.cancelAlarm(session.id.hashCode(), "app.focus.service.focus.AlarmReceiver")
     }
 }
 
@@ -231,18 +299,18 @@ class DecideBlockUseCase(
     data class SessionCheckState(
         val hasActiveSession: Boolean,
         val isPaused: Boolean = false,
+        val inPomodoroBreak: Boolean = false,
         val isHardLock: Boolean,
         val sessionId: String?,
         val targetPackages: Set<String>,
-        val hardLockExtraPackages: Set<String> = emptySet()
+        val hardLockExtraPackages: Set<String> = emptySet(),
     )
 
     suspend fun decide(packageName: String): app.focus.domain.model.BlockDecision {
         val state = sessionState()
-        // TR-06 rules by priority
-        // 1. No active session, paused, or in pomodoro break
-        if (!state.hasActiveSession || state.isPaused) return app.focus.domain.model.BlockDecision.Allow
-        
+        if (!state.hasActiveSession || state.isPaused || state.inPomodoroBreak) {
+            return app.focus.domain.model.BlockDecision.Allow
+        }
         // 2. Package in allowlist
         val fullAllowlist = systemAllowlist() + userAllowlistRepo.observeAllowlist().first()
         if (fullAllowlist.contains(packageName)) return app.focus.domain.model.BlockDecision.Allow

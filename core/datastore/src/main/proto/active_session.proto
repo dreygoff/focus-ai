@@ -16,4 +16,5 @@ message ActiveSessionSnapshot {
   bool pomodoro = 7;
   int64 phase_end_at = 8;
   string phase = 9;
+  int32 pomodoro_focus_cycles_done = 10;
 }

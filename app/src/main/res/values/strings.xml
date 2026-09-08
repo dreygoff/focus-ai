@@ -229,7 +229,7 @@
     <string name="schedule_enabled">Enabled</string>
     <string name="schedule_disabled">Disabled</string>
 
-    <!-- General -->
+    <string name="shortcut_start">Start: %1$s</string>
     <string name="action_enable">Enable</string>
     <string name="action_configure">Configure</string>
     <string name="action_cancel">Cancel</string>
@@ -237,6 +237,24 @@
     <string name="action_confirm">Confirm</string>
     <string name="action_done">Done</string>
     <string name="action_save">Save</string>
+
+    <!-- Navigation -->
+    <string name="nav_app_title">Focus</string>
+    <string name="nav_cd_settings">Settings</string>
+    <string name="nav_cd_home">Home</string>
+    <string name="nav_cd_profiles">Profiles</string>
+    <string name="nav_cd_schedules">Schedules</string>
+    <string name="nav_cd_stats">Statistics</string>
+
+    <!-- Session dialogs -->
+    <string name="dialog_stop_session_title">End session?</string>
+    <string name="dialog_stop_session_body">Your focus session will be cancelled.</string>
+    <string name="dialog_stop_session_confirm">End session</string>
+    <string name="dialog_stop_session_dismiss">Keep focusing</string>
+    <string name="dialog_hard_lock_title">Start hard lock?</string>
+    <string name="dialog_hard_lock_body">Settings, installers, and other launchers will be blocked until the session ends. This cannot be undone early without emergency exit.</string>
+    <string name="dialog_hard_lock_confirm">Start hard lock</string>
+    <string name="dialog_cancel">Cancel</string>
     
     <!-- Vendor hints -->
     <string name="vendor_hint_title" translatable="false">%s tips</string>

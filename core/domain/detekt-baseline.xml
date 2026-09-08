@@ -4,11 +4,10 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:BlockDecisionEngine.kt$BlockDecisionEngine$fun decide(packageName: String): BlockDecision</ID>
     <ID>InvalidPackageDeclaration:BypassState.kt$package app.focus.domain.model</ID>
-    <ID>LongMethod:UseCases.kt$StartSessionUseCase$suspend fun execute( profileId: String, durationMinutes: Int, goalText: String?, source: app.focus.domain.model.SessionSource = app.focus.domain.model.SessionSource.MANUAL, pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null ): StartSessionResult</ID>
     <ID>LongParameterList:BlockDecisionEngineTest.kt$BlockDecisionEngineTest$( systemAllowlist: Set&lt;String&gt; = emptySet(), userAllowlist: Set&lt;String&gt; = emptySet(), accessWindowPkgLookup: Map&lt;String, Long&gt; = emptyMap(), targetPackages: Set&lt;String&gt; = defaultTargets, hasActiveSession: Boolean = true, isHardLock: Boolean = false, hardLockExtraPackages: Set&lt;String&gt; = emptySet(), inPomodoroBreak: Boolean = false, )</ID>
     <ID>LongParameterList:RepositoryInterface.kt$AlarmSchedulerService$( alarmMillis: Long, operationCode: Int, receiverClassName: String, sessionId: String = "", action: String? = null, extras: Map&lt;String, String&gt; = emptyMap(), )</ID>
+    <ID>LongParameterList:ScheduleUseCases.kt$CheckMissedSchedulesUseCase$( private val scheduleRepo: ScheduleRepository, private val sessionRepo: SessionRepository, private val skipRepo: ScheduleSkipRepository, private val planner: ScheduleAlarmPlanner, private val startScheduledSessionUseCase: StartScheduledSessionUseCase, private val profileRepo: ProfileRepository, private val clock: Clock, )</ID>
     <ID>LongParameterList:UseCases.kt$StartSessionUseCase$( private val sessionRepo: SessionRepository, private val profileRepo: ProfileRepository, private val snapshotStore: ActiveSessionSnapshotStorage, private val alarmScheduler: AlarmSchedulerService, private val sessionRuntime: SessionRuntimeController, private val hardLockExtras: HardLockExtrasContributor, private val hardLockLifecycle: HardLockLifecycleController, private val clock: Clock )</ID>
-    <ID>LongParameterList:UseCases.kt$StopSessionUseCase$( private val sessionRepo: SessionRepository, private val profileRepo: ProfileRepository, private val snapshotStore: ActiveSessionSnapshotStorage, private val alarmScheduler: AlarmSchedulerService, private val sessionRuntime: SessionRuntimeController, private val hardLockLifecycle: HardLockLifecycleController, private val clock: Clock )</ID>
     <ID>MagicNumber:BypassFlow.kt$BypassFlow$4000L</ID>
     <ID>MagicNumber:BypassFlow.kt$BypassFlow$6000L</ID>
     <ID>MagicNumber:BypassFlow.kt$BypassFlow$60_000L</ID>
@@ -19,6 +18,10 @@
     <ID>MagicNumber:ScheduleAlarmPlanner.kt$ScheduleAlarmPlanner$60_000L</ID>
     <ID>MagicNumber:ScheduleAlarmPlanner.kt$ScheduleAlarmPlanner$7</ID>
     <ID>MagicNumber:ScheduleAlarmPlanner.kt$ScheduleAlarmPlanner$86400_000L</ID>
+    <ID>MagicNumber:ScheduleUseCases.kt$AdvancePomodoroPhaseUseCase$60_000L</ID>
+    <ID>MagicNumber:ScheduleUseCases.kt$CheckMissedSchedulesUseCase$60_000L</ID>
+    <ID>MagicNumber:ScheduleUseCases.kt$PlanSchedulesUseCase$60_000L</ID>
+    <ID>MagicNumber:ScheduleUseCases.kt$StartScheduledSessionUseCase$60_000L</ID>
     <ID>MagicNumber:SessionStateMachine.kt$SessionStateMachine$10</ID>
     <ID>MagicNumber:SessionStateMachine.kt$SessionStateMachine$1000</ID>
     <ID>MagicNumber:SessionStateMachine.kt$SessionStateMachine$60</ID>
@@ -34,11 +37,11 @@
     <ID>NestedBlockDepth:BypassFlow.kt$BypassFlow$fun tickBreathing(deltaMs: Long): Boolean</ID>
     <ID>ReturnCount:BlockDecisionEngine.kt$BlockDecisionEngine$fun decide(packageName: String): BlockDecision</ID>
     <ID>ReturnCount:PomodoroConfig.kt$PomodoroConfig$fun tick(): String?</ID>
+    <ID>ReturnCount:ScheduleAlarmPlanner.kt$ScheduleAlarmPlanner$fun findActiveWindowEndAt(schedule: Schedule, nowMillis: Long): Long?</ID>
     <ID>ReturnCount:ScheduleAlarmPlanner.kt$ScheduleAlarmPlanner$fun nextStartAt(schedule: Schedule, baseTimeMillis: Long): Long?</ID>
+    <ID>ReturnCount:StatsAggregator.kt$StatsAggregator$private fun sessionFocusMinutes(session: Session): Int</ID>
     <ID>ReturnCount:UseCases.kt$DecideBlockUseCase$suspend fun decide(packageName: String): app.focus.domain.model.BlockDecision</ID>
-    <ID>SwallowedException:UseCases.kt$StartSessionUseCase$e: Exception</ID>
     <ID>SwallowedException:UseCases.kt$StopSessionUseCase$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:UseCases.kt$StartSessionUseCase$e: Exception</ID>
     <ID>TooGenericExceptionCaught:UseCases.kt$StopSessionUseCase$e: Exception</ID>
     <ID>TooManyFunctions:SessionStateMachine.kt$SessionStateMachine</ID>
     <ID>UnusedParameter:SessionStateMachine.kt$SessionStateMachine$nowMillis: Long</ID>

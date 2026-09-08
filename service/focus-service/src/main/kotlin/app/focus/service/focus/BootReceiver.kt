@@ -34,6 +34,13 @@ class BootReceiver : BroadcastReceiver() {
         val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         scope.launch {
             try {
+                val scheduleEntry = EntryPointAccessors.fromApplication(
+                    context.applicationContext,
+                    ScheduleEntryPoint::class.java,
+                )
+                scheduleEntry.planSchedulesUseCase().replanAll()
+                scheduleEntry.checkMissedSchedulesUseCase().execute()
+
                 val deps = EntryPointAccessors.fromApplication(
                     context.applicationContext,
                     FocusServiceEntryPoint::class.java,

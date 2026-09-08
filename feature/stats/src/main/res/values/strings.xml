@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stats_title">Statistics</string>
+    <string name="stats_export_csv">Export as CSV</string>
+    <string name="stats_focus_minutes">Focus minutes</string>
+    <string name="stats_period_today">Today</string>
+    <string name="stats_period_week">7 days</string>
+    <string name="stats_period_month">30 days</string>
+    <string name="stats_kpi_sessions">Sessions</string>
+    <string name="stats_kpi_focus">Focus</string>
+    <string name="stats_kpi_blocks">Blocks</string>
+    <string name="stats_kpi_bypasses">Bypasses</string>
+    <string name="stats_kpi_completed">Completed</string>
+    <string name="stats_focus_minutes_value">%1$d min</string>
+    <string name="stats_completed_percent">%1$d%%</string>
+    <string name="stats_current_streak">Current streak</string>
+    <string name="stats_best_streak">Best streak</string>
+    <plurals name="stats_streak_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="stats_top_blocked">Top blocked apps</string>
+    <string name="stats_no_data">No data yet</string>
+    <string name="stats_event_log">Event log</string>
+    <string name="stats_filter_all">All</string>
+    <string name="stats_filter_sessions">Sessions</string>
+    <string name="stats_filter_blocks">Blocks</string>
+    <string name="stats_filter_bypasses">Bypasses</string>
+    <string name="stats_no_events">No events</string>
+    <string name="stats_cd_kpi">Statistics summary</string>
+</resources>

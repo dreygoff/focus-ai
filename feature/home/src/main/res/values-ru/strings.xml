@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Фокус</string>
+    <string name="home_cd_profiles">Профили</string>
+    <string name="home_cd_today_focus">Минуты фокуса сегодня</string>
+    <string name="home_cd_streak">Серия фокуса</string>
+    <string name="home_stat_today">Сегодня</string>
+    <string name="home_stat_streak">Серия</string>
+    <string name="home_streak_days">%1$d д.</string>
+    <string name="home_session_active">Сессия активна</string>
+    <string name="home_session_paused">Сессия на паузе</string>
+    <string name="home_pomodoro_phase">Помодоро · %1$s</string>
+    <string name="home_pomodoro_focus">Фокус</string>
+    <string name="home_pomodoro_short_break">Короткий перерыв</string>
+    <string name="home_pomodoro_long_break">Длинный перерыв</string>
+    <string name="home_pomodoro_break">Перерыв</string>
+    <string name="home_pause">Пауза</string>
+    <string name="home_resume">Продолжить</string>
+    <string name="home_stop">Стоп</string>
+    <string name="home_ready">Готовы фокусироваться?</string>
+    <string name="home_duration_min">%1$d мин</string>
+    <string name="home_pomodoro_start">Помодоро (4 цикла)</string>
+    <string name="home_select_profile">Или выберите профиль:</string>
+    <string name="home_start">Старт</string>
+    <string name="home_quick_start">Быстрый старт</string>
+    <string name="home_quick_start_profile">Старт: %1$s</string>
+</resources>

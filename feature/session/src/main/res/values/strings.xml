@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="session_start_title">Start focus session</string>
+    <string name="session_profile">Profile</string>
+    <string name="session_profile_option">%1$s %2$s</string>
+    <string name="session_duration">Duration (min)</string>
+    <string name="session_duration_min">%1$d min</string>
+    <string name="session_goal_optional">Goal (optional)</string>
+    <string name="session_hard_lock_warning">Hard lock will block Settings and other system apps.</string>
+    <string name="session_start">Start</string>
+    <string name="session_back">Back</string>
+    <string name="session_pause">Pause</string>
+    <string name="session_finish">Finish</string>
+    <string name="session_hard_lock_no_pause">Hard lock — pause unavailable</string>
+    <string name="session_blocked_attempts">Blocked attempts: %1$d</string>
+    <string name="session_complete_title">Session complete!</string>
+    <string name="session_summary_duration">Focus time: %1$d min</string>
+    <string name="session_bypasses_used">Bypasses used: %1$d</string>
+    <string name="session_back_home">Back to home</string>
+    <string name="session_cd_timer">Time remaining</string>
+    <plurals name="session_streak_days">
+        <item quantity="one">Streak: %1$d day</item>
+        <item quantity="other">Streak: %1$d days</item>
+    </plurals>
+</resources>

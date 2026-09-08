@@ -11,6 +11,7 @@
     <string name="permissions_granted">Получено</string>
     <string name="permissions_skip">Пропустить</string>
     <string name="permissions_required">Обязательно</string>
+    <string name="permissions_cd_back">Назад</string>
 
     <string name="permission_usage_stats_title">Доступ к статистике</string>
     <string name="permission_usage_stats_desc">Определяет приложение на переднем плане. Нужно для блокировки.</string>

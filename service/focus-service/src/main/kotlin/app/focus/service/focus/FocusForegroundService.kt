@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.IBinder
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
+import app.focus.common.WidgetActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -92,6 +93,11 @@ class FocusForegroundService : Service() {
                 val sessionId = intent.getStringExtra(EXTRA_SESSION_ID) ?: activeSessionId
                 if (sessionId != null) handleEmergencyExitComplete(sessionId)
             }
+            ACTION_POMODORO_PHASE_CHANGED -> {
+                refreshBlockState()
+                updateForegroundNotification()
+                notifyWidgetsUpdated()
+            }
         }
         return START_STICKY
     }
@@ -103,6 +109,7 @@ class FocusForegroundService : Service() {
         refreshBlockState()
         promoteToForeground()
         startDetectors()
+        notifyWidgetsUpdated()
     }
 
     private fun refreshBlockState() {
@@ -114,8 +121,16 @@ class FocusForegroundService : Service() {
                 if (plannedEndAtMillis == 0L) {
                     plannedEndAtMillis = snapshot.plannedEndAtMillis
                 }
+                updateForegroundNotification()
+                notifyWidgetsUpdated()
             }
         }
+    }
+
+    private fun notifyWidgetsUpdated() {
+        sendBroadcast(
+            Intent(WidgetActions.REFRESH).setPackage(packageName),
+        )
     }
 
     private fun handleAccessWindowGranted(intent: Intent) {
@@ -143,13 +158,48 @@ class FocusForegroundService : Service() {
     }
 
     private fun promoteToForeground() {
-        val notification = FocusSessionNotificationFactory.build(
-            context = this,
-            profileName = profileName,
-            plannedEndAtMillis = plannedEndAtMillis,
-            activeSessionId = activeSessionId,
-        ).build()
-        startForeground(NOTIF_ID, notification)
+        startForeground(
+            NOTIF_ID,
+            FocusSessionNotificationFactory.build(
+                FocusSessionNotificationFactory.Params(
+                    context = this,
+                    profileName = profileName,
+                    plannedEndAtMillis = plannedEndAtMillis,
+                    activeSessionId = activeSessionId,
+                ),
+            ).build(),
+        )
+        updateForegroundNotification()
+    }
+
+    private fun updateForegroundNotification() {
+        serviceScope.launch {
+            val snapshot = deps.snapshotStore.load()
+            val notification = FocusSessionNotificationFactory.build(
+                FocusSessionNotificationFactory.Params(
+                    context = this@FocusForegroundService,
+                    profileName = profileName,
+                    plannedEndAtMillis = plannedEndAtMillis,
+                    activeSessionId = activeSessionId,
+                    pomodoroPhase = snapshot?.takeIf { it.isPomodoro }?.currentPhase,
+                    phaseEndAtMillis = snapshot?.phaseEndAtMillis ?: 0L,
+                ),
+            ).build()
+            androidx.core.app.NotificationManagerCompat.from(this@FocusForegroundService)
+                .notify(NOTIF_ID, notification)
+
+            if (snapshot?.isPomodoro == true) {
+                val phase = snapshot.currentPhase
+                if (phase == "SHORT_BREAK" || phase == "LONG_BREAK" || phase == "BREAK") {
+                    PomodoroNotificationFactory.showBreakActive(
+                        this@FocusForegroundService,
+                        snapshot.phaseEndAtMillis,
+                    )
+                } else {
+                    PomodoroNotificationFactory.cancelBreakNotifications(this@FocusForegroundService)
+                }
+            }
+        }
     }
 
     private fun startDetectors() {
@@ -172,6 +222,7 @@ class FocusForegroundService : Service() {
         deps.detectorOrchestrator.stopActiveDetectors()
         blockCoordinator.dismissBlock()
         activeSessionId = null
+        notifyWidgetsUpdated()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -201,6 +252,7 @@ class FocusForegroundService : Service() {
         const val ACTION_ACCESS_WINDOW_GRANTED = "app.focus.service.ACCESS_WINDOW_GRANTED"
         const val ACTION_ACCESS_WINDOW_EXPIRED = "app.focus.service.ACCESS_WINDOW_EXPIRED"
         const val ACTION_EMERGENCY_EXIT_COMPLETE = "app.focus.service.EMERGENCY_EXIT_COMPLETE"
+        const val ACTION_POMODORO_PHASE_CHANGED = "app.focus.service.POMODORO_PHASE_CHANGED"
         const val EXTRA_BLOCKED_PACKAGE = "blockedPackage"
         const val EXTRA_BLOCKED_APP_NAME = "blockedAppName"
         const val EXTRA_EXPIRES_AT = "expiresAt"

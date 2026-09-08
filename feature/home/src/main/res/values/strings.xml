@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Focus</string>
+    <string name="home_cd_profiles">Profiles</string>
+    <string name="home_cd_today_focus">Today focus minutes</string>
+    <string name="home_cd_streak">Focus streak</string>
+    <string name="home_stat_today">Today</string>
+    <string name="home_stat_streak">Streak</string>
+    <string name="home_streak_days">%1$dd</string>
+    <string name="home_session_active">Session active</string>
+    <string name="home_session_paused">Session paused</string>
+    <string name="home_pomodoro_phase">Pomodoro · %1$s</string>
+    <string name="home_pomodoro_focus">Focus</string>
+    <string name="home_pomodoro_short_break">Short break</string>
+    <string name="home_pomodoro_long_break">Long break</string>
+    <string name="home_pomodoro_break">Break</string>
+    <string name="home_pause">Pause</string>
+    <string name="home_resume">Resume</string>
+    <string name="home_stop">Stop</string>
+    <string name="home_ready">Ready to focus?</string>
+    <string name="home_duration_min">%1$d min</string>
+    <string name="home_pomodoro_start">Pomodoro (4 cycles)</string>
+    <string name="home_select_profile">Or select a profile:</string>
+    <string name="home_start">Start</string>
+    <string name="home_quick_start">Quick start</string>
+    <string name="home_quick_start_profile">Start %1$s</string>
+</resources>

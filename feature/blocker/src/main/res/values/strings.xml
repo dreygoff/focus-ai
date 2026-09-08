@@ -25,4 +25,5 @@
     <string name="block_emergency_delay">Session ends in %1$d min</string>
     <string name="block_emergency_cancel">Cancel emergency exit</string>
     <string name="block_emergency_retype_title">Retype the text exactly to end session</string>
+    <string name="block_cd_blocked">App blocked</string>
 </resources>

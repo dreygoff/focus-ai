@@ -66,6 +66,24 @@ class ScheduleAlarmPlannerTest {
         assertEquals("enabled", result.first().scheduleId)
     }
 
+    @Test
+    fun `findActiveWindowEndAt returns end when inside window`() {
+        val cal = Calendar.getInstance(TimeZone.getDefault())
+        cal.set(Calendar.HOUR_OF_DAY, 10)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        val now = cal.timeInMillis
+        val schedule = schedule(
+            daysOfWeekMask = allDaysMask(),
+            startMinuteOfDay = 9 * 60,
+            endMinuteOfDay = 17 * 60,
+        )
+        val endAt = planner.findActiveWindowEndAt(schedule, now)
+        assertNotNull(endAt)
+        assertTrue(endAt!! > now)
+    }
+
     private fun schedule(
         id: String = "schedule-1",
         enabled: Boolean = true,

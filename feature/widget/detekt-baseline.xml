@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:FocusWidget.kt$@Composable private fun FocusWidgetContent(state: WidgetSessionState)</ID>
+  </CurrentIssues>
+</SmellBaseline>

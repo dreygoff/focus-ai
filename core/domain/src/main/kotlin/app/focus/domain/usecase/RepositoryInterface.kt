@@ -100,6 +100,7 @@ interface BlockLauncher {
 }
 
 interface ActiveSessionSnapshotStorage {
+    fun observe(): kotlinx.coroutines.flow.Flow<app.focus.domain.internal.statemachine.SessionSnapshot?>
     suspend fun save(snapshot: app.focus.domain.internal.statemachine.SessionSnapshot)
     suspend fun load(): app.focus.domain.internal.statemachine.SessionSnapshot?
     suspend fun clear()

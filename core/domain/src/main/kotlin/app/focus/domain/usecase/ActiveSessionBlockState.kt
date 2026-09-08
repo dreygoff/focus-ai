@@ -17,9 +17,15 @@ class ActiveSessionBlockState {
         )
 
     fun updateFromSnapshot(snapshot: SessionSnapshot, isPaused: Boolean = false) {
+        val inPomodoroBreak = snapshot.isPomodoro && (
+            snapshot.currentPhase == "SHORT_BREAK" ||
+                snapshot.currentPhase == "LONG_BREAK" ||
+                snapshot.currentPhase == "BREAK"
+            )
         sessionState = DecideBlockUseCase.SessionCheckState(
             hasActiveSession = true,
             isPaused = isPaused,
+            inPomodoroBreak = inPomodoroBreak,
             isHardLock = snapshot.lockMode == "HARD",
             sessionId = snapshot.sessionId,
             targetPackages = snapshot.targetPackages.toSet(),

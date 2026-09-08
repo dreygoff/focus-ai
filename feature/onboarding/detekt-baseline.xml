@@ -2,28 +2,16 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FunctionNaming:FirstProfileCreatorScreen.kt$@Composable fun FirstProfileCreatorScreen( onCreated: () -&gt; Unit, onSkip: () -&gt; Unit = {} )</ID>
-    <ID>FunctionNaming:OnboardingPermissionsScreen.kt$@Composable fun OnboardingPermissionsScreen( onAllGranted: () -&gt; Unit, onSkip: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:FirstProfileCreatorScreen.kt$@Composable fun FirstProfileCreatorScreen( onCreated: () -&gt; Unit, onSkip: () -&gt; Unit = {}, )</ID>
+    <ID>FunctionNaming:OnboardingPermissionsScreen.kt$@Composable fun OnboardingPermissionsScreen( onAllGranted: () -&gt; Unit, onSkip: () -&gt; Unit, )</ID>
     <ID>FunctionNaming:OnboardingWelcomeScreen.kt$@Composable fun OnboardingWelcomeScreen( onStart: () -&gt; Unit, onSkip: () -&gt; Unit, )</ID>
-    <ID>FunctionNaming:PickAppsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PickAppsScreen( onDone: () -&gt; Unit, onBack: () -&gt; Unit = {} )</ID>
-    <ID>FunctionNaming:WelcomeScreen.kt$@Composable fun WelcomeScreen( onNext: () -&gt; Unit, onSkip: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:PickAppsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PickAppsScreen( onDone: () -&gt; Unit, onBack: () -&gt; Unit = {}, )</ID>
+    <ID>FunctionNaming:WelcomeScreen.kt$@Composable fun WelcomeScreen( onNext: () -&gt; Unit, onSkip: () -&gt; Unit, )</ID>
     <ID>LongMethod:OnboardingWelcomeScreen.kt$@Composable fun OnboardingWelcomeScreen( onStart: () -&gt; Unit, onSkip: () -&gt; Unit, )</ID>
+    <ID>LongMethod:PickAppsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun PickAppsScreen( onDone: () -&gt; Unit, onBack: () -&gt; Unit = {}, )</ID>
     <ID>MatchingDeclarationName:OnboardingNavigation.kt$OnboardingRoutes</ID>
-    <ID>MaxLineLength:OnboardingNavigation.kt$onAllGranted = { navController.navigate(OnboardingRoutes.FIRST_PROFILE) { popUpTo(OnboardingRoutes.WELCOME) { inclusive = true } } }</ID>
-    <ID>MaxLineLength:OnboardingNavigation.kt$onNext = { navController.navigate(OnboardingRoutes.PICK_APPS) { popUpTo(OnboardingRoutes.WELCOME) { inclusive = true } } }</ID>
-    <ID>WildcardImport:FirstProfileCreatorScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:FirstProfileCreatorScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:FirstProfileCreatorScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:OnboardingPermissionsScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:OnboardingPermissionsScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:OnboardingPermissionsScreen.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:OnboardingWelcomeScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:OnboardingWelcomeScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:OnboardingWelcomeScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:PickAppsScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:PickAppsScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:PickAppsScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:WelcomeScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:WelcomeScreen.kt$import androidx.compose.material3.*</ID>
   </CurrentIssues>
 </SmellBaseline>

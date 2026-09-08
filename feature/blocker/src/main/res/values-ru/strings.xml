@@ -25,4 +25,5 @@
     <string name="block_emergency_delay">Сессия завершится через %1$d мин</string>
     <string name="block_emergency_cancel">Отменить аварийный выход</string>
     <string name="block_emergency_retype_title">Перепечатайте текст точно, чтобы завершить сессию</string>
+    <string name="block_cd_blocked">Приложение заблокировано</string>
 </resources>

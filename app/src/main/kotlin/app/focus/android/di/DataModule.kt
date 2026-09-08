@@ -13,8 +13,10 @@ import app.focus.database.dao.ProfileAppDao
 import app.focus.database.dao.ScheduleDao
 import app.focus.database.dao.SessionDao
 import app.focus.data.SystemAllowlistQualifier
+import app.focus.data.SharedPrefsScheduleSkipRepository
 import app.focus.domain.usecase.Clock
 import app.focus.domain.usecase.RealClock
+import app.focus.domain.usecase.ScheduleSkipRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -73,4 +75,10 @@ object DataModule {
         dao: EventLogDao,
         clock: Clock
     ): app.focus.domain.usecase.EventLogRepository = RealEventLogRepository(dao, clock)
+
+    @Provides
+    @Singleton
+    fun provideScheduleSkipRepository(
+        repository: SharedPrefsScheduleSkipRepository,
+    ): ScheduleSkipRepository = repository
 }

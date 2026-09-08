@@ -6,6 +6,14 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat
 import app.focus.domain.usecase.GrantBypassUseCase
+import app.focus.domain.usecase.PlanSchedulesUseCase
+import app.focus.domain.usecase.StartSessionUseCase
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class AlarmReceiver : BroadcastReceiver() {
 
@@ -16,11 +24,18 @@ class AlarmReceiver : BroadcastReceiver() {
         const val ACTION_ACCESS_WINDOW_WARNING = GrantBypassUseCase.ACTION_ACCESS_WINDOW_WARNING
         const val ACTION_ACCESS_WINDOW_EXPIRED = GrantBypassUseCase.ACTION_ACCESS_WINDOW_EXPIRED
         const val ACTION_EMERGENCY_EXIT_COMPLETE = app.focus.domain.usecase.RequestEmergencyExitUseCase.ACTION_EMERGENCY_EXIT_COMPLETE
+        const val ACTION_SCHEDULE_START = PlanSchedulesUseCase.ACTION_SCHEDULE_START
+        const val ACTION_SCHEDULE_END = PlanSchedulesUseCase.ACTION_SCHEDULE_END
+        const val ACTION_SCHEDULE_WARNING = PlanSchedulesUseCase.ACTION_SCHEDULE_WARNING
+        const val ACTION_POMODORO_BREAK_WARNING =
+            app.focus.domain.usecase.AdvancePomodoroPhaseUseCase.ACTION_POMODORO_BREAK_WARNING
+        const val ACTION_POMODORO_PHASE_END = StartSessionUseCase.ACTION_POMODORO_PHASE_END
         const val KEY_SESSION_ID = "sessionId"
         const val KEY_PACKAGE_NAME = GrantBypassUseCase.KEY_PACKAGE_NAME
         const val EXTRA_SOURCE = "source"
-        const val EXTRA_PROFILE_ID = "profileId"
-        const val EXTRA_DURATION_MINUTES = "durationMinutes"
+        const val EXTRA_PROFILE_ID = PlanSchedulesUseCase.KEY_PROFILE_ID
+        const val EXTRA_DURATION_MINUTES = PlanSchedulesUseCase.KEY_DURATION_MINUTES
+        const val EXTRA_SCHEDULE_LABEL = PlanSchedulesUseCase.KEY_SCHEDULE_LABEL
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -32,12 +47,28 @@ class AlarmReceiver : BroadcastReceiver() {
                 }
                 handleSessionEnd(context, sessionId)
             }
-            ACTION_SESSION_START_ALARM -> {
-                val sessionId = intent.getStringExtra(KEY_SESSION_ID) ?: run {
-                    Log.w(TAG, "Schedule alarm without sessionId")
+            ACTION_SCHEDULE_START, ACTION_SESSION_START_ALARM -> {
+                val scheduleId = intent.getStringExtra(KEY_SESSION_ID) ?: run {
+                    Log.w(TAG, "Schedule alarm without scheduleId")
                     return
                 }
-                handleSessionStart(context, intent, sessionId)
+                handleScheduleStart(context, intent, scheduleId)
+            }
+            ACTION_SCHEDULE_END -> {
+                val scheduleId = intent.getStringExtra(KEY_SESSION_ID) ?: return
+                handleScheduleEnd(context, scheduleId)
+            }
+            ACTION_SCHEDULE_WARNING -> {
+                val scheduleId = intent.getStringExtra(KEY_SESSION_ID) ?: return
+                val label = intent.getStringExtra(EXTRA_SCHEDULE_LABEL) ?: scheduleId
+                ScheduleNotificationFactory.showHardLockWarning(context, scheduleId, label)
+            }
+            ACTION_POMODORO_PHASE_END -> {
+                val sessionId = intent.getStringExtra(KEY_SESSION_ID) ?: return
+                handlePomodoroPhaseEnd(context, sessionId)
+            }
+            ACTION_POMODORO_BREAK_WARNING -> {
+                PomodoroNotificationFactory.showBreakEndingSoon(context)
             }
             ACTION_ACCESS_WINDOW_WARNING -> handleAccessWindowWarning(context, intent)
             ACTION_ACCESS_WINDOW_EXPIRED -> handleAccessWindowExpired(context, intent)
@@ -55,19 +86,75 @@ class AlarmReceiver : BroadcastReceiver() {
         ContextCompat.startForegroundService(context, serviceIntent)
     }
 
-    private fun handleSessionStart(context: Context, intent: Intent, scheduleId: String) {
-        val profileId = intent.getStringExtra(EXTRA_PROFILE_ID) ?: run {
-            Log.w(TAG, "Schedule alarm without profileId")
-            return
+    private fun handleScheduleStart(context: Context, intent: Intent, scheduleId: String) {
+        val durationMinutes = intent.getStringExtra(EXTRA_DURATION_MINUTES)?.toIntOrNull() ?: 25
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            try {
+                val entry = EntryPointAccessors.fromApplication(
+                    context.applicationContext,
+                    ScheduleEntryPoint::class.java,
+                )
+                val started = entry.startScheduledSessionUseCase().execute(
+                    scheduleId = scheduleId,
+                    durationMinutesOverride = durationMinutes,
+                )
+                if (started) {
+                    Log.d(TAG, "Scheduled session started: $scheduleId")
+                }
+                entry.planSchedulesUseCase().replanAll()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start scheduled session", e)
+            } finally {
+                pendingResult.finish()
+            }
         }
-        val durationMinutes = intent.getIntExtra(EXTRA_DURATION_MINUTES, 25)
-        val serviceIntent = Intent(context, FocusForegroundService::class.java).apply {
-            action = FocusForegroundService.ACTION_START
-            putExtra(FocusForegroundService.EXTRA_PROFILE_ID, profileId)
-            putExtra(FocusForegroundService.EXTRA_DURATION, durationMinutes * 60L * 1000L)
+    }
+
+    private fun handleScheduleEnd(context: Context, scheduleId: String) {
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            try {
+                val deps = EntryPointAccessors.fromApplication(
+                    context.applicationContext,
+                    FocusServiceEntryPoint::class.java,
+                ).dependencies()
+                val session = deps.sessionRepository.observeActiveSession().first()
+                if (session?.scheduleId == scheduleId) {
+                    deps.stopSessionUseCase.execute(session.id, app.focus.domain.model.SessionStatus.Completed)
+                }
+                EntryPointAccessors.fromApplication(
+                    context.applicationContext,
+                    ScheduleEntryPoint::class.java,
+                ).planSchedulesUseCase().replanAll()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to end scheduled session", e)
+            } finally {
+                pendingResult.finish()
+            }
         }
-        ContextCompat.startForegroundService(context, serviceIntent)
-        Log.d(TAG, "Scheduled session started from schedule $scheduleId")
+    }
+
+    private fun handlePomodoroPhaseEnd(context: Context, sessionId: String) {
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            try {
+                val entry = EntryPointAccessors.fromApplication(
+                    context.applicationContext,
+                    ScheduleEntryPoint::class.java,
+                )
+                entry.advancePomodoroPhaseUseCase().execute(sessionId)
+                val serviceIntent = Intent(context, FocusForegroundService::class.java).apply {
+                    action = FocusForegroundService.ACTION_POMODORO_PHASE_CHANGED
+                    putExtra(FocusForegroundService.EXTRA_SESSION_ID, sessionId)
+                }
+                ContextCompat.startForegroundService(context, serviceIntent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to advance pomodoro phase", e)
+            } finally {
+                pendingResult.finish()
+            }
+        }
     }
 
     private fun handleAccessWindowWarning(context: Context, intent: Intent) {

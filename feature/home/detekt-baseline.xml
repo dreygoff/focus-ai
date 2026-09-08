@@ -2,21 +2,18 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FunctionNaming:HomeScreen.kt$@Composable fun HomeScreen( uiState: HomeUiState, onStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit, onPauseSession: () -&gt; Unit, onStopSession: () -&gt; Unit, onNavigateToProfiles: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:HomeScreen.kt$@Composable fun HomeScreen( uiState: HomeUiState, callbacks: HomeScreenCallbacks, )</ID>
     <ID>FunctionNaming:HomeScreen.kt$@Composable private fun ActiveSessionCard( state: ActiveSessionCardState, onPause: () -&gt; Unit, onStop: () -&gt; Unit, )</ID>
-    <ID>FunctionNaming:HomeScreen.kt$@Composable private fun QuickStartButton( name: String, emoji: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:HomeScreen.kt$@Composable private fun StartSessionCard( profiles: List&lt;app.focus.domain.model.Profile&gt;, onQuickStart: (Int) -&gt; Unit, onSelectProfile: (String) -&gt; Unit )</ID>
-    <ID>FunctionNaming:HomeScreen.kt$@Composable private fun StatCard( label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier )</ID>
-    <ID>LongMethod:HomeScreen.kt$@Composable fun HomeScreen( uiState: HomeUiState, onStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit, onPauseSession: () -&gt; Unit, onStopSession: () -&gt; Unit, onNavigateToProfiles: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:HomeScreen.kt$@Composable private fun QuickStartButton( name: String, emoji: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>FunctionNaming:HomeScreen.kt$@Composable private fun StartSessionCard( profiles: List&lt;app.focus.domain.model.Profile&gt;, onQuickStart: (Int) -&gt; Unit, onSelectProfile: (String) -&gt; Unit, onStartPomodoro: (String?) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:HomeScreen.kt$@Composable private fun StatCard( label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, iconContentDescription: String, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:HomeScreen.kt$@Composable fun HomeScreen( uiState: HomeUiState, callbacks: HomeScreenCallbacks, )</ID>
+    <ID>LongParameterList:HomeViewModel.kt$HomeViewModel$( observeActiveSessionsUseCase: ObserveActiveSessionsUseCase, private val profileRepo: ProfileRepository, private val startSessionUseCase: StartSessionUseCase, private val stopSessionUseCase: StopSessionUseCase, private val pauseSessionUseCase: PauseSessionUseCase, private val resumeSessionUseCase: ResumeSessionUseCase, snapshotStore: ActiveSessionSnapshotStorage, private val lastUsedProfileProvider: LastUsedProfileProvider, @DebugPomodoroAccelerated private val debugPomodoroAccelerated: Boolean, )</ID>
     <ID>MagicNumber:HomeScreen.kt$15</ID>
     <ID>MagicNumber:HomeScreen.kt$25</ID>
     <ID>MagicNumber:HomeScreen.kt$3</ID>
     <ID>MagicNumber:HomeScreen.kt$45</ID>
     <ID>MagicNumber:HomeScreen.kt$60</ID>
     <ID>MatchingDeclarationName:HomeNavigation.kt$HomeRoutes</ID>
-    <ID>MatchingDeclarationName:HomeScreen.kt$HomeUiState</ID>
-    <ID>MaxLineLength:HomeScreen.kt$Text(" ${profile.name}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))</ID>
-    <ID>WildcardImport:HomeScreen.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:HomeScreen.kt$import androidx.compose.material3.*</ID>
   </CurrentIssues>
 </SmellBaseline>

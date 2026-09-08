@@ -77,7 +77,7 @@ private fun BlockHeader(state: BlockUiState) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(
             Icons.Default.Block,
-            contentDescription = null,
+            contentDescription = stringResource(R.string.block_cd_blocked),
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.error,
         )

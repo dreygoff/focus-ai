@@ -79,7 +79,7 @@
 ### Проверки
 - assembleDebug ✅ / testDebugUnitTest ✅ / detekt ✅
 
-## Фаза 6 — Hard Lock — статус: in progress — дата: 2026-09-09
+## Фаза 6 — Hard Lock — статус: done — дата: 2026-09-09
 
 ### Сделано
 - `HardLockExtrasResolver`: settings/installer/non-default launcher packages в snapshot (FR-36 partial)
@@ -96,11 +96,80 @@
 - Alarm + FGS handler для завершения сессии по таймеру аварийного выхода
 - Навигация Settings → ProtectionInfo (иконка шестерёнки в TopAppBar)
 
-### Осталось
+### Осталось (backlog)
 - Device Admin activation UI + auto-deactivate
 - Разрешённые ярлыки Settings (Wi‑Fi и т.д.) с access window
-- Launcher blocking via Device Admin
 - FR-14/FR-91 editing restrictions during hard session
+
+### Проверки
+- assembleDebug ✅ / testDebugUnitTest ✅ / detekt ✅
+
+## Фаза 7 — Расписания и помодоро — статус: done — дата: 2026-09-09
+
+### Сделано
+- `PlanSchedulesUseCase`, `StartScheduledSessionUseCase`, `CheckMissedSchedulesUseCase` (FR-40–FR-41)
+- Объединение targets + strictest lock при пересечении расписаний (FR-40)
+- `ScheduleSkipRepository` + «Пропустить сегодня» + warning notification (FR-42)
+- `TimeChangeReceiver` + BootReceiver replan (FR-43)
+- `SchedulesViewModel`, `ScheduleEditorScreen`, CRUD + toggle в AppNavigation
+- `AdvancePomodoroPhaseUseCase`: фазы FOCUS/BREAK, blocking off на перерыве (FR-27)
+- Pomodoro break notifications + warning за 30 с (FR-27)
+- Кнопка «Pomodoro (4 cycles)» на Home; `HomeViewModel.startPomodoroSession()`
+- Debug-ускоренные длительности pomodoro (`BuildConfig.DEBUG` → 1/1/2 мин)
+- Фаза pomodoro на `ActiveSessionCard` через `ActiveSessionSnapshotStorage.observe()`
+
+### Проверки
+- assembleDebug ✅ / testDebugUnitTest ✅ / detekt ✅
+
+## Фаза 8 — Статистика и журнал — статус: done — дата: 2026-09-09
+
+### Сделано
+- `StatsAggregator`, `EpochDays`, streak/completion rate (FR-80)
+- `StatsRepository` + `RealStatsRepository`: пересчёт `DailyStats`, top-5 blocked apps
+- `UpdateDailyStatsOnSessionEndUseCase` в `StopSessionUseCase`; `RecalculateDailyStatsUseCase`
+- `PruneEventLogUseCase` (90 дней, FR-82); `DailyMaintenanceWorker` (WorkManager)
+- `GetStatsDashboardUseCase`, `ExportStatsCsvUseCase`, `ObserveEventLogUseCase`
+- `StatsViewModel` + `StatsScreen`: KPI, Canvas bar chart, streak, event log filters, CSV export (FR-81, FR-83)
+- `StatsAggregatorTest`
+
+### Проверки
+- assembleDebug ✅ / testDebugUnitTest ✅ / detekt ✅
+
+## Фаза 9 — Виджеты, тайл, ярлыки — статус: done — дата: 2026-09-09
+
+### Сделано
+- Glance-виджет `FocusWidget` (FR-70): состояние сессии, таймер, Start/Stop/Open; resize 2×1–4×2
+- `WidgetUpdateScheduler`: обновление из FGS не чаще 1 раз/мин
+- `FocusTileService` (FR-71): состояние, start/stop, fallback в app при hard lock / permissions
+- `ProfileShortcutsManager` + dynamic shortcuts для 3 профилей (FR-72)
+- `QuickStartLastProfileUseCase`, `GetWidgetSessionStateUseCase`, last-used profile в DataStore
+- Shortcut intent → `MainActivity` → `QuickStartProfileUseCase`
+
+### Backlog
+- FR-16 Notification Listener (скрытие уведомлений целевых приложений)
+
+### Проверки
+- assembleDebug ✅ / testDebugUnitTest ✅ / detekt ✅
+
+## Фаза 10 — Настройки, l10n, a11y, полировка — статус: in progress — дата: 2026-09-09
+
+### Сделано
+- `SettingsViewModel` + полный `SettingsScreen` (FR-90): разрешения, внешний вид, блокировка, данные, о приложении
+- Per-app language через `AppLocaleController` + `locales_config.xml` (ru/en)
+- Тема и dynamic color из DataStore → `MainActivity` / `FocusTheme`
+- `AllowlistSettingsScreen` (FR-61): управление пользовательским белым списком
+- `ClearStatisticsUseCase`, `DeleteAllUserDataUseCase` + экспорт CSV из настроек
+- `PrivacyPolicyScreen`, `LicensesScreen` (статический список OSS)
+- FR-91: блокировка allowlist / clear / delete во время hard lock
+- Локализация ru/en: `HomeScreen`, `StatsScreen`, `SchedulesScreen`, `ScheduleEditorScreen`, диалоги и nav в `AppNavigation`
+- Локализация: onboarding, profiles, permissions, blocker, **session** (`StartSessionScreen`, `ActiveSessionScreen`, `SessionSummaryScreen`)
+- `contentDescription` для навигации, home stats, schedules, stats KPI, block screen, profiles, permissions (FR-101 partial)
+
+### Осталось (backlog Phase 10)
+- Локализация: widget strings audit, tamper messages из domain
+- TalkBack на экране блокировки (полный flow bypass), 200 % шрифт без обрезания (FR-101)
+- Baseline Profile, R8, размер APK (NFR-05/06)
+- Adaptive icon + splash, анимации, пустые состояния
 
 ### Проверки
 - assembleDebug ✅ / testDebugUnitTest ✅ / detekt ✅

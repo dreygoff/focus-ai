@@ -11,6 +11,7 @@
     <string name="permissions_granted">Granted</string>
     <string name="permissions_skip">Skip</string>
     <string name="permissions_required">Required</string>
+    <string name="permissions_cd_back">Back</string>
 
     <string name="permission_usage_stats_title">Usage access</string>
     <string name="permission_usage_stats_desc">Detects which app is in the foreground. Required for blocking.</string>

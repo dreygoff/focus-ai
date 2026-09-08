@@ -9,4 +9,15 @@
     <string name="notification_access_window_active">%1$s is temporarily allowed</string>
     <string name="notification_access_window_warning">Access window ends in 30 seconds</string>
     <string name="boot_receiver_label">Focus boot receiver</string>
+    <string name="schedule_warning_channel">Schedule warnings</string>
+    <string name="schedule_warning_title">Hard lock starting soon</string>
+    <string name="schedule_warning_body">Schedule \"%1$s\" starts in 5 minutes</string>
+    <string name="schedule_skip_today">Skip today</string>
+    <string name="pomodoro_channel">Pomodoro</string>
+    <string name="pomodoro_break_title">Break time</string>
+    <string name="pomodoro_break_body">Blocking is paused. Rest and return when the timer ends.</string>
+    <string name="pomodoro_break_warning_title">Break ending soon</string>
+    <string name="pomodoro_break_warning_body">Focus resumes in 30 seconds</string>
+    <string name="notification_pomodoro_focus">Focus phase — %1$s</string>
+    <string name="notification_pomodoro_break">Break — %1$s</string>
 </resources>

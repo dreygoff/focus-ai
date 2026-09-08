@@ -82,21 +82,32 @@ object UseCaseModule {
     )
 
     @Provides
-    fun provideStopSessionUseCase(
+    fun provideStopSessionDependencies(
         sessionRepo: SessionRepository,
         profileRepo: ProfileRepository,
         snapshotStore: ActiveSessionSnapshotStorage,
         alarmScheduler: AlarmSchedulerService,
         sessionRuntime: app.focus.domain.usecase.SessionRuntimeController,
         hardLockLifecycle: app.focus.domain.usecase.HardLockLifecycleController,
-        clock: Clock,
-    ): StopSessionUseCase = StopSessionUseCase(
+    ): app.focus.domain.usecase.StopSessionDependencies = app.focus.domain.usecase.StopSessionDependencies(
         sessionRepo = sessionRepo,
         profileRepo = profileRepo,
         snapshotStore = snapshotStore,
         alarmScheduler = alarmScheduler,
         sessionRuntime = sessionRuntime,
         hardLockLifecycle = hardLockLifecycle,
+    )
+
+    @Provides
+    fun provideStopSessionUseCase(
+        deps: app.focus.domain.usecase.StopSessionDependencies,
+        updateDailyStats: app.focus.domain.usecase.UpdateDailyStatsOnSessionEndUseCase,
+        logSessionEndEvent: app.focus.domain.usecase.LogSessionEndEventUseCase,
+        clock: Clock,
+    ): StopSessionUseCase = StopSessionUseCase(
+        deps = deps,
+        updateDailyStats = updateDailyStats,
+        logSessionEndEvent = logSessionEndEvent,
         clock = clock,
     )
 

@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material.icons.extended)
 
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.com.google.dagger.hilt.android)
     ksp(libs.com.google.dagger.hilt.compiler)
@@ -42,4 +43,5 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:datastore"))
     implementation(project(":core:designsystem"))
+    implementation(project(":core:system"))
 }

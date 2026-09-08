@@ -18,10 +18,14 @@ fun NavGraphBuilder.homeGraph(
     composable(HomeRoutes.ROUTE) {
         HomeScreen(
             uiState = uiState,
-            onStartSession = { profileId, duration -> onNavigateToSession(profileId ?: "", duration) },
-            onPauseSession = onPauseSession,
-            onStopSession = onStopSession,
-            onNavigateToProfiles = onNavigateToProfiles
+            callbacks = HomeScreenCallbacks(
+                onStartSession = { profileId, duration ->
+                    onNavigateToSession(profileId ?: "", duration)
+                },
+                onPauseSession = onPauseSession,
+                onStopSession = onStopSession,
+                onNavigateToProfiles = onNavigateToProfiles,
+            ),
         )
     }
 }

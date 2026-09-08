@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <application>
         <receiver
             android:name=".FocusWidgetReceiver"
@@ -11,14 +12,49 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/focus_widget_info" />
         </receiver>
+
+        <receiver
+            android:name=".WidgetRefreshReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="app.focus.feature.widget.ACTION_REFRESH" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".WidgetActionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="app.focus.feature.widget.ACTION_START_SESSION" />
+                <action android:name="app.focus.feature.widget.ACTION_STOP_SESSION" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".StartSessionActionCallback"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="androidx.glance.action.ActionCallback" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".StopSessionActionCallback"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="androidx.glance.action.ActionCallback" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".FocusTileService"
+            android:exported="true"
+            android:icon="@android:drawable/ic_lock_idle_alarm"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
-
-<resources>
-    <app-widget-provider
-        android:minWidth="250dp"
-        android:minHeight="40dp"
-        android:updatePeriodMillis="60000"
-        android:resizeMode="horizontal|vertical"
-        android:widgetCategory="homeScreen" />
-</resources>
