@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Focus session timer and quick start</string>
+    <string name="widget_title">Focus</string>
+    <string name="widget_idle">Ready to focus</string>
+    <string name="widget_active">Session active</string>
+    <string name="widget_paused">Session paused</string>
+    <string name="widget_break">Pomodoro break</string>
+    <string name="widget_start">Start</string>
+    <string name="widget_stop">Stop</string>
+    <string name="widget_open">Open</string>
+    <string name="tile_label">Focus</string>
+    <string name="tile_idle">Tap to start focus</string>
+    <string name="tile_active">Focus session active</string>
+    <string name="tile_break">Pomodoro break</string>
+    <string name="tile_paused">Session paused</string>
+    <string name="shortcut_start_profile">Start profile session</string>
+</resources>

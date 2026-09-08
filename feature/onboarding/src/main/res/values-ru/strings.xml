@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_app_name">Фокус</string>
+    <string name="onboarding_welcome_title">Верните контроль над вниманием</string>
+    <string name="onboarding_welcome_description">Focus помогает освободиться от отвлекающих приложений. Без интернета, без аналитики — всё остаётся на вашем устройстве.</string>
+    <string name="onboarding_start">Начать</string>
+    <string name="onboarding_skip">Пропустить</string>
+    <string name="onboarding_cd_next">Продолжить</string>
+    <string name="onboarding_back">Назад</string>
+    <string name="onboarding_continue">Продолжить</string>
+
+    <string name="onboarding_pick_apps_title">Выберите приложения для блокировки</string>
+    <string name="onboarding_pick_apps_search">Поиск приложений…</string>
+    <string name="onboarding_pick_apps_recommended">Рекомендуемые</string>
+
+    <string name="onboarding_permissions_title">Включите разрешения</string>
+    <string name="onboarding_permissions_body">Focus нужны несколько разрешений для работы. Мы проведём вас через каждое из них.</string>
+    <string name="onboarding_grant_all">Выдать все разрешения</string>
+    <string name="onboarding_maybe_later">Может быть позже</string>
+    <string name="onboarding_cd_permissions">Разрешения</string>
+
+    <string name="onboarding_first_profile_title">Создайте первый профиль</string>
+    <string name="onboarding_first_profile_body">Профиль объединяет правила блокировки. Начните с «Глубокая работа» или создайте свой.</string>
+    <string name="onboarding_create_deep_work">Создать профиль «Глубокая работа»</string>
+    <string name="onboarding_skip_for_now">Пропустить</string>
+</resources>

@@ -41,49 +41,12 @@ class OverlayBlocker(private val context: Context) {
     fun show(blockState: BlockState) {
         try {
             dismiss()
-
             windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            val params = WindowManager.LayoutParams().apply {
-                type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                width = WindowManager.LayoutParams.MATCH_PARENT
-                height = WindowManager.LayoutParams.MATCH_PARENT
-                flags = (
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                        WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
-                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                    )
-                gravity = Gravity.CENTER
-                format = PixelFormat.RGBA_8888
-                windowAnimations = android.R.style.Animation_Dialog
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    layoutInDisplayCutoutMode =
-                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                }
-            }
-
             val owner = OverlayLifecycleOwner()
             lifecycleOwner = owner
-            val composeView = OverlayLifecycleOwner.createComposeView(
-                parent = View(context),
-                content = {
-                    BlockScreen(
-                        blockedPackage = blockState.blockedPackageName,
-                        appName = blockState.blockedAppName,
-                        profileName = blockState.profileName,
-                        onReturnToWork = {
-                            goHome()
-                            dismiss()
-                        },
-                        onBypassAttempt = { false },
-                    )
-                },
-            )
-
+            val composeView = buildOverlayContent(blockState)
             overlayView = composeView
-            windowManager?.addView(composeView, params)
+            windowManager?.addView(composeView, buildOverlayLayoutParams())
             isShowing = true
             onBlockShown.tryEmit(Unit)
             Log.d(TAG, "Overlay blocker shown")
@@ -92,6 +55,60 @@ class OverlayBlocker(private val context: Context) {
             dismiss()
         }
     }
+
+    private fun buildOverlayLayoutParams(): WindowManager.LayoutParams =
+        WindowManager.LayoutParams().apply {
+            type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            width = WindowManager.LayoutParams.MATCH_PARENT
+            height = WindowManager.LayoutParams.MATCH_PARENT
+            flags = (
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                )
+            gravity = Gravity.CENTER
+            format = PixelFormat.RGBA_8888
+            windowAnimations = android.R.style.Animation_Dialog
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        }
+
+    private fun buildOverlayContent(
+        blockState: BlockState,
+    ): View = OverlayLifecycleOwner.createComposeView(
+        parent = View(context),
+        content = {
+            BlockScreen(
+                state = BlockUiState(
+                    blockedPackage = blockState.blockedPackageName,
+                    appName = blockState.blockedAppName,
+                    profileName = blockState.profileName,
+                    remainingMillis = blockState.remainingMillis,
+                    attemptNumber = blockState.attemptNumber,
+                    lockMode = blockState.mode,
+                    bypassesRemaining = blockState.bypassesRemaining,
+                ),
+                        onAction = { action ->
+                            when (action) {
+                                BlockAction.ReturnToWork, BlockAction.OpenFocus -> {
+                                    goHome()
+                                    dismiss()
+                                }
+                                BlockAction.StartBypass, BlockAction.CancelBypass,
+                                BlockAction.StartEmergencyExit, BlockAction.CancelEmergencyExit,
+                                is BlockAction.SubmitBypassReason, is BlockAction.InputPhraseChar,
+                                is BlockAction.InputEmergencyExitChar,
+                                -> Unit
+                            }
+                        },
+            )
+        },
+    )
 
     fun dismiss() {
         try {

@@ -224,4 +224,19 @@
     <string name="pomodoro_long_break_duration">Длинный перерыв (мин.)</string>
     <string name="pomodoro_cycles_long_break">Циклы до длинного перерыва</string>
     <string name="pomodoro_total_cycles">Всего циклов</string>
+
+    <string name="nav_app_title">Фокус</string>
+    <string name="nav_cd_settings">Настройки</string>
+    <string name="nav_cd_home">Главная</string>
+    <string name="nav_cd_profiles">Профили</string>
+    <string name="nav_cd_schedules">Расписания</string>
+    <string name="nav_cd_stats">Статистика</string>
+    <string name="dialog_stop_session_title">Завершить сессию?</string>
+    <string name="dialog_stop_session_body">Сессия фокуса будет отменена.</string>
+    <string name="dialog_stop_session_confirm">Завершить</string>
+    <string name="dialog_stop_session_dismiss">Продолжить фокус</string>
+    <string name="dialog_hard_lock_title">Запустить hard lock?</string>
+    <string name="dialog_hard_lock_body">Настройки, установщики и другие лаунчеры будут заблокированы до конца сессии. Отменить досрочно можно только через аварийный выход.</string>
+    <string name="dialog_hard_lock_confirm">Запустить hard lock</string>
+    <string name="dialog_cancel">Отмена</string>
 </resources>

@@ -11,9 +11,9 @@
     <ID>FunctionNaming:ProfilesListScreen.kt$@Composable private fun EmptyProfilesState(onAddProfile: () -&gt; Unit, editingLocked: Boolean)</ID>
     <ID>FunctionNaming:ProfilesListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfilesListScreen( profiles: List&lt;Profile&gt; = emptyList(), editingLocked: Boolean = false, editingLockedReason: String? = null, onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, onAddProfile: () -&gt; Unit = {}, onEditProfile: (String) -&gt; Unit = {}, onDeleteProfile: (String) -&gt; Unit = {}, onToggleLockMode: (String) -&gt; Unit = {}, )</ID>
     <ID>FunctionNaming:ProfilesListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ProfileCard( profile: Profile, editingLocked: Boolean, onToggleLockMode: () -&gt; Unit, onEdit: () -&gt; Unit, onDelete: () -&gt; Unit, onStartSession: () -&gt; Unit, )</ID>
-    <ID>FunctionNaming:ProfilesScreen.kt$@Composable fun PickAppsScreen(onDone: () -&gt; Unit)</ID>
-    <ID>FunctionNaming:ProfilesScreen.kt$@Composable fun ProfilesListScreen( onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, onBack: () -&gt; Unit = {} )</ID>
-    <ID>FunctionNaming:ProfilesScreen.kt$@Composable private fun ProfileCard(name: String, emoji: String, mode: String)</ID>
+    <ID>FunctionNaming:ProfilesScreen.kt$@Composable fun PickAppsScreenLegacy(onDone: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:ProfilesScreen.kt$@Composable fun ProfilesListScreenLegacy( onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, onBack: () -&gt; Unit = {}, )</ID>
+    <ID>FunctionNaming:ProfilesScreen.kt$@Composable private fun ProfileCardLegacy(name: String, emoji: String, mode: String)</ID>
     <ID>LongMethod:AppPickerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AppPickerScreen( state: AppPickerViewModel.AppPickerUiState, onSearchChange: (String) -&gt; Unit, onSortChange: (AppSortOrder) -&gt; Unit, onToggleSystemSection: () -&gt; Unit, onToggleApp: (String, Boolean) -&gt; Unit, onDone: () -&gt; Unit, onBack: () -&gt; Unit, )</ID>
     <ID>LongMethod:ProfileEditorScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileEditorScreen( onSave: () -&gt; Unit, onCancel: () -&gt; Unit, onPickApps: (String) -&gt; Unit, viewModel: ProfileEditorViewModel = hiltViewModel(), )</ID>
     <ID>LongMethod:ProfilesListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ProfileCard( profile: Profile, editingLocked: Boolean, onToggleLockMode: () -&gt; Unit, onEdit: () -&gt; Unit, onDelete: () -&gt; Unit, onStartSession: () -&gt; Unit, )</ID>
@@ -25,7 +25,6 @@
     <ID>MagicNumber:ProfileEditorScreen.kt$45</ID>
     <ID>MagicNumber:ProfileEditorScreen.kt$60</ID>
     <ID>MagicNumber:ProfileEditorScreen.kt$90</ID>
-    <ID>UnusedParameter:ProfilesScreen.kt$onBack: () -&gt; Unit = {}</ID>
     <ID>UnusedParameter:ProfilesScreen.kt$onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }</ID>
   </CurrentIssues>
 </SmellBaseline>

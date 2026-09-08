@@ -43,6 +43,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     lint {
@@ -92,10 +93,13 @@ dependencies {
     api(project(":feature:blocker"))
     api(project(":feature:schedules"))
     api(project(":feature:stats"))
+    api(project(":feature:widget"))
     api(project(":feature:settings"))
 
     implementation(project(":service:focus-service"))
     implementation(project(":service:accessibility"))
+
+    implementation(libs.androidx.work.ktx)
 
     testImplementation(libs.junit)
 }

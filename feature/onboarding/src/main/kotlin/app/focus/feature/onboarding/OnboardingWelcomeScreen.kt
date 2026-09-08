@@ -96,7 +96,7 @@ fun OnboardingWelcomeScreen(
         ) {
             Text(text = stringResource(id = R.string.onboarding_start), fontSize = 18.sp)
             Spacer(modifier = Modifier.width(8.dp))
-            Icon(Icons.Default.ArrowForward, contentDescription = null)
+            Icon(Icons.Default.ArrowForward, contentDescription = stringResource(R.string.onboarding_cd_next))
         }
 
         Spacer(modifier = Modifier.height(12.dp))

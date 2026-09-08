@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="session_start_title">Запуск сессии фокуса</string>
+    <string name="session_profile">Профиль</string>
+    <string name="session_profile_option">%1$s %2$s</string>
+    <string name="session_duration">Длительность (мин)</string>
+    <string name="session_duration_min">%1$d мин</string>
+    <string name="session_goal_optional">Цель (необязательно)</string>
+    <string name="session_hard_lock_warning">Hard lock заблокирует Настройки и другие системные приложения.</string>
+    <string name="session_start">Старт</string>
+    <string name="session_back">Назад</string>
+    <string name="session_pause">Пауза</string>
+    <string name="session_finish">Завершить</string>
+    <string name="session_hard_lock_no_pause">Hard lock — пауза недоступна</string>
+    <string name="session_blocked_attempts">Попыток блокировки: %1$d</string>
+    <string name="session_complete_title">Сессия завершена!</string>
+    <string name="session_summary_duration">Время фокуса: %1$d мин</string>
+    <string name="session_bypasses_used">Использовано пропусков: %1$d</string>
+    <string name="session_back_home">На главную</string>
+    <string name="session_cd_timer">Оставшееся время</string>
+    <plurals name="session_streak_days">
+        <item quantity="one">Серия: %1$d день</item>
+        <item quantity="few">Серия: %1$d дня</item>
+        <item quantity="many">Серия: %1$d дней</item>
+        <item quantity="other">Серия: %1$d дней</item>
+    </plurals>
+</resources>

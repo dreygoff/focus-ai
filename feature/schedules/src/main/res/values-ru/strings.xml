@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="schedules_title">Расписания</string>
+    <string name="schedules_cd_add">Добавить расписание</string>
+    <string name="schedules_cd_delete">Удалить расписание</string>
+    <string name="schedules_empty_title">Расписаний пока нет</string>
+    <string name="schedules_empty_body">Создайте расписание для автоматического запуска сессий фокуса.</string>
+    <string name="schedules_add">Добавить расписание</string>
+    <string name="schedules_default_label">Расписание</string>
+    <string name="schedules_days">Дни: %1$s</string>
+    <string name="schedules_enabled">Включено</string>
+    <string name="schedules_disabled">Отключено</string>
+    <string name="schedule_editor_new">Новое расписание</string>
+    <string name="schedule_editor_edit">Редактировать</string>
+    <string name="schedule_editor_back">Назад</string>
+    <string name="schedule_editor_label">Название</string>
+    <string name="schedule_editor_profile">Профиль</string>
+    <string name="schedule_editor_days">Дни</string>
+    <string name="schedule_editor_start">Начало</string>
+    <string name="schedule_editor_end">Конец</string>
+    <string name="schedule_editor_hour">Ч</string>
+    <string name="schedule_editor_minute">М</string>
+    <string name="schedule_editor_allow_skip">Разрешить пропуск сегодня</string>
+    <string name="schedule_editor_enabled">Включено</string>
+    <string name="schedule_editor_save">Сохранить</string>
+    <string name="schedule_day_mon">Пн</string>
+    <string name="schedule_day_tue">Вт</string>
+    <string name="schedule_day_wed">Ср</string>
+    <string name="schedule_day_thu">Чт</string>
+    <string name="schedule_day_fri">Пт</string>
+    <string name="schedule_day_sat">Сб</string>
+    <string name="schedule_day_sun">Вс</string>
+</resources>

@@ -26,4 +26,10 @@
     <string name="profiles_editing_locked">Profile editing is disabled during an active hard lock session.</string>
     <string name="profiles_delete">Delete</string>
     <string name="profiles_start_session">Start %1$d min session</string>
+    <string name="profiles_cd_toggle_lock">Toggle lock mode</string>
+    <string name="profiles_cd_more">More options</string>
+    <string name="profile_editor_back">Back</string>
+    <string name="app_picker_back">Back</string>
+    <string name="app_picker_cd_expand_system">Show system apps</string>
+    <string name="app_picker_cd_collapse_system">Hide system apps</string>
 </resources>

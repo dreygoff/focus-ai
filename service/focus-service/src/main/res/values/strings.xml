@@ -1,19 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Focus</string>
-    <string name="session_notification_channel_name">Active Session</string>
-    <string name="session_notification_channel_description">Shows the status of your active focus session</string>
-    <string name="session_foreground_title">Focus Session Active</string>
-    <string name="session_foreground_text">Stay focused on your profile</string>
-    <string name="action_finish_session">Finish</string>
-    <string name="notification_pending_stop_service_permission">Permission needed to run in background</string>
-    <string name="boot_receiver_label">Boot Receiver</string>
-    <string name="session_started">Focus session started</string>
-    <string name="session_completed">Focus session completed</string>
-    <string name="session_interrupted">Focus session interrupted</string>
-    <string name="schedule_updated">Session schedule updated</string>
-    <string name="blocked_app_notification">App blocked: %s</string>
-    <string name="new_app_prompt_title">New app detected during session</string>
-    <string name="new_app_prompt_message">Would you like to add %s to your current profile?</string>
-    <string name="new_app_add">Yes, add it</string>
-    <string name="dismiss">Dismiss</string>
+    <string name="notification_channel_sessions">Focus sessions</string>
+    <string name="notification_session_title">Focus session active</string>
+    <string name="notification_session_active">%1$s session running</string>
+    <string name="notification_session_remaining">%1$s — %2$d min left</string>
+    <string name="notification_stop">Stop</string>
+    <string name="notification_access_window_title">Access window</string>
+    <string name="notification_access_window_active">%1$s is temporarily allowed</string>
+    <string name="notification_access_window_warning">Access window ends in 30 seconds</string>
+    <string name="boot_receiver_label">Focus boot receiver</string>
+    <string name="schedule_warning_channel">Schedule warnings</string>
+    <string name="schedule_warning_title">Hard lock starting soon</string>
+    <string name="schedule_warning_body">Schedule \"%1$s\" starts in 5 minutes</string>
+    <string name="schedule_skip_today">Skip today</string>
+    <string name="pomodoro_channel">Pomodoro</string>
+    <string name="pomodoro_break_title">Break time</string>
+    <string name="pomodoro_break_body">Blocking is paused. Rest and return when the timer ends.</string>
+    <string name="pomodoro_break_warning_title">Break ending soon</string>
+    <string name="pomodoro_break_warning_body">Focus resumes in 30 seconds</string>
+    <string name="notification_pomodoro_focus">Focus phase — %1$s</string>
+    <string name="notification_pomodoro_break">Break — %1$s</string>
 </resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="block_title">Приложение заблокировано</string>
+    <string name="block_profile_active">Сессия «%1$s» активна</string>
+    <string name="block_time_remaining">Осталось %1$d мин</string>
+    <string name="block_attempt_count">Попытка №%1$d за сессию</string>
+    <string name="block_return_to_work">Вернуться к делу</string>
+    <string name="block_bypass_cta">Мне правда нужно…</string>
+    <string name="block_bypass_reason_label">Причина (мин. 10 символов)</string>
+    <string name="block_bypass_reason_title">Зачем вам это приложение?</string>
+    <string name="block_bypass_phrase_title">Наберите фразу точно</string>
+    <string name="block_bypass_continue">Продолжить</string>
+    <string name="block_bypass_cancel">Отмена</string>
+    <string name="block_bypass_delay">Подождите %1$d с…</string>
+    <string name="block_bypass_breathing">Дыхательный цикл %1$d</string>
+    <string name="block_breathing_inhale">Вдох</string>
+    <string name="block_breathing_hold">Задержка</string>
+    <string name="block_breathing_exhale">Выдох</string>
+    <string name="block_bypass_exhausted">Пропуски исчерпаны</string>
+    <string name="block_bypasses_remaining">Осталось пропусков: %1$d</string>
+    <string name="block_bypass_granted">Доступ открыт на ограниченное время</string>
+    <string name="block_open_app">Открыть приложение</string>
+    <string name="block_open_focus">Открыть Focus</string>
+    <string name="block_emergency_exit">Аварийный выход</string>
+    <string name="block_emergency_delay">Сессия завершится через %1$d мин</string>
+    <string name="block_emergency_cancel">Отменить аварийный выход</string>
+    <string name="block_emergency_retype_title">Перепечатайте текст точно, чтобы завершить сессию</string>
+    <string name="block_cd_blocked">Приложение заблокировано</string>
+</resources>

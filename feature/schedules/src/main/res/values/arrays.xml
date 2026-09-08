@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="schedule_day_names">
+        <item>@string/schedule_day_mon</item>
+        <item>@string/schedule_day_tue</item>
+        <item>@string/schedule_day_wed</item>
+        <item>@string/schedule_day_thu</item>
+        <item>@string/schedule_day_fri</item>
+        <item>@string/schedule_day_sat</item>
+        <item>@string/schedule_day_sun</item>
+    </string-array>
+</resources>

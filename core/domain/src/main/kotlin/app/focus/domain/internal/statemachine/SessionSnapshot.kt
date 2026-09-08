@@ -9,5 +9,6 @@ data class SessionSnapshot(
     val defaultLauncherPkg: String?,
     val isPomodoro: Boolean,
     val currentPhase: String,
-    val phaseEndAtMillis: Long
+    val phaseEndAtMillis: Long,
+    val pomodoroFocusCyclesDone: Int = 0,
 )

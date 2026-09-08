@@ -139,12 +139,17 @@ class FakeAllowlistRepository : app.focus.domain.usecase.AllowlistRepository {
 class FakeAccessWindowRepository : app.focus.domain.usecase.AccessWindowRepository {
     private val windows = mutableMapOf<String, app.focus.domain.model.AccessWindow>()
 
-    override suspend fun grant(sessionId: String, packageName: String, reason: String?): Long {
+    override suspend fun grant(
+        sessionId: String,
+        packageName: String,
+        reason: String?,
+        durationMinutes: Int,
+    ): Long {
         val window = app.focus.domain.model.AccessWindow(
             sessionId = sessionId,
             packageName = packageName,
             grantedAt = System.currentTimeMillis(),
-            expiresAt = System.currentTimeMillis() + 5 * 60 * 1000L,
+            expiresAt = System.currentTimeMillis() + durationMinutes * 60_000L,
             reason = reason,
             restrictedToActivity = null,
         )

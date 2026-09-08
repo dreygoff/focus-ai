@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.BROADCAST_STOP_FROM_SCREENLOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application>
 
@@ -34,6 +35,22 @@
         </receiver>
 
         <receiver
+            android:name=".TimeChangeReceiver"
+            android:enabled="true"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".ScheduleActionReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
             android:name=".AlarmReceiver"
             android:enabled="true"
             android:exported="false">
@@ -41,6 +58,11 @@
             <intent-filter>
                 <action android:name="app.focus.service.focus.ACTION_SESSION_START_ALARM" />
                 <action android:name="app.focus.service.focus.ACTION_SESSION_END_ALARM" />
+                <action android:name="app.focus.service.focus.ACTION_SCHEDULE_START" />
+                <action android:name="app.focus.service.focus.ACTION_SCHEDULE_END" />
+                <action android:name="app.focus.service.focus.ACTION_SCHEDULE_WARNING" />
+                <action android:name="app.focus.service.focus.ACTION_POMODORO_PHASE_END" />
+                <action android:name="app.focus.service.focus.ACTION_POMODORO_BREAK_WARNING" />
             </intent-filter>
         </receiver>
 

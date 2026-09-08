@@ -9,7 +9,17 @@ import java.util.UUID
 
 data class StartSessionResult(
     val session: app.focus.domain.model.Session,
-    val alarmScheduled: Boolean
+    val alarmScheduled: Boolean,
+)
+
+data class StartSessionRequest(
+    val profileId: String,
+    val durationMinutes: Int,
+    val goalText: String? = null,
+    val source: app.focus.domain.model.SessionSource = app.focus.domain.model.SessionSource.MANUAL,
+    val pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null,
+    val scheduleId: String? = null,
+    val targetPackagesOverride: List<String>? = null,
 )
 
 class StartSessionUseCase(
@@ -17,65 +27,146 @@ class StartSessionUseCase(
     private val profileRepo: ProfileRepository,
     private val snapshotStore: ActiveSessionSnapshotStorage,
     private val alarmScheduler: AlarmSchedulerService,
+    private val sessionRuntime: SessionRuntimeController,
+    private val hardLockExtras: HardLockExtrasContributor,
+    private val hardLockLifecycle: HardLockLifecycleController,
     private val clock: Clock
 ) {
-    suspend fun execute(
-        profileId: String,
-        durationMinutes: Int,
-        goalText: String?,
-        source: app.focus.domain.model.SessionSource = app.focus.domain.model.SessionSource.MANUAL,
-        pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null
-    ): StartSessionResult = withContext(Dispatchers.IO) {
-        val profile = profileRepo.getProfile(profileId)
-            ?: throw IllegalArgumentException("Profile not found: $profileId")
+    suspend fun execute(request: StartSessionRequest): StartSessionResult = withContext(Dispatchers.IO) {
+        val profile = profileRepo.getProfile(request.profileId)
+            ?: throw IllegalArgumentException("Profile not found: ${request.profileId}")
 
         val startedAt = clock.nowMillis()
-        val plannedEndAt = startedAt + durationMinutes * 60L * 1000L
-        val targetPackages = profile.targetPackageNames
+        val plannedEndAt = startedAt + request.durationMinutes * 60L * 1000L
+        val targetPackages = request.targetPackagesOverride ?: profile.targetPackageNames
 
-        val session = app.focus.domain.model.Session(
-            id = UUID.randomUUID().toString(),
-            profileId = profileId,
-            profileNameSnapshot = profile.name,
-            lockMode = profile.lockMode,
-            targetPackagesSnapshot = targetPackages,
-            goalText = goalText,
-            startedAt = startedAt,
-            plannedEndAt = plannedEndAt,
-            actualEndAt = null,
-            status = app.focus.domain.model.SessionStatus.Running,
-            source = source,
-            pomodoroConfig = pomodoroConfig,
-            bypassesUsed = 0,
-            blockAttempts = 0,
-            pausesUsed = 0,
-            scheduleId = null
-        )
-
+        val session = buildSession(request, profile, startedAt, plannedEndAt, targetPackages)
         sessionRepo.insert(session)
 
-        snapshotStore.save(
-            app.focus.domain.internal.statemachine.SessionSnapshot(
-                sessionId = session.id,
-                lockMode = if (session.lockMode is app.focus.domain.model.LockMode.Hard) "HARD" else "SOFT",
-                plannedEndAtMillis = plannedEndAt,
+        val isHardLock = session.lockMode is app.focus.domain.model.LockMode.Hard
+        val hardExtras = if (isHardLock) hardLockExtras.resolveExtras() else HardLockExtras(emptyList(), null)
+        val phaseEndAt = pomodoroPhaseEndAt(startedAt, request.pomodoroConfig, plannedEndAt)
+
+        saveSnapshot(
+            SnapshotWrite(
+                session = session,
                 targetPackages = targetPackages,
-                hardLockExtraPackages = emptyList(),
-                defaultLauncherPkg = null,
-                isPomodoro = pomodoroConfig != null,
-                currentPhase = "FOCUS",
-                phaseEndAtMillis = plannedEndAt
-            )
+                isHardLock = isHardLock,
+                hardExtras = hardExtras,
+                pomodoroConfig = request.pomodoroConfig,
+                phaseEndAt = phaseEndAt,
+            ),
         )
 
-        val alarmScheduled = try {
-            alarmScheduler.scheduleExact(plannedEndAt, session.id.hashCode(), "app.focus.service.focus.AlarmReceiver")
-            true
-        } catch (e: Exception) {
-            false
+        if (isHardLock) {
+            hardLockLifecycle.onHardLockSessionStarted(profile.deviceAdminProtection)
         }
 
+        schedulePomodoroPhaseAlarm(session.id, request.pomodoroConfig, phaseEndAt)
+        val alarmScheduled = scheduleSessionEndAlarm(session.id, plannedEndAt)
+
+        sessionRuntime.onSessionStarted(
+            sessionId = session.id,
+            profileName = profile.name,
+            plannedEndAtMillis = plannedEndAt,
+        )
+
         StartSessionResult(session, alarmScheduled)
+    }
+
+    private fun buildSession(
+        request: StartSessionRequest,
+        profile: app.focus.domain.model.Profile,
+        startedAt: Long,
+        plannedEndAt: Long,
+        targetPackages: List<String>,
+    ): app.focus.domain.model.Session = app.focus.domain.model.Session(
+        id = UUID.randomUUID().toString(),
+        profileId = request.profileId,
+        profileNameSnapshot = profile.name,
+        lockMode = profile.lockMode,
+        targetPackagesSnapshot = targetPackages,
+        goalText = request.goalText,
+        startedAt = startedAt,
+        plannedEndAt = plannedEndAt,
+        actualEndAt = null,
+        status = app.focus.domain.model.SessionStatus.Running,
+        source = request.source,
+        pomodoroConfig = request.pomodoroConfig,
+        bypassesUsed = 0,
+        blockAttempts = 0,
+        pausesUsed = 0,
+        scheduleId = request.scheduleId,
+    )
+
+    private fun pomodoroPhaseEndAt(
+        startedAt: Long,
+        pomodoroConfig: app.focus.domain.model.PomodoroConfig?,
+        plannedEndAt: Long,
+    ): Long = if (pomodoroConfig != null) {
+        startedAt + pomodoroConfig.focusMinutes * 60L * 1000L
+    } else {
+        plannedEndAt
+    }
+
+    private data class SnapshotWrite(
+        val session: app.focus.domain.model.Session,
+        val targetPackages: List<String>,
+        val isHardLock: Boolean,
+        val hardExtras: HardLockExtras,
+        val pomodoroConfig: app.focus.domain.model.PomodoroConfig?,
+        val phaseEndAt: Long,
+    )
+
+    private suspend fun saveSnapshot(write: SnapshotWrite) {
+        snapshotStore.save(
+            app.focus.domain.internal.statemachine.SessionSnapshot(
+                sessionId = write.session.id,
+                lockMode = if (write.isHardLock) "HARD" else "SOFT",
+                plannedEndAtMillis = write.session.plannedEndAt ?: write.phaseEndAt,
+                targetPackages = write.targetPackages,
+                hardLockExtraPackages = write.hardExtras.extraPackages,
+                defaultLauncherPkg = write.hardExtras.defaultLauncherPkg,
+                isPomodoro = write.pomodoroConfig != null,
+                currentPhase = "FOCUS",
+                phaseEndAtMillis = write.phaseEndAt,
+                pomodoroFocusCyclesDone = 0,
+            ),
+        )
+    }
+
+    private suspend fun schedulePomodoroPhaseAlarm(
+        sessionId: String,
+        pomodoroConfig: app.focus.domain.model.PomodoroConfig?,
+        phaseEndAt: Long,
+    ) {
+        if (pomodoroConfig == null) return
+        alarmScheduler.scheduleExact(
+            alarmMillis = phaseEndAt,
+            operationCode = pomodoroPhaseCode(sessionId),
+            receiverClassName = ALARM_RECEIVER,
+            sessionId = sessionId,
+            action = ACTION_POMODORO_PHASE_END,
+        )
+    }
+
+    private suspend fun scheduleSessionEndAlarm(sessionId: String, plannedEndAt: Long): Boolean = try {
+        alarmScheduler.scheduleExact(
+            alarmMillis = plannedEndAt,
+            operationCode = sessionId.hashCode(),
+            receiverClassName = ALARM_RECEIVER,
+            sessionId = sessionId,
+        )
+        true
+    } catch (_: Exception) {
+        false
+    }
+
+    companion object {
+        const val ACTION_POMODORO_PHASE_END = "app.focus.service.focus.ACTION_POMODORO_PHASE_END"
+        private const val ALARM_RECEIVER = "app.focus.service.focus.AlarmReceiver"
+
+        fun pomodoroPhaseCode(sessionId: String): Int = "pomodoro_$sessionId".hashCode()
     }
 }
 
@@ -85,31 +176,44 @@ data class StopSessionResult(
 )
 
 class StopSessionUseCase(
-    private val sessionRepo: SessionRepository,
-    private val snapshotStore: ActiveSessionSnapshotStorage,
-    private val alarmScheduler: AlarmSchedulerService,
-    private val clock: Clock
+    private val deps: StopSessionDependencies,
+    private val updateDailyStats: UpdateDailyStatsOnSessionEndUseCase,
+    private val logSessionEndEvent: LogSessionEndEventUseCase,
+    private val clock: Clock,
 ) {
-    suspend fun execute(sessionId: String, status: app.focus.domain.model.SessionStatus = app.focus.domain.model.SessionStatus.Cancelled): StopSessionResult {
+    suspend fun execute(
+        sessionId: String,
+        status: app.focus.domain.model.SessionStatus = app.focus.domain.model.SessionStatus.Cancelled,
+        stopForegroundService: Boolean = true,
+    ): StopSessionResult {
         return withContext(Dispatchers.IO) {
-            val session = sessionRepo.observeSessions(clock.nowMillis() - 86400000L, clock.nowMillis())
+            val session = deps.sessionRepo.observeSessions(clock.nowMillis() - 86400000L, clock.nowMillis())
                 .first()
                 .firstOrNull { it.id == sessionId }
                 ?: throw IllegalArgumentException("Session not found: $sessionId")
 
             val updated = session.copy(actualEndAt = clock.nowMillis(), status = status)
-            sessionRepo.update(updated)
+            deps.sessionRepo.update(updated)
+            logSessionEndEvent.execute(sessionId, status)
+            updateDailyStats.execute(updated)
 
-            // Clear snapshot and cancel alarm (TR-05)
-            snapshotStore.clear()
+            if (session.lockMode is app.focus.domain.model.LockMode.Hard) {
+                val profile = deps.profileRepo.getProfile(session.profileId)
+                deps.hardLockLifecycle.onHardLockSessionStopped(profile?.deviceAdminProtection == true)
+            }
+
+            deps.snapshotStore.clear()
             try { cancelAlarm(session) } catch(e: Exception) { /* ignore */ }
+            if (stopForegroundService) {
+                deps.sessionRuntime.syncStopService()
+            }
 
             return@withContext StopSessionResult(oldStatus = session.status, newStatus = status)
         }
     }
 
     private suspend fun cancelAlarm(session: app.focus.domain.model.Session) {
-        alarmScheduler.cancelAlarm(session.id.hashCode(), "app.focus.service.focus.AlarmReceiver")
+        deps.alarmScheduler.cancelAlarm(session.id.hashCode(), "app.focus.service.focus.AlarmReceiver")
     }
 }
 
@@ -194,17 +298,19 @@ class DecideBlockUseCase(
 ) {
     data class SessionCheckState(
         val hasActiveSession: Boolean,
+        val isPaused: Boolean = false,
+        val inPomodoroBreak: Boolean = false,
         val isHardLock: Boolean,
         val sessionId: String?,
         val targetPackages: Set<String>,
-        val hardLockExtraPackages: Set<String> = emptySet()
+        val hardLockExtraPackages: Set<String> = emptySet(),
     )
 
     suspend fun decide(packageName: String): app.focus.domain.model.BlockDecision {
-        // TR-06 rules by priority
-        // 1. No active session or in pomodoro break
-        if (!sessionState().hasActiveSession) return app.focus.domain.model.BlockDecision.Allow
-        
+        val state = sessionState()
+        if (!state.hasActiveSession || state.isPaused || state.inPomodoroBreak) {
+            return app.focus.domain.model.BlockDecision.Allow
+        }
         // 2. Package in allowlist
         val fullAllowlist = systemAllowlist() + userAllowlistRepo.observeAllowlist().first()
         if (fullAllowlist.contains(packageName)) return app.focus.domain.model.BlockDecision.Allow
@@ -216,8 +322,7 @@ class DecideBlockUseCase(
         }
 
         // 4. Package is a target of active session OR hard lock extra
-        val state = sessionState()
-        if (state.targetPackages.contains(packageName) || 
+        if (state.targetPackages.contains(packageName) ||
             (state.isHardLock && state.hardLockExtraPackages.contains(packageName))) {
             return app.focus.domain.model.BlockDecision.Block(
                 reason = if (state.isHardLock && !state.targetPackages.contains(packageName)) {
@@ -265,41 +370,277 @@ class BypassFlowExecutor(
         }
     }
 
-    suspend fun grantBypass(sessionId: String, packageName: String, reason: String?): Long {
-        return accessWindowRepo.grant(sessionId, packageName, reason)
+    suspend fun grantBypass(sessionId: String, packageName: String, reason: String?, durationMinutes: Int): Long {
+        return accessWindowRepo.grant(sessionId, packageName, reason, durationMinutes)
+    }
+}
+
+class PauseSessionUseCase(
+    private val sessionRepo: SessionRepository,
+    private val eventLogRepo: EventLogRepository,
+    private val blockState: ActiveSessionBlockState,
+    private val clock: Clock,
+) {
+    suspend fun execute(sessionId: String): app.focus.domain.model.Session = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: error("No active session")
+        check(session.id == sessionId) { "Session mismatch" }
+        check(session.lockMode is app.focus.domain.model.LockMode.Soft) { "Pause only in soft lock" }
+        check(session.status is app.focus.domain.model.SessionStatus.Running) { "Session not running" }
+        check(session.pausesUsed < MAX_PAUSES) { "Max pauses reached" }
+
+        val updated = session.copy(
+            status = app.focus.domain.model.SessionStatus.Paused(),
+            pausesUsed = session.pausesUsed + 1,
+        )
+        sessionRepo.update(updated)
+        blockState.setPaused(true)
+        eventLogRepo.log(
+            app.focus.domain.model.EventLog(
+                timestamp = clock.nowMillis(),
+                sessionId = sessionId,
+                type = app.focus.domain.model.EventType.SESSION_PAUSED,
+                packageName = null,
+                payload = null,
+            ),
+        )
+        updated
+    }
+
+    companion object {
+        const val MAX_PAUSES = 3
+    }
+}
+
+class ResumeSessionUseCase(
+    private val sessionRepo: SessionRepository,
+    private val eventLogRepo: EventLogRepository,
+    private val blockState: ActiveSessionBlockState,
+    private val clock: Clock,
+) {
+    suspend fun execute(sessionId: String): app.focus.domain.model.Session = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: error("No active session")
+        check(session.id == sessionId) { "Session mismatch" }
+        check(session.status is app.focus.domain.model.SessionStatus.Paused) { "Session not paused" }
+
+        val updated = session.copy(status = app.focus.domain.model.SessionStatus.Running)
+        sessionRepo.update(updated)
+        blockState.setPaused(false)
+        eventLogRepo.log(
+            app.focus.domain.model.EventLog(
+                timestamp = clock.nowMillis(),
+                sessionId = sessionId,
+                type = app.focus.domain.model.EventType.SESSION_RESUMED,
+                packageName = null,
+                payload = null,
+            ),
+        )
+        updated
+    }
+}
+
+class GrantBypassUseCase(
+    private val accessWindowRepo: AccessWindowRepository,
+    private val sessionRepo: SessionRepository,
+    private val eventLogRepo: EventLogRepository,
+    private val alarmScheduler: AlarmSchedulerService,
+    private val clock: Clock,
+) {
+    data class Result(val expiresAt: Long, val grantedPackages: List<String>)
+
+    suspend fun execute(
+        sessionId: String,
+        packageName: String,
+        reason: String?,
+        profile: app.focus.domain.model.Profile,
+        targetPackages: List<String>,
+    ): Result = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: error("No active session")
+
+        val packages = if (profile.bypassAppliesToAllApps) {
+            targetPackages.ifEmpty { listOf(packageName) }
+        } else {
+            listOf(packageName)
+        }
+
+        var expiresAt = 0L
+        packages.forEach { pkg ->
+            expiresAt = accessWindowRepo.grant(
+                sessionId = sessionId,
+                packageName = pkg,
+                reason = reason,
+                durationMinutes = profile.accessWindowMinutes,
+            )
+        }
+
+        sessionRepo.update(session.copy(bypassesUsed = session.bypassesUsed + 1))
+
+        eventLogRepo.log(
+            app.focus.domain.model.EventLog(
+                timestamp = clock.nowMillis(),
+                sessionId = sessionId,
+                type = app.focus.domain.model.EventType.BYPASS_GRANTED,
+                packageName = packageName,
+                payload = reason,
+            ),
+        )
+
+        val warningAt = expiresAt - WARNING_BEFORE_EXPIRY_MS
+        if (warningAt > clock.nowMillis()) {
+            alarmScheduler.scheduleExact(
+                alarmMillis = warningAt,
+                operationCode = accessWindowWarningCode(sessionId, packageName),
+                receiverClassName = ALARM_RECEIVER,
+                sessionId = sessionId,
+                action = ACTION_ACCESS_WINDOW_WARNING,
+                extras = mapOf(KEY_PACKAGE_NAME to packageName),
+            )
+        }
+
+        alarmScheduler.scheduleExact(
+            alarmMillis = expiresAt,
+            operationCode = accessWindowExpiryCode(sessionId, packageName),
+            receiverClassName = ALARM_RECEIVER,
+            sessionId = sessionId,
+            action = ACTION_ACCESS_WINDOW_EXPIRED,
+            extras = mapOf(KEY_PACKAGE_NAME to packageName),
+        )
+
+        Result(expiresAt, packages)
+    }
+
+    companion object {
+        const val ALARM_RECEIVER = "app.focus.service.focus.AlarmReceiver"
+        const val ACTION_ACCESS_WINDOW_WARNING = "app.focus.service.focus.ACTION_ACCESS_WINDOW_WARNING"
+        const val ACTION_ACCESS_WINDOW_EXPIRED = "app.focus.service.focus.ACTION_ACCESS_WINDOW_EXPIRED"
+        const val KEY_PACKAGE_NAME = "packageName"
+        private const val WARNING_BEFORE_EXPIRY_MS = 30_000L
+
+        fun accessWindowWarningCode(sessionId: String, packageName: String): Int =
+            "warn_${sessionId}_$packageName".hashCode()
+
+        fun accessWindowExpiryCode(sessionId: String, packageName: String): Int =
+            "exp_${sessionId}_$packageName".hashCode()
+    }
+}
+
+class RequestEmergencyExitUseCase(
+    private val sessionRepo: SessionRepository,
+    private val profileRepo: ProfileRepository,
+    private val eventLogRepo: EventLogRepository,
+    private val alarmScheduler: AlarmSchedulerService,
+    private val clock: Clock,
+) {
+    sealed interface Result {
+        data class DelayStarted(val untilMillis: Long) : Result
+        data class RetypeRequired(val targetText: String) : Result
+        data object NotAvailable : Result
+    }
+
+    suspend fun execute(sessionId: String): Result = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: return@withContext Result.NotAvailable
+        check(session.id == sessionId) { "Session mismatch" }
+        check(session.lockMode is app.focus.domain.model.LockMode.Hard) { "Emergency exit only in hard lock" }
+
+        val profile = profileRepo.getProfile(session.profileId) ?: return@withContext Result.NotAvailable
+        when (profile.emergencyExitMode) {
+            app.focus.domain.model.EmergencyExitMode.NONE -> Result.NotAvailable
+            app.focus.domain.model.EmergencyExitMode.DELAY_10_MIN -> {
+                val untilMillis = clock.nowMillis() + DELAY_MS
+                sessionRepo.update(
+                    session.copy(status = app.focus.domain.model.SessionStatus.EmergencyExitPending(untilMillis)),
+                )
+                alarmScheduler.scheduleExact(
+                    alarmMillis = untilMillis,
+                    operationCode = emergencyExitCode(sessionId),
+                    receiverClassName = ALARM_RECEIVER,
+                    sessionId = sessionId,
+                    action = ACTION_EMERGENCY_EXIT_COMPLETE,
+                )
+                eventLogRepo.log(
+                    app.focus.domain.model.EventLog(
+                        timestamp = clock.nowMillis(),
+                        sessionId = sessionId,
+                        type = app.focus.domain.model.EventType.EMERGENCY_EXIT_REQUESTED,
+                        packageName = null,
+                        payload = null,
+                    ),
+                )
+                Result.DelayStarted(untilMillis)
+            }
+            app.focus.domain.model.EmergencyExitMode.RETYPE_TEXT -> {
+                Result.RetypeRequired(app.focus.domain.model.EmergencyExitTextGenerator.generate())
+            }
+        }
+    }
+
+    companion object {
+        const val ALARM_RECEIVER = "app.focus.service.focus.AlarmReceiver"
+        const val ACTION_EMERGENCY_EXIT_COMPLETE = "app.focus.service.focus.ACTION_EMERGENCY_EXIT_COMPLETE"
+        private const val DELAY_MS = 10 * 60 * 1000L
+
+        fun emergencyExitCode(sessionId: String): Int = "emergency_$sessionId".hashCode()
+    }
+}
+
+class CancelEmergencyExitUseCase(
+    private val sessionRepo: SessionRepository,
+    private val alarmScheduler: AlarmSchedulerService,
+) {
+    suspend fun execute(sessionId: String) = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: error("No active session")
+        check(session.id == sessionId) { "Session mismatch" }
+        check(session.status is app.focus.domain.model.SessionStatus.EmergencyExitPending) {
+            "No pending emergency exit"
+        }
+
+        sessionRepo.update(session.copy(status = app.focus.domain.model.SessionStatus.Running))
+        alarmScheduler.cancelAlarm(
+            operationCode = RequestEmergencyExitUseCase.emergencyExitCode(sessionId),
+            receiverClassName = RequestEmergencyExitUseCase.ALARM_RECEIVER,
+        )
+    }
+}
+
+class CompleteEmergencyExitUseCase(
+    private val sessionRepo: SessionRepository,
+    private val stopSessionUseCase: StopSessionUseCase,
+    private val eventLogRepo: EventLogRepository,
+    private val alarmScheduler: AlarmSchedulerService,
+    private val clock: Clock,
+) {
+    suspend fun execute(sessionId: String) = withContext(Dispatchers.IO) {
+        runCatching {
+            alarmScheduler.cancelAlarm(
+                operationCode = RequestEmergencyExitUseCase.emergencyExitCode(sessionId),
+                receiverClassName = RequestEmergencyExitUseCase.ALARM_RECEIVER,
+            )
+        }
+
+        stopSessionUseCase.execute(sessionId, app.focus.domain.model.SessionStatus.Cancelled)
+        eventLogRepo.log(
+            app.focus.domain.model.EventLog(
+                timestamp = clock.nowMillis(),
+                sessionId = sessionId,
+                type = app.focus.domain.model.EventType.EMERGENCY_EXIT_COMPLETED,
+                packageName = null,
+                payload = null,
+            ),
+        )
     }
 }
 
 class SessionStateMachineExecutor(
-    private val clock: Clock
+    private val clock: Clock,
 ) {
     fun execute(event: app.focus.domain.internal.statemachine.SessionEvent): app.focus.domain.internal.statemachine.StateMachineResult {
         val stateMachineClock = object : app.focus.domain.internal.statemachine.Clock {
             override fun nowMillis(): Long = clock.nowMillis()
         }
         return app.focus.domain.internal.statemachine.SessionStateMachine(stateMachineClock).execute(event)
-    }
-}
-
-class GrantBypassUseCase(
-    private val accessWindowRepo: AccessWindowRepository,
-    private val alarmScheduler: AlarmSchedulerService,
-    private val clock: Clock
-) {
-    suspend fun execute(sessionId: String, packageName: String, profile: app.focus.domain.model.Profile): Long {
-        return withContext(Dispatchers.IO) {
-            val expiresAt = System.currentTimeMillis() + profile.accessWindowMinutes * 60L * 1000L
-            
-            accessWindowRepo.grant(sessionId, packageName, "bypass_granted")
-
-            // Schedule notification warning for access window expiry (30s before)
-            alarmScheduler.scheduleExact(
-                expiresAt - 30_000L,
-                "ACCESS_WINDOW_EXPIRED_${packageName}".hashCode(),
-                "app.focus.service.receiver.AlarmReceiver"
-            )
-
-            expiresAt
-        }
     }
 }

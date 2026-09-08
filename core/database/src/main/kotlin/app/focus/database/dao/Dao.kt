@@ -78,6 +78,9 @@ interface SessionDao {
     @Query("UPDATE sessions SET status = :status, actualEndAt = CURRENT_TIMESTAMP WHERE id = :id")
     suspend fun updateStatus(id: String, status: String)
 
+    @Query("SELECT * FROM sessions WHERE startedAt >= :startMillis AND startedAt < :endMillis")
+    suspend fun getSessionsStartedInRange(startMillis: Long, endMillis: Long): List<SessionEntity>
+
     @Query("SELECT * FROM sessions WHERE startedAt >= :startDate AND startedAt <= :endDate ORDER BY startedAt DESC")
     fun observeSessionsInRange(startDate: Long, endDate: Long): Flow<List<SessionEntity>>
 
@@ -85,6 +88,9 @@ interface SessionDao {
     suspend fun completeSession(id: String, status: String) {
         updateStatus(id, status)
     }
+
+    @Query("DELETE FROM sessions WHERE status NOT IN ('RUNNING', 'PAUSED')")
+    suspend fun deleteCompleted()
 }
 
 @Dao
@@ -127,6 +133,7 @@ interface AccessWindowDao {
 }
 
 @Dao
+@Suppress("TooManyFunctions")
 interface EventLogDao {
     @Insert
     suspend fun log(event: EventLogEntity): Long
@@ -146,8 +153,33 @@ interface EventLogDao {
     @Query("SELECT COUNT(*) FROM event_log WHERE type IN ('BLOCK_SHOWN','BYPASS_GRANTED') AND sessionId = :sessionId AND timestamp >= :since")
     suspend fun countBlockAttempts(sessionId: String, since: Long): Int
 
+    @Query("DELETE FROM event_log")
+    suspend fun deleteAll()
+
     @Query("DELETE FROM event_log WHERE timestamp < :beforeMillis")
     suspend fun deleteOlderThan(beforeMillis: Long)
+
+    @Query("SELECT * FROM event_log WHERE timestamp >= :since ORDER BY timestamp DESC LIMIT :limit")
+    fun observeRecent(since: Long, limit: Int): Flow<List<EventLogEntity>>
+
+    @Query(
+        "SELECT packageName, COUNT(*) AS cnt FROM event_log " +
+            "WHERE type = 'BLOCK_SHOWN' AND timestamp >= :since AND packageName IS NOT NULL " +
+            "GROUP BY packageName ORDER BY cnt DESC LIMIT :limit",
+    )
+    suspend fun topBlockedApps(since: Long, limit: Int): List<PackageCountRow>
+
+    @Query(
+        "SELECT COUNT(*) FROM event_log WHERE type = 'BLOCK_SHOWN' " +
+            "AND timestamp >= :startMillis AND timestamp < :endMillis",
+    )
+    suspend fun countBlockAttemptsInRange(startMillis: Long, endMillis: Long): Int
+
+    @Query(
+        "SELECT COUNT(*) FROM event_log WHERE type = 'BYPASS_GRANTED' " +
+            "AND timestamp >= :startMillis AND timestamp < :endMillis",
+    )
+    suspend fun countBypassesInRange(startMillis: Long, endMillis: Long): Int
 }
 
 @Dao
@@ -161,6 +193,9 @@ interface AllowlistDao {
     @Query("DELETE FROM allowlist WHERE packageName = :packageName")
     suspend fun remove(packageName: String)
 
+    @Query("DELETE FROM allowlist")
+    suspend fun deleteAll()
+
     @Query("SELECT COUNT(*) FROM allowlist WHERE packageName = :packageName")
     fun isAllowed(packageName: String): Int
 }
@@ -172,6 +207,9 @@ interface DailyStatsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(stats: DailyStatsEntity): Long
+
+    @Query("DELETE FROM daily_stats")
+    suspend fun deleteAll()
 
     @Query("DELETE FROM daily_stats WHERE dateEpochDay < :cutoffDate")
     suspend fun deleteOlderThan(cutoffDate: Long): Int

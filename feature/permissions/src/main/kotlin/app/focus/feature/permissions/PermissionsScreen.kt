@@ -149,7 +149,10 @@ private fun ReadyPermissionScreen(content: ReadyScreenContent) {
                 title = { Text(stringResource(R.string.permissions_title)) },
                 navigationIcon = {
                     IconButton(onClick = content.onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.permissions_cd_back),
+                        )
                     }
                 },
             )
@@ -256,7 +259,7 @@ private fun PermissionRow(item: PermissionCheckItem, onGrantClick: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         permissionIcon(item.id),
-                        contentDescription = null,
+                        contentDescription = stringResource(item.titleRes),
                         tint = if (item.isGranted) Color(GRANTED_COLOR) else Color.Gray,
                     )
                     Text(

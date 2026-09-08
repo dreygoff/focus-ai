@@ -26,4 +26,10 @@
     <string name="profiles_editing_locked">Редактирование профилей недоступно во время активной жёсткой сессии.</string>
     <string name="profiles_delete">Удалить</string>
     <string name="profiles_start_session">Запустить сессию %1$d мин</string>
+    <string name="profiles_cd_toggle_lock">Переключить режим блокировки</string>
+    <string name="profiles_cd_more">Ещё</string>
+    <string name="profile_editor_back">Назад</string>
+    <string name="app_picker_back">Назад</string>
+    <string name="app_picker_cd_expand_system">Показать системные приложения</string>
+    <string name="app_picker_cd_collapse_system">Скрыть системные приложения</string>
 </resources>

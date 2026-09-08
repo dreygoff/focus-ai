@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -36,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.focus.feature.home.HomeScreen
+import app.focus.feature.home.HomeScreenCallbacks
 import app.focus.feature.home.HomeUiState
 import app.focus.feature.home.HomeViewModel
 import app.focus.feature.onboarding.OnboardingRoutes
@@ -43,7 +46,15 @@ import app.focus.feature.onboarding.onboardingGraph
 import app.focus.feature.profiles.AppPickerRoute
 import app.focus.feature.profiles.ProfileEditorScreen
 import app.focus.feature.profiles.ProfilesRoute
+import app.focus.feature.schedules.ScheduleEditorScreen
 import app.focus.feature.schedules.SchedulesScreen
+import app.focus.feature.schedules.SchedulesViewModel
+import app.focus.feature.settings.AllowlistSettingsScreen
+import app.focus.feature.settings.LicensesScreen
+import app.focus.feature.settings.PrivacyPolicyScreen
+import app.focus.feature.settings.ProtectionInfoScreen
+import app.focus.feature.settings.SettingsRoutes
+import app.focus.feature.settings.SettingsScreen
 import app.focus.feature.stats.StatsRoutes
 import app.focus.feature.stats.StatsScreen
 
@@ -54,6 +65,8 @@ private object AppRoutes {
     const val PROFILES_EDITOR_WITH_ID = "profiles/editor/{profileId}"
     const val PROFILES_APPS = "profiles/{profileId}/apps"
     const val SCHEDULES = "schedules"
+    const val SCHEDULE_EDITOR = "schedules/editor"
+    const val SCHEDULE_EDITOR_WITH_ID = "schedules/editor/{scheduleId}"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,8 +74,10 @@ private object AppRoutes {
 fun AppNavigation(
     navController: NavHostController,
     startDestination: String,
+    versionName: String = "1.0.0",
     onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -> Unit = { _, _ -> },
     onOnboardingComplete: () -> Unit = {},
+    onLanguageChanged: (String) -> Unit = {},
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -71,7 +86,21 @@ fun AppNavigation(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Focus") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.nav_app_title)) },
+                actions = {
+                    androidx.compose.material3.IconButton(
+                        onClick = { navController.navigate(SettingsRoutes.SETTINGS) },
+                    ) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.nav_cd_settings),
+                        )
+                    }
+                },
+            )
+        },
         bottomBar = {
             AppBottomBar(
                 selectedIndex = currentSelectedIndex,
@@ -90,19 +119,41 @@ fun AppNavigation(
             startDestination = startDestination,
             modifier = Modifier.padding(paddingValues),
         ) {
-            homeRoute(onNavigateToStartSession, navController)
+            homeRoute(navController)
             profilesRoute(onNavigateToStartSession, navController)
             profileEditorRoutes(navController)
-            composable(AppRoutes.SCHEDULES) {
-                SchedulesScreen(
-                    schedules = emptyList(),
-                    onAddSchedule = {},
-                    onEditSchedule = {},
-                    onDeleteSchedule = {},
+            schedulesRoute(navController)
+            composable(StatsRoutes.ROUTE) {
+                StatsScreen()
+            }
+            composable(SettingsRoutes.SETTINGS) {
+                SettingsScreen(
+                    versionName = versionName,
+                    onBack = { navController.popBackStack() },
+                    onOpenPermissions = { navController.navigate(SettingsRoutes.PERMISSIONS) },
+                    onOpenAllowlist = { navController.navigate(SettingsRoutes.ALLOWLIST) },
+                    onOpenProtectionInfo = { navController.navigate(SettingsRoutes.PROTECTION_INFO) },
+                    onOpenPrivacy = { navController.navigate(SettingsRoutes.PRIVACY) },
+                    onOpenLicenses = { navController.navigate(SettingsRoutes.LICENSES) },
+                    onLanguageChanged = onLanguageChanged,
                 )
             }
-            composable(StatsRoutes.ROUTE) {
-                StatsScreen(onBack = {})
+            composable(SettingsRoutes.PERMISSIONS) {
+                app.focus.feature.permissions.PermissionsRoute(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(SettingsRoutes.ALLOWLIST) {
+                AllowlistSettingsScreen(onBack = { navController.popBackStack() })
+            }
+            composable(SettingsRoutes.PROTECTION_INFO) {
+                ProtectionInfoScreen(onBack = { navController.popBackStack() })
+            }
+            composable(SettingsRoutes.PRIVACY) {
+                PrivacyPolicyScreen(onBack = { navController.popBackStack() })
+            }
+            composable(SettingsRoutes.LICENSES) {
+                LicensesScreen(onBack = { navController.popBackStack() })
             }
             onboardingGraph(
                 navController = navController,
@@ -129,16 +180,21 @@ private fun AppBottomBar(
     onNavigate: (String) -> Unit,
 ) {
     val bottomNavItems = listOf(
-        BottomNavItem(AppRoutes.HOME, Icons.Default.Home),
-        BottomNavItem(AppRoutes.PROFILES, Icons.Outlined.PersonOutline),
-        BottomNavItem(AppRoutes.SCHEDULES, Icons.Outlined.EventNote),
-        BottomNavItem(StatsRoutes.ROUTE, Icons.Default.Equalizer),
+        BottomNavItem(AppRoutes.HOME, Icons.Default.Home, R.string.nav_cd_home),
+        BottomNavItem(AppRoutes.PROFILES, Icons.Outlined.PersonOutline, R.string.nav_cd_profiles),
+        BottomNavItem(AppRoutes.SCHEDULES, Icons.Outlined.EventNote, R.string.nav_cd_schedules),
+        BottomNavItem(StatsRoutes.ROUTE, Icons.Default.Equalizer, R.string.nav_cd_stats),
     )
     NavigationBar {
         bottomNavItems.forEachIndexed { index, item ->
             val selected = selectedIndex == index
             NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = null) },
+                icon = {
+                    Icon(
+                        item.icon,
+                        contentDescription = stringResource(item.contentDescriptionRes),
+                    )
+                },
                 label = {},
                 selected = selected,
                 onClick = { if (!selected) onNavigate(item.route) },
@@ -147,8 +203,53 @@ private fun AppBottomBar(
     }
 }
 
+private fun NavGraphBuilder.schedulesRoute(navController: NavHostController) {
+    composable(AppRoutes.SCHEDULES) {
+        val viewModel: SchedulesViewModel = hiltViewModel()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+        SchedulesScreen(
+            schedules = state.schedules,
+            onAddSchedule = { navController.navigate(AppRoutes.SCHEDULE_EDITOR) },
+            onEditSchedule = { id -> navController.navigate("schedules/editor/$id") },
+            onDeleteSchedule = viewModel::deleteSchedule,
+            onToggleEnabled = viewModel::toggleEnabled,
+        )
+    }
+
+    composable(AppRoutes.SCHEDULE_EDITOR) {
+        val viewModel: SchedulesViewModel = hiltViewModel()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+        ScheduleEditorScreen(
+            profiles = state.profiles,
+            onSave = { schedule ->
+                viewModel.saveSchedule(schedule)
+                navController.popBackStack()
+            },
+            onBack = { navController.popBackStack() },
+        )
+    }
+
+    composable(
+        route = AppRoutes.SCHEDULE_EDITOR_WITH_ID,
+        arguments = listOf(navArgument("scheduleId") { type = NavType.StringType }),
+    ) { entry ->
+        val scheduleId = entry.arguments?.getString("scheduleId")
+        val viewModel: SchedulesViewModel = hiltViewModel()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+        val existing = state.schedules.firstOrNull { it.id == scheduleId }
+        ScheduleEditorScreen(
+            profiles = state.profiles,
+            existing = existing,
+            onSave = { schedule ->
+                viewModel.saveSchedule(schedule)
+                navController.popBackStack()
+            },
+            onBack = { navController.popBackStack() },
+        )
+    }
+}
+
 private fun NavGraphBuilder.homeRoute(
-    onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -> Unit,
     navController: NavHostController,
 ) {
     composable(AppRoutes.HOME) {
@@ -169,16 +270,69 @@ private fun NavGraphBuilder.homeRoute(
                     HomeScreen(
                         uiState = HomeUiState(
                             activeSession = state.activeSession,
+                            pomodoroPhase = state.pomodoroPhase,
+                            phaseEndAtMillis = state.phaseEndAtMillis,
                             profiles = state.profiles,
                             todayFocusMinutes = state.todayFocusMinutes,
                             streakDays = state.streakDays,
                         ),
-                        onStartSession = onNavigateToStartSession,
-                        onPauseSession = {},
-                        onStopSession = { viewModel.cancelSession() },
-                        onNavigateToProfiles = { navController.navigate(AppRoutes.PROFILES) },
+                        callbacks = HomeScreenCallbacks(
+                            onStartSession = { profileId, durationMinutes ->
+                                val resolvedProfileId = profileId
+                                    ?: state.profiles.firstOrNull()?.id
+                                    ?: return@HomeScreenCallbacks
+                                viewModel.startSession(resolvedProfileId, durationMinutes)
+                            },
+                            onStartPomodoro = { profileId ->
+                                val resolvedProfileId = profileId
+                                    ?: state.profiles.firstOrNull()?.id
+                                    ?: return@HomeScreenCallbacks
+                                viewModel.startPomodoroSession(resolvedProfileId)
+                            },
+                            onPauseSession = { viewModel.pauseOrResumeSession() },
+                            onStopSession = { viewModel.requestStopSession() },
+                            onNavigateToProfiles = { navController.navigate(AppRoutes.PROFILES) },
+                        ),
                     )
                 }
+            }
+
+            if (state.showStopConfirmation) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { viewModel.dismissStopConfirmation() },
+                    title = { androidx.compose.material3.Text(stringResource(R.string.dialog_stop_session_title)) },
+                    text = { androidx.compose.material3.Text(stringResource(R.string.dialog_stop_session_body)) },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = { viewModel.confirmStopSession() }) {
+                            androidx.compose.material3.Text(stringResource(R.string.dialog_stop_session_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.TextButton(onClick = { viewModel.dismissStopConfirmation() }) {
+                            androidx.compose.material3.Text(stringResource(R.string.dialog_stop_session_dismiss))
+                        }
+                    },
+                )
+            }
+
+            if (state.showHardLockConfirmation) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { viewModel.dismissHardLockConfirmation() },
+                    title = { androidx.compose.material3.Text(stringResource(R.string.dialog_hard_lock_title)) },
+                    text = {
+                        androidx.compose.material3.Text(stringResource(R.string.dialog_hard_lock_body))
+                    },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = { viewModel.confirmHardLockStart() }) {
+                            androidx.compose.material3.Text(stringResource(R.string.dialog_hard_lock_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.TextButton(onClick = { viewModel.dismissHardLockConfirmation() }) {
+                            androidx.compose.material3.Text(stringResource(R.string.dialog_cancel))
+                        }
+                    },
+                )
             }
         }
     }
@@ -245,4 +399,5 @@ private fun bottomNavIndexForRoute(currentRoute: String?): Int = when {
 data class BottomNavItem(
     val route: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val contentDescriptionRes: Int,
 )

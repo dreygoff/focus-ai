@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -19,13 +20,15 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:common"))
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
     implementation(project(":core:database"))
     implementation(project(":core:datastore"))
     implementation(project(":core:system"))
     implementation(project(":core:notifications"))
-    
+    implementation(project(":service:accessibility"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.work.ktx)

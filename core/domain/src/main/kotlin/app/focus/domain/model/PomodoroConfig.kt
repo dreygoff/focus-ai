@@ -83,4 +83,23 @@ data class PomodoroConfig(
     }
 
     enum class PomodoroPhase { FOCUS, SHORT_BREAK, LONG_BREAK }
+
+    companion object {
+        private const val DEBUG_FOCUS_MINUTES = 1
+        private const val DEBUG_SHORT_BREAK_MINUTES = 1
+        private const val DEBUG_LONG_BREAK_MINUTES = 2
+
+        private const val DEFAULT_MAX_FOCUS_MINUTES = 25
+
+        fun forProfile(focusMinutes: Int, debugAccelerated: Boolean = false): PomodoroConfig {
+            if (debugAccelerated) {
+                return PomodoroConfig(
+                    focusMinutes = DEBUG_FOCUS_MINUTES,
+                    shortBreakMinutes = DEBUG_SHORT_BREAK_MINUTES,
+                    longBreakMinutes = DEBUG_LONG_BREAK_MINUTES,
+                )
+            }
+            return PomodoroConfig(focusMinutes = focusMinutes.coerceAtMost(DEFAULT_MAX_FOCUS_MINUTES))
+        }
+    }
 }

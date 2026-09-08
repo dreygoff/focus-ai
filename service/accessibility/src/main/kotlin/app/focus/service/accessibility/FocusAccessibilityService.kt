@@ -11,6 +11,21 @@ class FocusAccessibilityService : AccessibilityService() {
     companion object {
         private const val TAG = "FocusAccessibilityService"
         var lastForegroundPkg: String? = null
+
+        @Volatile
+        var instance: FocusAccessibilityService? = null
+    }
+
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        instance = this
+        Log.d(TAG, "Accessibility service connected")
+    }
+
+    override fun onDestroy() {
+        instance = null
+        super.onDestroy()
+        Log.d(TAG, "Accessibility service destroyed")
     }
 
     override fun onInterrupt() {}
@@ -39,16 +54,6 @@ class FocusAccessibilityService : AccessibilityService() {
         Log.d(TAG, "Foreground detected: $packageName ($className)")
         lastForegroundPkg = packageName
         ForegroundEventBus.publish(packageName, className)
-    }
-
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        Log.d(TAG, "Accessibility service connected")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG, "Accessibility service destroyed")
     }
 
     private fun isServiceOrIgnored(pkg: String, className: String): Boolean {

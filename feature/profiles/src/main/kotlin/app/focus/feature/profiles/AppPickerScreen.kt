@@ -71,7 +71,10 @@ fun AppPickerScreen(
                 title = { Text(stringResource(R.string.app_picker_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.app_picker_back),
+                        )
                     }
                 },
                 actions = {
@@ -138,7 +141,13 @@ fun AppPickerScreen(
                             )
                             Icon(
                                 if (state.systemSectionExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = null,
+                                contentDescription = stringResource(
+                                    if (state.systemSectionExpanded) {
+                                        R.string.app_picker_cd_collapse_system
+                                    } else {
+                                        R.string.app_picker_cd_expand_system
+                                    },
+                                ),
                             )
                         }
                     }

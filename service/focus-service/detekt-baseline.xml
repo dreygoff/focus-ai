@@ -2,25 +2,33 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FunctionOnlyReturningConstant:BootReceiver.kt$BootReceiver$private fun retrieveActiveSessionSnapshot(context: Context): SessionSnapshot?</ID>
+    <ID>CyclomaticComplexMethod:AlarmReceiver.kt$AlarmReceiver$override fun onReceive(context: Context, intent: Intent)</ID>
+    <ID>CyclomaticComplexMethod:FocusForegroundService.kt$FocusForegroundService$override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int</ID>
+    <ID>LongParameterList:FocusServiceDependencies.kt$FocusServiceDependencies$( val stopSessionUseCase: StopSessionUseCase, val completeEmergencyExitUseCase: CompleteEmergencyExitUseCase, val sessionRepository: SessionRepository, val snapshotStore: ActiveSessionSnapshotStorage, val alarmScheduler: AlarmSchedulerService, val clock: Clock, val detectorOrchestrator: DetectorOrchestrator, val usageStatsPollingDetector: UsageStatsPollingDetector, val decideBlockUseCase: DecideBlockUseCase, val blockLauncher: BlockLauncher, val eventLogRepository: EventLogRepository, val activeSessionBlockState: ActiveSessionBlockState, )</ID>
+    <ID>LongParameterList:SessionBlockCoordinator.kt$SessionBlockCoordinator$( packageName: String, appName: String, detectedAtMillis: Long, profileName: String, plannedEndAtMillis: Long, tamperMessage: String, )</ID>
+    <ID>LongParameterList:SessionBlockCoordinator.kt$SessionBlockCoordinator$( session: Session, packageName: String, appName: String, detectedAtMillis: Long, profileName: String, plannedEndAtMillis: Long, tamperMessage: String?, )</ID>
     <ID>LongParameterList:SessionEngine.kt$SessionEngine$( sessionId: String, profileId: String, durationMinutes: Int, targetPackages: List&lt;String&gt;, hardLockExtraPackages: List&lt;String&gt; = emptyList(), pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null )</ID>
     <ID>LoopWithTooManyJumpStatements:SessionEngine.kt$SessionEngine$while</ID>
-    <ID>MagicNumber:AlarmReceiver.kt$AlarmReceiver$1000L</ID>
     <ID>MagicNumber:AlarmReceiver.kt$AlarmReceiver$25</ID>
-    <ID>MagicNumber:AlarmReceiver.kt$AlarmReceiver$60L</ID>
-    <ID>MagicNumber:FocusForegroundService.kt$FocusForegroundService.Companion$9001</ID>
     <ID>MagicNumber:FocusForegroundService.kt$FocusForegroundService.Companion$9002</ID>
     <ID>MagicNumber:SessionEngine.kt$SessionEngine$1000</ID>
     <ID>MagicNumber:SessionEngine.kt$SessionEngine$1000L</ID>
     <ID>MagicNumber:SessionEngine.kt$SessionEngine$60L</ID>
     <ID>MagicNumber:SessionEngine.kt$SessionEngine$60_000</ID>
     <ID>MagicNumber:SessionEngine.kt$SessionEngine$60_000L</ID>
+    <ID>MaxLineLength:AlarmReceiver.kt$AlarmReceiver.Companion$const val ACTION_EMERGENCY_EXIT_COMPLETE = app.focus.domain.usecase.RequestEmergencyExitUseCase.ACTION_EMERGENCY_EXIT_COMPLETE</ID>
     <ID>MaxLineLength:SessionEngine.kt$SessionEngine$suspend</ID>
+    <ID>ReturnCount:AlarmReceiver.kt$AlarmReceiver$override fun onReceive(context: Context, intent: Intent)</ID>
+    <ID>ReturnCount:SessionBlockCoordinator.kt$SessionBlockCoordinator$private fun tamperMessageIfNeeded(packageName: String): String?</ID>
     <ID>ReturnCount:SessionEngine.kt$SessionEngine$fun checkBlockDecision(packageName: String): BlockDecision</ID>
+    <ID>TooGenericExceptionCaught:AlarmReceiver.kt$AlarmReceiver$e: Exception</ID>
     <ID>TooGenericExceptionCaught:BootReceiver.kt$BootReceiver$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ScheduleActionReceiver.kt$ScheduleActionReceiver$e: Exception</ID>
     <ID>TooGenericExceptionCaught:SessionEngine.kt$SessionEngine$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TimeChangeReceiver.kt$TimeChangeReceiver$e: Exception</ID>
+    <ID>TooManyFunctions:FocusForegroundService.kt$FocusForegroundService : Service</ID>
     <ID>TooManyFunctions:SessionEngine.kt$SessionEngine</ID>
-    <ID>UnusedParameter:BootReceiver.kt$BootReceiver$context: Context</ID>
+    <ID>UnusedParameter:SessionBlockCoordinator.kt$SessionBlockCoordinator$detectedAtMillis: Long</ID>
     <ID>UnusedPrivateProperty:SessionEngine.kt$SessionEngine$private val scheduleAlarmPlanner: ScheduleAlarmPlanner</ID>
     <ID>WildcardImport:SessionEngine.kt$import kotlinx.coroutines.*</ID>
   </CurrentIssues>

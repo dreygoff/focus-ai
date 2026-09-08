@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="schedules_title">Schedules</string>
+    <string name="schedules_cd_add">Add schedule</string>
+    <string name="schedules_cd_delete">Delete schedule</string>
+    <string name="schedules_empty_title">No schedules yet</string>
+    <string name="schedules_empty_body">Create a schedule to automatically start focus sessions.</string>
+    <string name="schedules_add">Add schedule</string>
+    <string name="schedules_default_label">Schedule</string>
+    <string name="schedules_days">Days: %1$s</string>
+    <string name="schedules_enabled">Enabled</string>
+    <string name="schedules_disabled">Disabled</string>
+    <string name="schedule_editor_new">New schedule</string>
+    <string name="schedule_editor_edit">Edit schedule</string>
+    <string name="schedule_editor_back">Back</string>
+    <string name="schedule_editor_label">Label</string>
+    <string name="schedule_editor_profile">Profile</string>
+    <string name="schedule_editor_days">Days</string>
+    <string name="schedule_editor_start">Start</string>
+    <string name="schedule_editor_end">End</string>
+    <string name="schedule_editor_hour">H</string>
+    <string name="schedule_editor_minute">M</string>
+    <string name="schedule_editor_allow_skip">Allow skip today</string>
+    <string name="schedule_editor_enabled">Enabled</string>
+    <string name="schedule_editor_save">Save</string>
+    <string name="schedule_day_mon">Mon</string>
+    <string name="schedule_day_tue">Tue</string>
+    <string name="schedule_day_wed">Wed</string>
+    <string name="schedule_day_thu">Thu</string>
+    <string name="schedule_day_fri">Fri</string>
+    <string name="schedule_day_sat">Sat</string>
+    <string name="schedule_day_sun">Sun</string>
+</resources>

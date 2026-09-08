@@ -170,11 +170,14 @@ private fun ProfileCard(
                             } else {
                                 Icons.Default.Visibility
                             },
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.profiles_cd_toggle_lock),
                         )
                     }
                     IconButton(onClick = { showMenu = true }, enabled = !editingLocked) {
-                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.profiles_cd_more),
+                        )
                     }
                     DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                         DropdownMenuItem(

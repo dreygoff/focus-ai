@@ -99,6 +99,48 @@ class ScheduleAlarmPlanner {
         }
     }
 
+    /**
+     * Returns the end millis of the active window if [nowMillis] falls inside the schedule interval.
+     */
+    fun findActiveWindowEndAt(schedule: Schedule, nowMillis: Long): Long? {
+        if (!schedule.enabled) return null
+
+        val cal = Calendar.getInstance(TimeZone.getDefault())
+        val dayStartMillis = startOfDayMillis(nowMillis, cal)
+        for (dayOffset in -1..0) {
+            val dayStart = dayStartMillis + dayOffset * 86400_000L
+            if (!isDaySelected(schedule, dayStart, cal)) continue
+
+            val windowStart = dayStart + schedule.startMinuteOfDay * 60_000L
+            val windowEnd = windowStart + endAt(schedule.startMinuteOfDay, schedule.endMinuteOfDay)
+            if (nowMillis >= windowStart && nowMillis < windowEnd) {
+                return windowEnd
+            }
+        }
+        return null
+    }
+
+    fun remainingMillisInActiveWindow(schedule: Schedule, nowMillis: Long): Long? {
+        val endAt = findActiveWindowEndAt(schedule, nowMillis) ?: return null
+        return (endAt - nowMillis).coerceAtLeast(0L)
+    }
+
+    private fun startOfDayMillis(timeMillis: Long, cal: Calendar): Long {
+        cal.timeInMillis = timeMillis
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        return cal.timeInMillis
+    }
+
+    private fun isDaySelected(schedule: Schedule, dayStartMillis: Long, cal: Calendar): Boolean {
+        cal.timeInMillis = dayStartMillis
+        val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+        val bitIndex = if (dayOfWeek == Calendar.SUNDAY) 6 else dayOfWeek - 2
+        return schedule.daysOfWeekMask and (1 shl bitIndex) != 0
+    }
+
     data class AlarmPair(val startAt: Long, val endAt: Long)
     data class AlarmInfo(
         val scheduleId: String,

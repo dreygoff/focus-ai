@@ -7,7 +7,9 @@ import androidx.datastore.core.Serializer
 import app.focus.android.datastore.ActiveSessionSnapshot as ActiveSessionSnapshotProto
 import app.focus.domain.internal.statemachine.SessionSnapshot
 import app.focus.domain.usecase.ActiveSessionSnapshotStorage
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -17,6 +19,8 @@ import java.io.OutputStream
 class ProtoActiveSessionSnapshotStorage(
     private val dataStore: DataStore<ActiveSessionSnapshotProto>,
 ) : ActiveSessionSnapshotStorage {
+
+    override fun observe(): Flow<SessionSnapshot?> = dataStore.data.map(::fromProto)
 
     override suspend fun save(snapshot: SessionSnapshot) {
         dataStore.updateData {
@@ -30,12 +34,14 @@ class ProtoActiveSessionSnapshotStorage(
                 .setPomodoro(snapshot.isPomodoro)
                 .setPhaseEndAt(snapshot.phaseEndAtMillis)
                 .setPhase(snapshot.currentPhase)
+                .setPomodoroFocusCyclesDone(snapshot.pomodoroFocusCyclesDone)
                 .build()
         }
     }
 
-    override suspend fun load(): SessionSnapshot? {
-        val proto = dataStore.data.first()
+    override suspend fun load(): SessionSnapshot? = fromProto(dataStore.data.first())
+
+    private fun fromProto(proto: ActiveSessionSnapshotProto): SessionSnapshot? {
         if (proto.sessionId.isBlank()) return null
         return SessionSnapshot(
             sessionId = proto.sessionId,
@@ -47,6 +53,7 @@ class ProtoActiveSessionSnapshotStorage(
             isPomodoro = proto.pomodoro,
             currentPhase = proto.phase.ifBlank { "FOCUS" },
             phaseEndAtMillis = proto.phaseEndAt,
+            pomodoroFocusCyclesDone = proto.pomodoroFocusCyclesDone,
         )
     }
 

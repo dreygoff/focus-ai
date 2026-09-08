@@ -13,6 +13,7 @@ import app.focus.domain.model.AccessWindow
 import app.focus.domain.model.DailyStats
 import app.focus.domain.model.EventLog
 import kotlinx.coroutines.flow.Flow
+import app.focus.domain.internal.stats.EpochDays
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Qualifier
@@ -33,8 +34,8 @@ class RealSessionRepository(
         sessionDao.observeSessionsInRange(startDate, endDate).map { sessions -> sessions.map { it.toDomain() } }
 
     override suspend fun getStatsDaily(startDate: Long, days: Int): List<DailyStats> {
-        val startEpochDay = startDate / MILLIS_PER_DAY
-        val endEpochDay = startEpochDay + days
+        val startEpochDay = EpochDays.fromMillis(startDate)
+        val endEpochDay = startEpochDay + days - 1
         return dailyStatsDao.getStatsInRange(startEpochDay, endEpochDay).map { it.toDomain() }
     }
 
@@ -63,7 +64,6 @@ class RealSessionRepository(
     }
 
     companion object {
-        private const val MILLIS_PER_DAY = 86_400_000L
         private const val MILLIS_PER_MINUTE = 60_000L
     }
 }
@@ -92,12 +92,22 @@ class RealAllowlistRepository(
 class RealAccessWindowRepository(
     private val accessWindowDao: AccessWindowDao
 ) : app.focus.domain.usecase.AccessWindowRepository {
-    override suspend fun grant(sessionId: String, packageName: String, reason: String?): Long {
+    override suspend fun grant(
+        sessionId: String,
+        packageName: String,
+        reason: String?,
+        durationMinutes: Int,
+    ): Long {
         val now = System.currentTimeMillis()
-        val expiresAt = now + 5 * 60_000L
+        val expiresAt = now + durationMinutes * 60_000L
         val entity = app.focus.database.entity.AccessWindowEntity(
-            id = java.util.UUID.randomUUID().toString(), sessionId = sessionId, packageName = packageName,
-            grantedAt = now, expiresAt = expiresAt, reason = reason, restrictedToActivity = null
+            id = java.util.UUID.randomUUID().toString(),
+            sessionId = sessionId,
+            packageName = packageName,
+            grantedAt = now,
+            expiresAt = expiresAt,
+            reason = reason,
+            restrictedToActivity = null,
         )
         accessWindowDao.insert(entity)
         return expiresAt
