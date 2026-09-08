@@ -17,6 +17,7 @@ class StartSessionUseCase(
     private val profileRepo: ProfileRepository,
     private val snapshotStore: ActiveSessionSnapshotStorage,
     private val alarmScheduler: AlarmSchedulerService,
+    private val sessionRuntime: SessionRuntimeController,
     private val clock: Clock
 ) {
     suspend fun execute(
@@ -69,11 +70,22 @@ class StartSessionUseCase(
         )
 
         val alarmScheduled = try {
-            alarmScheduler.scheduleExact(plannedEndAt, session.id.hashCode(), "app.focus.service.focus.AlarmReceiver")
+            alarmScheduler.scheduleExact(
+                alarmMillis = plannedEndAt,
+                operationCode = session.id.hashCode(),
+                receiverClassName = "app.focus.service.focus.AlarmReceiver",
+                sessionId = session.id,
+            )
             true
         } catch (e: Exception) {
             false
         }
+
+        sessionRuntime.onSessionStarted(
+            sessionId = session.id,
+            profileName = profile.name,
+            plannedEndAtMillis = plannedEndAt,
+        )
 
         StartSessionResult(session, alarmScheduled)
     }
@@ -88,9 +100,14 @@ class StopSessionUseCase(
     private val sessionRepo: SessionRepository,
     private val snapshotStore: ActiveSessionSnapshotStorage,
     private val alarmScheduler: AlarmSchedulerService,
+    private val sessionRuntime: SessionRuntimeController,
     private val clock: Clock
 ) {
-    suspend fun execute(sessionId: String, status: app.focus.domain.model.SessionStatus = app.focus.domain.model.SessionStatus.Cancelled): StopSessionResult {
+    suspend fun execute(
+        sessionId: String,
+        status: app.focus.domain.model.SessionStatus = app.focus.domain.model.SessionStatus.Cancelled,
+        stopForegroundService: Boolean = true,
+    ): StopSessionResult {
         return withContext(Dispatchers.IO) {
             val session = sessionRepo.observeSessions(clock.nowMillis() - 86400000L, clock.nowMillis())
                 .first()
@@ -103,6 +120,9 @@ class StopSessionUseCase(
             // Clear snapshot and cancel alarm (TR-05)
             snapshotStore.clear()
             try { cancelAlarm(session) } catch(e: Exception) { /* ignore */ }
+            if (stopForegroundService) {
+                sessionRuntime.syncStopService()
+            }
 
             return@withContext StopSessionResult(oldStatus = session.status, newStatus = status)
         }
@@ -194,6 +214,7 @@ class DecideBlockUseCase(
 ) {
     data class SessionCheckState(
         val hasActiveSession: Boolean,
+        val isPaused: Boolean = false,
         val isHardLock: Boolean,
         val sessionId: String?,
         val targetPackages: Set<String>,
@@ -201,9 +222,10 @@ class DecideBlockUseCase(
     )
 
     suspend fun decide(packageName: String): app.focus.domain.model.BlockDecision {
+        val state = sessionState()
         // TR-06 rules by priority
-        // 1. No active session or in pomodoro break
-        if (!sessionState().hasActiveSession) return app.focus.domain.model.BlockDecision.Allow
+        // 1. No active session, paused, or in pomodoro break
+        if (!state.hasActiveSession || state.isPaused) return app.focus.domain.model.BlockDecision.Allow
         
         // 2. Package in allowlist
         val fullAllowlist = systemAllowlist() + userAllowlistRepo.observeAllowlist().first()
@@ -216,8 +238,7 @@ class DecideBlockUseCase(
         }
 
         // 4. Package is a target of active session OR hard lock extra
-        val state = sessionState()
-        if (state.targetPackages.contains(packageName) || 
+        if (state.targetPackages.contains(packageName) ||
             (state.isHardLock && state.hardLockExtraPackages.contains(packageName))) {
             return app.focus.domain.model.BlockDecision.Block(
                 reason = if (state.isHardLock && !state.targetPackages.contains(packageName)) {
@@ -265,41 +286,169 @@ class BypassFlowExecutor(
         }
     }
 
-    suspend fun grantBypass(sessionId: String, packageName: String, reason: String?): Long {
-        return accessWindowRepo.grant(sessionId, packageName, reason)
+    suspend fun grantBypass(sessionId: String, packageName: String, reason: String?, durationMinutes: Int): Long {
+        return accessWindowRepo.grant(sessionId, packageName, reason, durationMinutes)
+    }
+}
+
+class PauseSessionUseCase(
+    private val sessionRepo: SessionRepository,
+    private val eventLogRepo: EventLogRepository,
+    private val blockState: ActiveSessionBlockState,
+    private val clock: Clock,
+) {
+    suspend fun execute(sessionId: String): app.focus.domain.model.Session = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: error("No active session")
+        check(session.id == sessionId) { "Session mismatch" }
+        check(session.lockMode is app.focus.domain.model.LockMode.Soft) { "Pause only in soft lock" }
+        check(session.status is app.focus.domain.model.SessionStatus.Running) { "Session not running" }
+        check(session.pausesUsed < MAX_PAUSES) { "Max pauses reached" }
+
+        val updated = session.copy(
+            status = app.focus.domain.model.SessionStatus.Paused(),
+            pausesUsed = session.pausesUsed + 1,
+        )
+        sessionRepo.update(updated)
+        blockState.setPaused(true)
+        eventLogRepo.log(
+            app.focus.domain.model.EventLog(
+                timestamp = clock.nowMillis(),
+                sessionId = sessionId,
+                type = app.focus.domain.model.EventType.SESSION_PAUSED,
+                packageName = null,
+                payload = null,
+            ),
+        )
+        updated
+    }
+
+    companion object {
+        const val MAX_PAUSES = 3
+    }
+}
+
+class ResumeSessionUseCase(
+    private val sessionRepo: SessionRepository,
+    private val eventLogRepo: EventLogRepository,
+    private val blockState: ActiveSessionBlockState,
+    private val clock: Clock,
+) {
+    suspend fun execute(sessionId: String): app.focus.domain.model.Session = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: error("No active session")
+        check(session.id == sessionId) { "Session mismatch" }
+        check(session.status is app.focus.domain.model.SessionStatus.Paused) { "Session not paused" }
+
+        val updated = session.copy(status = app.focus.domain.model.SessionStatus.Running)
+        sessionRepo.update(updated)
+        blockState.setPaused(false)
+        eventLogRepo.log(
+            app.focus.domain.model.EventLog(
+                timestamp = clock.nowMillis(),
+                sessionId = sessionId,
+                type = app.focus.domain.model.EventType.SESSION_RESUMED,
+                packageName = null,
+                payload = null,
+            ),
+        )
+        updated
+    }
+}
+
+class GrantBypassUseCase(
+    private val accessWindowRepo: AccessWindowRepository,
+    private val sessionRepo: SessionRepository,
+    private val eventLogRepo: EventLogRepository,
+    private val alarmScheduler: AlarmSchedulerService,
+    private val clock: Clock,
+) {
+    data class Result(val expiresAt: Long, val grantedPackages: List<String>)
+
+    suspend fun execute(
+        sessionId: String,
+        packageName: String,
+        reason: String?,
+        profile: app.focus.domain.model.Profile,
+        targetPackages: List<String>,
+    ): Result = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: error("No active session")
+
+        val packages = if (profile.bypassAppliesToAllApps) {
+            targetPackages.ifEmpty { listOf(packageName) }
+        } else {
+            listOf(packageName)
+        }
+
+        var expiresAt = 0L
+        packages.forEach { pkg ->
+            expiresAt = accessWindowRepo.grant(
+                sessionId = sessionId,
+                packageName = pkg,
+                reason = reason,
+                durationMinutes = profile.accessWindowMinutes,
+            )
+        }
+
+        sessionRepo.update(session.copy(bypassesUsed = session.bypassesUsed + 1))
+
+        eventLogRepo.log(
+            app.focus.domain.model.EventLog(
+                timestamp = clock.nowMillis(),
+                sessionId = sessionId,
+                type = app.focus.domain.model.EventType.BYPASS_GRANTED,
+                packageName = packageName,
+                payload = reason,
+            ),
+        )
+
+        val warningAt = expiresAt - WARNING_BEFORE_EXPIRY_MS
+        if (warningAt > clock.nowMillis()) {
+            alarmScheduler.scheduleExact(
+                alarmMillis = warningAt,
+                operationCode = accessWindowWarningCode(sessionId, packageName),
+                receiverClassName = ALARM_RECEIVER,
+                sessionId = sessionId,
+                action = ACTION_ACCESS_WINDOW_WARNING,
+                extras = mapOf(KEY_PACKAGE_NAME to packageName),
+            )
+        }
+
+        alarmScheduler.scheduleExact(
+            alarmMillis = expiresAt,
+            operationCode = accessWindowExpiryCode(sessionId, packageName),
+            receiverClassName = ALARM_RECEIVER,
+            sessionId = sessionId,
+            action = ACTION_ACCESS_WINDOW_EXPIRED,
+            extras = mapOf(KEY_PACKAGE_NAME to packageName),
+        )
+
+        Result(expiresAt, packages)
+    }
+
+    companion object {
+        const val ALARM_RECEIVER = "app.focus.service.focus.AlarmReceiver"
+        const val ACTION_ACCESS_WINDOW_WARNING = "app.focus.service.focus.ACTION_ACCESS_WINDOW_WARNING"
+        const val ACTION_ACCESS_WINDOW_EXPIRED = "app.focus.service.focus.ACTION_ACCESS_WINDOW_EXPIRED"
+        const val KEY_PACKAGE_NAME = "packageName"
+        private const val WARNING_BEFORE_EXPIRY_MS = 30_000L
+
+        fun accessWindowWarningCode(sessionId: String, packageName: String): Int =
+            "warn_${sessionId}_$packageName".hashCode()
+
+        fun accessWindowExpiryCode(sessionId: String, packageName: String): Int =
+            "exp_${sessionId}_$packageName".hashCode()
     }
 }
 
 class SessionStateMachineExecutor(
-    private val clock: Clock
+    private val clock: Clock,
 ) {
     fun execute(event: app.focus.domain.internal.statemachine.SessionEvent): app.focus.domain.internal.statemachine.StateMachineResult {
         val stateMachineClock = object : app.focus.domain.internal.statemachine.Clock {
             override fun nowMillis(): Long = clock.nowMillis()
         }
         return app.focus.domain.internal.statemachine.SessionStateMachine(stateMachineClock).execute(event)
-    }
-}
-
-class GrantBypassUseCase(
-    private val accessWindowRepo: AccessWindowRepository,
-    private val alarmScheduler: AlarmSchedulerService,
-    private val clock: Clock
-) {
-    suspend fun execute(sessionId: String, packageName: String, profile: app.focus.domain.model.Profile): Long {
-        return withContext(Dispatchers.IO) {
-            val expiresAt = System.currentTimeMillis() + profile.accessWindowMinutes * 60L * 1000L
-            
-            accessWindowRepo.grant(sessionId, packageName, "bypass_granted")
-
-            // Schedule notification warning for access window expiry (30s before)
-            alarmScheduler.scheduleExact(
-                expiresAt - 30_000L,
-                "ACCESS_WINDOW_EXPIRED_${packageName}".hashCode(),
-                "app.focus.service.receiver.AlarmReceiver"
-            )
-
-            expiresAt
-        }
     }
 }

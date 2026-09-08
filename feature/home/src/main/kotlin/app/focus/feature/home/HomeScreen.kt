@@ -85,14 +85,20 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Active session or start button
-            if (uiState.activeSession != null && uiState.activeSession.status is app.focus.domain.model.SessionStatus.Running) {
+            if (uiState.activeSession != null &&
+                (uiState.activeSession.status is app.focus.domain.model.SessionStatus.Running ||
+                    uiState.activeSession.status is app.focus.domain.model.SessionStatus.Paused)
+            ) {
+                val isPaused = uiState.activeSession.status is app.focus.domain.model.SessionStatus.Paused
                 ActiveSessionCard(
-                    sessionId = uiState.activeSession.id,
-                    profileId = uiState.activeSession.profileId,
-                    plannedEndAt = uiState.activeSession.plannedEndAt,
-                    onStart = { onStartSession(null, 25) },
+                    ActiveSessionCardState(
+                        sessionId = uiState.activeSession.id,
+                        profileId = uiState.activeSession.profileId,
+                        plannedEndAt = uiState.activeSession.plannedEndAt,
+                        isPaused = isPaused,
+                    ),
                     onPause = onPauseSession,
-                    onStop = onStopSession
+                    onStop = onStopSession,
                 )
             } else {
                 StartSessionCard(
@@ -143,29 +149,35 @@ private fun StatCard(
     }
 }
 
+private data class ActiveSessionCardState(
+    val sessionId: String,
+    val profileId: String?,
+    val plannedEndAt: Long?,
+    val isPaused: Boolean,
+)
+
 @Composable
 private fun ActiveSessionCard(
-    sessionId: String,
-    profileId: String?,
-    plannedEndAt: Long?,
-    onStart: () -> Unit,
+    state: ActiveSessionCardState,
     onPause: () -> Unit,
-    onStop: () -> Unit
+    onStop: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Session Active", style = MaterialTheme.typography.titleLarge)
+            Text(
+                if (state.isPaused) "Session Paused" else "Session Active",
+                style = MaterialTheme.typography.titleLarge,
+            )
             Spacer(Modifier.height(8.dp))
-            // Circular progress indicator
             Box(
                 modifier = Modifier.size(120.dp).clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    progress = 0.6f,
+                    progress = { 0.6f },
                     modifier = Modifier.fillMaxSize(),
                     strokeWidth = 8.dp
                 )
@@ -173,8 +185,9 @@ private fun ActiveSessionCard(
             }
             Spacer(Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onStart) { Text("Quick Start") }
-                OutlinedButton(onClick = onPause) { Text("Pause") }
+                OutlinedButton(onClick = onPause) {
+                    Text(if (state.isPaused) "Resume" else "Pause")
+                }
                 OutlinedButton(onClick = onStop) { Text("Stop") }
             }
         }

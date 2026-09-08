@@ -90,7 +90,7 @@ fun AppNavigation(
             startDestination = startDestination,
             modifier = Modifier.padding(paddingValues),
         ) {
-            homeRoute(onNavigateToStartSession, navController)
+            homeRoute(navController)
             profilesRoute(onNavigateToStartSession, navController)
             profileEditorRoutes(navController)
             composable(AppRoutes.SCHEDULES) {
@@ -148,7 +148,6 @@ private fun AppBottomBar(
 }
 
 private fun NavGraphBuilder.homeRoute(
-    onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -> Unit,
     navController: NavHostController,
 ) {
     composable(AppRoutes.HOME) {
@@ -173,12 +172,35 @@ private fun NavGraphBuilder.homeRoute(
                             todayFocusMinutes = state.todayFocusMinutes,
                             streakDays = state.streakDays,
                         ),
-                        onStartSession = onNavigateToStartSession,
-                        onPauseSession = {},
-                        onStopSession = { viewModel.cancelSession() },
+                        onStartSession = { profileId, durationMinutes ->
+                            val resolvedProfileId = profileId
+                                ?: state.profiles.firstOrNull()?.id
+                                ?: return@HomeScreen
+                            viewModel.startSession(resolvedProfileId, durationMinutes)
+                        },
+                        onPauseSession = { viewModel.pauseOrResumeSession() },
+                        onStopSession = { viewModel.requestStopSession() },
                         onNavigateToProfiles = { navController.navigate(AppRoutes.PROFILES) },
                     )
                 }
+            }
+
+            if (state.showStopConfirmation) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { viewModel.dismissStopConfirmation() },
+                    title = { androidx.compose.material3.Text("End session?") },
+                    text = { androidx.compose.material3.Text("Your focus session will be cancelled.") },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = { viewModel.confirmStopSession() }) {
+                            androidx.compose.material3.Text("End session")
+                        }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.TextButton(onClick = { viewModel.dismissStopConfirmation() }) {
+                            androidx.compose.material3.Text("Keep focusing")
+                        }
+                    },
+                )
             }
         }
     }

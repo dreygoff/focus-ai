@@ -92,12 +92,22 @@ class RealAllowlistRepository(
 class RealAccessWindowRepository(
     private val accessWindowDao: AccessWindowDao
 ) : app.focus.domain.usecase.AccessWindowRepository {
-    override suspend fun grant(sessionId: String, packageName: String, reason: String?): Long {
+    override suspend fun grant(
+        sessionId: String,
+        packageName: String,
+        reason: String?,
+        durationMinutes: Int,
+    ): Long {
         val now = System.currentTimeMillis()
-        val expiresAt = now + 5 * 60_000L
+        val expiresAt = now + durationMinutes * 60_000L
         val entity = app.focus.database.entity.AccessWindowEntity(
-            id = java.util.UUID.randomUUID().toString(), sessionId = sessionId, packageName = packageName,
-            grantedAt = now, expiresAt = expiresAt, reason = reason, restrictedToActivity = null
+            id = java.util.UUID.randomUUID().toString(),
+            sessionId = sessionId,
+            packageName = packageName,
+            grantedAt = now,
+            expiresAt = expiresAt,
+            reason = reason,
+            restrictedToActivity = null,
         )
         accessWindowDao.insert(entity)
         return expiresAt

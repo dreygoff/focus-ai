@@ -2,14 +2,15 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FunctionNaming:BlockScreen.kt$@Composable fun BlockScreen( blockedPackage: String, appName: String, profileName: String, onReturnToWork: () -&gt; Unit = {}, onBypassAttempt: (reason: String) -&gt; Boolean = { false } )</ID>
-    <ID>LongMethod:BlockScreen.kt$@Composable fun BlockScreen( blockedPackage: String, appName: String, profileName: String, onReturnToWork: () -&gt; Unit = {}, onBypassAttempt: (reason: String) -&gt; Boolean = { false } )</ID>
-    <ID>MagicNumber:BlockScreen.kt$0xFFF5F5F5</ID>
-    <ID>TooGenericExceptionCaught:BlockActivity.kt$BlockActivity$e: Exception</ID>
+    <ID>FunctionNaming:BlockActivity.kt$@Composable private fun BlockActivityContent(viewModel: BlockViewModel)</ID>
+    <ID>FunctionNaming:BlockScreen.kt$@Composable fun BlockScreen( state: BlockUiState, onAction: (BlockAction) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:BlockScreen.kt$@Composable private fun BlockHeader(state: BlockUiState)</ID>
+    <ID>FunctionNaming:BlockScreen.kt$@Composable private fun BlockMainActions( state: BlockUiState, onAction: (BlockAction) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:BlockScreen.kt$@Composable private fun BypassGrantedContent(onAction: (BlockAction) -&gt; Unit)</ID>
+    <ID>FunctionNaming:BlockScreen.kt$@Composable private fun BypassStepContent( step: BypassState, onAction: (BlockAction) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:BlockScreen.kt$@Composable private fun PhraseStep( step: BypassState.Phrase, onAction: (BlockAction) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:BlockScreen.kt$@Composable private fun ReasonStep( step: BypassState.Reason, onAction: (BlockAction) -&gt; Unit, )</ID>
     <ID>TooGenericExceptionCaught:OverlayBlocker.kt$OverlayBlocker$e: Exception</ID>
-    <ID>UnusedParameter:BlockScreen.kt$blockedPackage: String</ID>
-    <ID>WildcardImport:BlockScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:BlockScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:BlockScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>TooManyFunctions:BlockViewModel.kt$BlockViewModel : ViewModel</ID>
   </CurrentIssues>
 </SmellBaseline>

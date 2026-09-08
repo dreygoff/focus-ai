@@ -39,7 +39,12 @@ interface AllowlistRepository {
 }
 
 interface AccessWindowRepository {
-    suspend fun grant(sessionId: String, packageName: String, reason: String?): Long
+    suspend fun grant(
+        sessionId: String,
+        packageName: String,
+        reason: String?,
+        durationMinutes: Int,
+    ): Long
     suspend fun revoke(packageName: String)
     fun observeActiveWindows(sessionId: String): Flow<Map<String, app.focus.domain.model.AccessWindow>>
     suspend fun removeExpired(beforeMillis: Long)
@@ -57,8 +62,40 @@ interface PackageInfoRepository {
 }
 
 interface AlarmSchedulerService {
-    fun scheduleExact(alarmMillis: Long, operationCode: Int, receiverClassName: String)
+    fun scheduleExact(
+        alarmMillis: Long,
+        operationCode: Int,
+        receiverClassName: String,
+        sessionId: String = "",
+        action: String? = null,
+        extras: Map<String, String> = emptyMap(),
+    )
     fun cancelAlarm(operationCode: Int, receiverClassName: String)
+}
+
+/** Starts/stops the focus foreground service when session lifecycle changes. */
+interface SessionRuntimeController {
+    fun onSessionStarted(sessionId: String, profileName: String, plannedEndAtMillis: Long)
+    fun syncStopService()
+}
+
+data class BlockRequest(
+    val sessionId: String,
+    val profileId: String,
+    val profileName: String,
+    val blockedPackage: String,
+    val blockedAppName: String,
+    val lockMode: app.focus.domain.model.LockMode,
+    val remainingMillis: Long,
+    val attemptNumber: Int,
+    val bypassesUsed: Int = 0,
+    val forceOverlay: Boolean = false,
+)
+
+interface BlockLauncher {
+    fun show(request: BlockRequest)
+    fun dismiss()
+    fun isShowing(): Boolean
 }
 
 interface ActiveSessionSnapshotStorage {

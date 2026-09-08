@@ -4,8 +4,8 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:BlockDecisionEngine.kt$BlockDecisionEngine$fun decide(packageName: String): BlockDecision</ID>
     <ID>InvalidPackageDeclaration:BypassState.kt$package app.focus.domain.model</ID>
-    <ID>InvalidPackageDeclaration:PomodoroConfigTest.kt$package app.focus.domain.model</ID>
     <ID>LongParameterList:BlockDecisionEngineTest.kt$BlockDecisionEngineTest$( systemAllowlist: Set&lt;String&gt; = emptySet(), userAllowlist: Set&lt;String&gt; = emptySet(), accessWindowPkgLookup: Map&lt;String, Long&gt; = emptyMap(), targetPackages: Set&lt;String&gt; = defaultTargets, hasActiveSession: Boolean = true, isHardLock: Boolean = false, hardLockExtraPackages: Set&lt;String&gt; = emptySet(), inPomodoroBreak: Boolean = false, )</ID>
+    <ID>LongParameterList:RepositoryInterface.kt$AlarmSchedulerService$( alarmMillis: Long, operationCode: Int, receiverClassName: String, sessionId: String = "", action: String? = null, extras: Map&lt;String, String&gt; = emptyMap(), )</ID>
     <ID>MagicNumber:BypassFlow.kt$BypassFlow$4000L</ID>
     <ID>MagicNumber:BypassFlow.kt$BypassFlow$6000L</ID>
     <ID>MagicNumber:BypassFlow.kt$BypassFlow$60_000L</ID>
@@ -21,18 +21,12 @@
     <ID>MagicNumber:SessionStateMachine.kt$SessionStateMachine$60</ID>
     <ID>MagicNumber:SessionStateMachine.kt$SessionStateMachine$60L</ID>
     <ID>MagicNumber:UseCases.kt$GetStatsUseCase$86400000L</ID>
-    <ID>MagicNumber:UseCases.kt$GrantBypassUseCase$1000L</ID>
-    <ID>MagicNumber:UseCases.kt$GrantBypassUseCase$30_000L</ID>
-    <ID>MagicNumber:UseCases.kt$GrantBypassUseCase$60L</ID>
     <ID>MagicNumber:UseCases.kt$StartSessionUseCase$1000L</ID>
     <ID>MagicNumber:UseCases.kt$StartSessionUseCase$60L</ID>
     <ID>MagicNumber:UseCases.kt$StopSessionUseCase$86400000L</ID>
     <ID>MaxLineLength:BypassFlow.kt$BypassFlow$_state = BypassState.Breathing(breathingCurrentCycle, breathingPhaseInCycle, breathingTimeLeftInMs.toInt())</ID>
     <ID>MaxLineLength:BypassState.kt$BypassState$Breathing : BypassState</ID>
-    <ID>MaxLineLength:ScheduleAlarmPlannerTest.kt$ScheduleAlarmPlannerTest$val daysToNextMonday = planner.daysUntilDayOfWeek(java.util.Calendar.MONDAY, clock.currentTime + 86400000L * 6) // 6 days later (Sunday)</ID>
     <ID>MaxLineLength:UseCases.kt$SessionStateMachineExecutor$fun</ID>
-    <ID>MaxLineLength:UseCases.kt$StartSessionUseCase$alarmScheduler.scheduleExact(plannedEndAt, session.id.hashCode(), "app.focus.service.receiver.AlarmReceiver")</ID>
-    <ID>MaxLineLength:UseCases.kt$StopSessionUseCase$suspend</ID>
     <ID>NestedBlockDepth:BypassFlow.kt$BypassFlow$fun inputPhraseCharacter(char: Char): BypassState?</ID>
     <ID>NestedBlockDepth:BypassFlow.kt$BypassFlow$fun tickBreathing(deltaMs: Long): Boolean</ID>
     <ID>ReturnCount:BlockDecisionEngine.kt$BlockDecisionEngine$fun decide(packageName: String): BlockDecision</ID>
@@ -47,9 +41,7 @@
     <ID>UnusedParameter:SessionStateMachine.kt$SessionStateMachine$nowMillis: Long</ID>
     <ID>UnusedPrivateProperty:BypassFlow.kt$BypassFlow$private val packageName: String</ID>
     <ID>UnusedPrivateProperty:BypassFlowTest.kt$BypassFlowTest$i</ID>
-    <ID>UnusedPrivateProperty:PomodoroConfigTest.kt$PomodoroConfigTest$cycle</ID>
     <ID>UnusedPrivateProperty:SessionStateMachineTest.kt$SessionStateMachineTest$private val testClock = TestClock { nextTime() }</ID>
-    <ID>UnusedPrivateProperty:SessionStateMachineTest.kt$SessionStateMachineTest$val profile = Profile( name = "Test", emoji = null, colorArgb = -1, lockMode = LockMode.Hard, defaultDurationMinutes = 25, bypassLimitPerSession = -1, accessWindowMinutes = 5, emergencyExitMode = EmergencyExitMode.NONE, blockNewApps = false, deviceAdminProtection = false, bypassDelaySeconds = 30, bypassBreathingEnabled = true, bypassReasonRequired = true, bypassPhrase = null, bypassAppliesToAllApps = false, hideTargetNotifications = false, allowedSettingsShortcuts = emptySet&lt;SettingsShortcut&gt;() )</ID>
     <ID>UnusedPrivateProperty:SessionStateMachineTest.kt$SessionStateMachineTest$val profile = Profile( name = "Test", emoji = null, colorArgb = -1, lockMode = LockMode.Soft, defaultDurationMinutes = 25, bypassLimitPerSession = -1, accessWindowMinutes = 5, emergencyExitMode = EmergencyExitMode.NONE, blockNewApps = false, deviceAdminProtection = false, bypassDelaySeconds = 30, bypassBreathingEnabled = true, bypassReasonRequired = true, bypassPhrase = null, bypassAppliesToAllApps = false, hideTargetNotifications = false, allowedSettingsShortcuts = emptySet&lt;SettingsShortcut&gt;() )</ID>
     <ID>UnusedPrivateProperty:UseCases.kt$GetStatsUseCase$val endDate = clock.nowMillis()</ID>
   </CurrentIssues>

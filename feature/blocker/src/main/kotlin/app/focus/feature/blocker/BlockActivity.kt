@@ -1,9 +1,6 @@
 package app.focus.feature.blocker
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,30 +10,37 @@ import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.activity.viewModels
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.core.content.ContextCompat
+import androidx.compose.runtime.LaunchedEffect
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import app.focus.designsystem.FocusTheme
 import app.focus.domain.model.LockMode
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class BlockActivity : ComponentActivity() {
+
+    private val viewModel: BlockViewModel by viewModels()
 
     companion object {
         private const val TAG = "BlockActivity"
         const val EXTRA_PROFILE_NAME = "profileName"
+        const val EXTRA_PROFILE_ID = "profileId"
         const val EXTRA_BLOCKED_PACKAGE = "blockedPackage"
         const val EXTRA_BLOCKED_APP_NAME = "blockedAppName"
-    }
+        const val EXTRA_LOCK_MODE = "lockMode"
+        const val EXTRA_ATTEMPT_NUMBER = "attemptNumber"
+        const val EXTRA_REMAINING_MILLIS = "remainingMillis"
+        const val EXTRA_SESSION_ID = "sessionId"
+        const val EXTRA_BYPASSES_USED = "bypassesUsed"
 
-    private var screenReceiver: BroadcastReceiver? = null
+        @Volatile
+        var isInForeground: Boolean = false
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,26 +52,42 @@ class BlockActivity : ComponentActivity() {
             insets
         }
 
-        val profileName = intent.getStringExtra(EXTRA_PROFILE_NAME) ?: "Focus"
-        val blockedPackage = intent.getStringExtra(EXTRA_BLOCKED_PACKAGE) ?: "unknown"
-        val blockedAppName = intent.getStringExtra(EXTRA_BLOCKED_APP_NAME) ?: blockedPackage
+        val sessionId = intent.getStringExtra(EXTRA_SESSION_ID).orEmpty()
+        val profileId = intent.getStringExtra(EXTRA_PROFILE_ID).orEmpty()
+        val blockedPackage = intent.getStringExtra(EXTRA_BLOCKED_PACKAGE).orEmpty()
 
-        setContent {
-            BlockScreen(
+        viewModel.initialize(
+            BlockInitArgs(
+                sessionId = sessionId,
+                profileId = profileId,
                 blockedPackage = blockedPackage,
-                appName = blockedAppName,
-                profileName = profileName,
-                onReturnToWork = { goHome() },
-                onBypassAttempt = { reason -> reason.length >= 10 },
-            )
-        }
+                blockedAppName = intent.getStringExtra(EXTRA_BLOCKED_APP_NAME) ?: blockedPackage,
+                profileName = intent.getStringExtra(EXTRA_PROFILE_NAME) ?: "Focus",
+                remainingMillis = intent.getLongExtra(EXTRA_REMAINING_MILLIS, 0L),
+                attemptNumber = intent.getIntExtra(EXTRA_ATTEMPT_NUMBER, 1),
+                lockMode = if (intent.getStringExtra(EXTRA_LOCK_MODE) == "HARD") LockMode.Hard else LockMode.Soft,
+                bypassesUsed = intent.getIntExtra(EXTRA_BYPASSES_USED, 0),
+            ),
+        )
 
-        registerScreenReceiver()
+        setContent { BlockActivityContent(viewModel) }
 
         onBackPressedDispatcher.addCallback(this) {
+            viewModel.resetBypassIfInProgress()
             goHome()
             finish()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isInForeground = true
+    }
+
+    override fun onPause() {
+        isInForeground = false
+        viewModel.resetBypassIfInProgress()
+        super.onPause()
     }
 
     @Suppress("DEPRECATION")
@@ -90,49 +110,57 @@ class BlockActivity : ComponentActivity() {
         }
     }
 
-    private fun registerScreenReceiver() {
-        screenReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == Intent.ACTION_USER_PRESENT) {
-                    Log.d(TAG, "User present")
-                }
-            }
-        }
-        val filter = IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
-            addAction(Intent.ACTION_USER_PRESENT)
-            addAction(Intent.ACTION_SCREEN_ON)
-        }
-        ContextCompat.registerReceiver(
-            this,
-            screenReceiver,
-            filter,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                ContextCompat.RECEIVER_NOT_EXPORTED
-            } else {
-                0
-            },
-        )
-    }
-
-
     private fun goHome() {
-        try {
+        runCatching {
             val homeIntent = Intent(Intent.ACTION_MAIN).apply {
                 addCategory(Intent.CATEGORY_HOME)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
             startActivity(homeIntent)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to go home", e)
+        }.onFailure { error ->
+            Log.e(TAG, "Failed to go home", error)
         }
     }
 
+    internal fun goHomePublic() = goHome()
+
     override fun onDestroy() {
         super.onDestroy()
-        screenReceiver?.let { receiver ->
-            runCatching { unregisterReceiver(receiver) }
+        isInForeground = false
+    }
+}
+
+@Composable
+private fun BlockActivityContent(viewModel: BlockViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+    val activity = androidx.compose.ui.platform.LocalContext.current as BlockActivity
+    FocusTheme(darkTheme = false, dynamicColor = false) {
+        LaunchedEffect(uiState.bypassGranted) {
+            if (uiState.bypassGranted) {
+                viewModel.launchBlockedAppIntent()?.let { launchIntent ->
+                    runCatching { activity.startActivity(launchIntent) }
+                }
+            }
         }
-        screenReceiver = null
+        BlockScreen(
+            state = uiState,
+            onAction = { action ->
+                when (action) {
+                    BlockAction.ReturnToWork -> {
+                        if (uiState.bypassGranted) {
+                            activity.finish()
+                        } else {
+                            activity.goHomePublic()
+                            activity.finish()
+                        }
+                    }
+                    BlockAction.OpenFocus -> {
+                        activity.goHomePublic()
+                        activity.finish()
+                    }
+                    else -> viewModel.onAction(action)
+                }
+            },
+        )
     }
 }

@@ -5,17 +5,15 @@ import app.focus.domain.model.PermissionState
 import app.focus.domain.model.PermissionType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class FocusEvent(
@@ -67,17 +65,9 @@ class DetectorOrchestrator(
     val events: Flow<FocusEvent> = _events.asSharedFlow()
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var collectJob: Job? = null
 
     init {
-        permissionsFlow.map { perms ->
-            detectSource(perms)
-        }.stateIn(
-            scope = scope,
-            started = SharingStarted.Lazily,
-            initialValue = DetectorSource.UNDETERMINED
-        )
-
-        // Observe permission changes and reactively switch detectors
         scope.launch {
             permissionsFlow.collect { perms ->
                 val newSource = detectSource(perms)
@@ -87,69 +77,73 @@ class DetectorOrchestrator(
             }
         }
 
-        // Determine initial detector source
-        val defaultSource = detectSource(permissionsFlow.value)
-        switchTo(defaultSource, force = true)
+        switchTo(detectSource(permissionsFlow.value), force = true)
     }
 
     fun registerAccessibilityDetector(detector: AccessibilityDetector) {
+        accessibilityDetector = detector
         if (_currentSource.value == DetectorSource.ACCESSIBILITY) {
-            this.accessibilityDetector = detector
-            detector.observe()
-        } else {
-            this.accessibilityDetector = detector
+            switchTo(DetectorSource.ACCESSIBILITY, force = true)
         }
     }
 
     fun registerUsageStatsPollingDetector(detector: UsageStatsPollingDetector) {
+        usageStatsPollingDetector = detector
         if (_currentSource.value == DetectorSource.USAGE_STATS) {
-            this.usageStatsPollingDetector = detector
-            detector.start()
-        } else {
-            this.usageStatsPollingDetector = detector
+            switchTo(DetectorSource.USAGE_STATS, force = true)
         }
     }
 
     fun switchTo(source: DetectorSource, force: Boolean = false) {
-        val currentState = _currentSource.value
-        if (currentState == source && !force) return
-
+        if (_currentSource.value == source && !force) return
         stopCurrent()
-
+        _currentSource.value = source
         when (source) {
-            DetectorSource.ACCESSIBILITY -> {
-                accessibilityDetector?.observe()
-            }
-            DetectorSource.USAGE_STATS -> {
-                usageStatsPollingDetector?.start()
-            }
+            DetectorSource.ACCESSIBILITY -> usageStatsPollingDetector?.stop()
+            DetectorSource.USAGE_STATS -> usageStatsPollingDetector?.start()
             else -> Unit
         }
+        startCollecting()
+    }
 
-        _currentSource.value = source
+    fun stopActiveDetectors() {
+        collectJob?.cancel()
+        usageStatsPollingDetector?.stop()
+    }
+
+    private fun startCollecting() {
+        collectJob?.cancel()
+        val sourceFlow = when (_currentSource.value) {
+            DetectorSource.ACCESSIBILITY -> accessibilityDetector?.observe()
+            DetectorSource.USAGE_STATS -> usageStatsPollingDetector?.events
+            DetectorSource.UNDETERMINED -> null
+        } ?: return
+
+        collectJob = scope.launch {
+            sourceFlow.collect { event ->
+                _events.emit(event)
+            }
+        }
     }
 
     private fun stopCurrent() {
+        collectJob?.cancel()
         when (_currentSource.value) {
-            DetectorSource.ACCESSIBILITY -> {
-                accessibilityDetector?.onDestroy()
-            }
-            DetectorSource.USAGE_STATS -> {
-                usageStatsPollingDetector?.stop()
-                usageStatsPollingDetector?.onDestroy()
-            }
+            DetectorSource.USAGE_STATS -> usageStatsPollingDetector?.stop()
             else -> Unit
         }
     }
 
     fun onDestroy() {
         stopCurrent()
+        accessibilityDetector?.onDestroy()
+        usageStatsPollingDetector?.onDestroy()
         scope.cancel()
     }
 
     private fun detectSource(perms: Set<PermissionState>): DetectorSource {
         val hasAccessibility = perms.any { permission ->
-            permission.name == app.focus.system.PermissionChecker.ID_ACCESSIBILITY && permission.granted
+            permission.name == PermissionChecker.ID_ACCESSIBILITY && permission.granted
         }
         return if (hasAccessibility && accessibilityDetector != null) {
             DetectorSource.ACCESSIBILITY

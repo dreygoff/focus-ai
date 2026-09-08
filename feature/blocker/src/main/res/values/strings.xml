@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="block_title">App blocked</string>
+    <string name="block_profile_active">%1$s session active</string>
+    <string name="block_time_remaining">%1$d min remaining</string>
+    <string name="block_attempt_count">Attempt #%1$d this session</string>
+    <string name="block_return_to_work">Back to work</string>
+    <string name="block_bypass_cta">I really need this…</string>
+    <string name="block_bypass_reason_label">Reason (min 10 characters)</string>
+    <string name="block_bypass_reason_title">Why do you need this app?</string>
+    <string name="block_bypass_phrase_title">Type the phrase exactly</string>
+    <string name="block_bypass_continue">Continue</string>
+    <string name="block_bypass_cancel">Cancel</string>
+    <string name="block_bypass_delay">Wait %1$d s…</string>
+    <string name="block_bypass_breathing">Breathing cycle %1$d</string>
+    <string name="block_breathing_inhale">Inhale</string>
+    <string name="block_breathing_hold">Hold</string>
+    <string name="block_breathing_exhale">Exhale</string>
+    <string name="block_bypass_exhausted">Bypasses exhausted</string>
+    <string name="block_bypasses_remaining">%1$d bypasses left</string>
+    <string name="block_bypass_granted">Access granted for a limited time</string>
+    <string name="block_open_app">Open app</string>
+    <string name="block_open_focus">Open Focus</string>
+</resources>

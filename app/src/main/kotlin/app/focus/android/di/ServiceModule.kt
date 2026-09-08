@@ -6,8 +6,17 @@ import android.content.Context
 import app.focus.domain.internal.pomodoro.PomodoroPlanner
 import app.focus.domain.internal.schedule.ScheduleAlarmPlanner
 import app.focus.domain.model.PomodoroConfig
+import app.focus.domain.usecase.ActiveSessionBlockState
 import app.focus.domain.usecase.ActiveSessionSnapshotStorage
 import app.focus.domain.usecase.AlarmSchedulerService
+import app.focus.domain.usecase.BlockLauncher
+import app.focus.domain.usecase.Clock
+import app.focus.domain.usecase.DecideBlockUseCase
+import app.focus.domain.usecase.EventLogRepository
+import app.focus.domain.usecase.SessionRepository
+import app.focus.domain.usecase.StopSessionUseCase
+import app.focus.service.focus.FocusServiceDependencies
+import app.focus.service.focus.AlarmReceiver
 import app.focus.system.DefaultUsageStatsPollingDetector
 import app.focus.system.DetectorOrchestrator
 import app.focus.system.HardLockEnforcer
@@ -68,6 +77,34 @@ object ServiceModule {
     ): SessionTimerManager {
         return SessionTimerManager(context, null, null)
     }
+
+    @Provides
+    @Singleton
+    fun provideFocusServiceDependencies(
+        stopSessionUseCase: StopSessionUseCase,
+        sessionRepository: SessionRepository,
+        snapshotStore: ActiveSessionSnapshotStorage,
+        alarmScheduler: AlarmSchedulerService,
+        clock: Clock,
+        detectorOrchestrator: DetectorOrchestrator,
+        usageStatsPollingDetector: app.focus.system.UsageStatsPollingDetector,
+        decideBlockUseCase: DecideBlockUseCase,
+        blockLauncher: BlockLauncher,
+        eventLogRepository: EventLogRepository,
+        activeSessionBlockState: ActiveSessionBlockState,
+    ): FocusServiceDependencies = FocusServiceDependencies(
+        stopSessionUseCase = stopSessionUseCase,
+        sessionRepository = sessionRepository,
+        snapshotStore = snapshotStore,
+        alarmScheduler = alarmScheduler,
+        clock = clock,
+        detectorOrchestrator = detectorOrchestrator,
+        usageStatsPollingDetector = usageStatsPollingDetector,
+        decideBlockUseCase = decideBlockUseCase,
+        blockLauncher = blockLauncher,
+        eventLogRepository = eventLogRepository,
+        activeSessionBlockState = activeSessionBlockState,
+    )
 }
 
 @Module
@@ -93,11 +130,19 @@ class AlarmSchedulerImpl(
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? android.app.AlarmManager
         ?: throw IllegalStateException("AlarmManager not available")
 
-    override fun scheduleExact(alarmMillis: Long, operationCode: Int, receiverClassName: String) {
+    override fun scheduleExact(
+        alarmMillis: Long,
+        operationCode: Int,
+        receiverClassName: String,
+        sessionId: String,
+        action: String?,
+        extras: Map<String, String>,
+    ) {
         try {
             val intent = android.content.Intent(context, Class.forName(receiverClassName)).apply {
-                action = "app.focus.service.receiver.ACTION_SESSION_END_ALARM"
-                putExtra("sessionId", operationCode.toString())
+                this.action = action ?: AlarmReceiver.ACTION_SESSION_END_ALARM
+                putExtra(AlarmReceiver.KEY_SESSION_ID, sessionId)
+                extras.forEach { (key, value) -> putExtra(key, value) }
             }
 
             val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {

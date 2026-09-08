@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.focus.domain.model.SessionStatus
 import app.focus.domain.usecase.ObserveActiveSessionsUseCase
+import app.focus.domain.usecase.PauseSessionUseCase
 import app.focus.domain.usecase.ProfileRepository
+import app.focus.domain.usecase.ResumeSessionUseCase
 import app.focus.domain.usecase.StartSessionUseCase
 import app.focus.domain.usecase.StopSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +21,8 @@ class HomeViewModel @Inject constructor(
     private val profileRepo: ProfileRepository,
     private val startSessionUseCase: StartSessionUseCase,
     private val stopSessionUseCase: StopSessionUseCase,
+    private val pauseSessionUseCase: PauseSessionUseCase,
+    private val resumeSessionUseCase: ResumeSessionUseCase,
 ) : ViewModel() {
 
     data class UiState(
@@ -28,6 +32,7 @@ class HomeViewModel @Inject constructor(
         val todayFocusMinutes: Int = 0,
         val streakDays: Int = 0,
         val lastUsedProfileId: String? = null,
+        val showStopConfirmation: Boolean = false,
     )
 
     private val _uiStateFlow = MutableStateFlow(UiState())
@@ -64,10 +69,30 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun cancelSession() {
+    fun requestStopSession() {
+        _uiStateFlow.value = _uiStateFlow.value.copy(showStopConfirmation = true)
+    }
+
+    fun dismissStopConfirmation() {
+        _uiStateFlow.value = _uiStateFlow.value.copy(showStopConfirmation = false)
+    }
+
+    fun confirmStopSession() {
         val session = _uiStateFlow.value.activeSession ?: return
+        _uiStateFlow.value = _uiStateFlow.value.copy(showStopConfirmation = false)
         viewModelScope.launch {
             stopSessionUseCase.execute(session.id, SessionStatus.Cancelled)
+        }
+    }
+
+    fun pauseOrResumeSession() {
+        val session = _uiStateFlow.value.activeSession ?: return
+        viewModelScope.launch {
+            when (session.status) {
+                is SessionStatus.Running -> pauseSessionUseCase.execute(session.id)
+                is SessionStatus.Paused -> resumeSessionUseCase.execute(session.id)
+                else -> Unit
+            }
         }
     }
 }
