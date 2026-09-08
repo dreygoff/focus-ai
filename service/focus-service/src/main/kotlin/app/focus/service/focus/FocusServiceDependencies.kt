@@ -5,6 +5,7 @@ import app.focus.domain.usecase.ActiveSessionSnapshotStorage
 import app.focus.domain.usecase.AlarmSchedulerService
 import app.focus.domain.usecase.BlockLauncher
 import app.focus.domain.usecase.Clock
+import app.focus.domain.usecase.CompleteEmergencyExitUseCase
 import app.focus.domain.usecase.DecideBlockUseCase
 import app.focus.domain.usecase.EventLogRepository
 import app.focus.domain.usecase.SessionRepository
@@ -14,6 +15,7 @@ import app.focus.system.UsageStatsPollingDetector
 
 class FocusServiceDependencies(
     val stopSessionUseCase: StopSessionUseCase,
+    val completeEmergencyExitUseCase: CompleteEmergencyExitUseCase,
     val sessionRepository: SessionRepository,
     val snapshotStore: ActiveSessionSnapshotStorage,
     val alarmScheduler: AlarmSchedulerService,

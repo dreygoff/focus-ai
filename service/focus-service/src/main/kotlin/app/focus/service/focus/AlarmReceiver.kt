@@ -15,6 +15,7 @@ class AlarmReceiver : BroadcastReceiver() {
         const val ACTION_SESSION_START_ALARM = "app.focus.service.focus.ACTION_SESSION_START_ALARM"
         const val ACTION_ACCESS_WINDOW_WARNING = GrantBypassUseCase.ACTION_ACCESS_WINDOW_WARNING
         const val ACTION_ACCESS_WINDOW_EXPIRED = GrantBypassUseCase.ACTION_ACCESS_WINDOW_EXPIRED
+        const val ACTION_EMERGENCY_EXIT_COMPLETE = app.focus.domain.usecase.RequestEmergencyExitUseCase.ACTION_EMERGENCY_EXIT_COMPLETE
         const val KEY_SESSION_ID = "sessionId"
         const val KEY_PACKAGE_NAME = GrantBypassUseCase.KEY_PACKAGE_NAME
         const val EXTRA_SOURCE = "source"
@@ -40,6 +41,7 @@ class AlarmReceiver : BroadcastReceiver() {
             }
             ACTION_ACCESS_WINDOW_WARNING -> handleAccessWindowWarning(context, intent)
             ACTION_ACCESS_WINDOW_EXPIRED -> handleAccessWindowExpired(context, intent)
+            ACTION_EMERGENCY_EXIT_COMPLETE -> handleEmergencyExitComplete(context, intent)
             else -> Log.w(TAG, "Unknown alarm action: ${intent.action}")
         }
     }
@@ -81,6 +83,16 @@ class AlarmReceiver : BroadcastReceiver() {
             action = FocusForegroundService.ACTION_ACCESS_WINDOW_EXPIRED
             putExtra(FocusForegroundService.EXTRA_SESSION_ID, sessionId)
             putExtra(FocusForegroundService.EXTRA_BLOCKED_PACKAGE, packageName)
+        }
+        ContextCompat.startForegroundService(context, serviceIntent)
+    }
+
+    private fun handleEmergencyExitComplete(context: Context, intent: Intent) {
+        val sessionId = intent.getStringExtra(KEY_SESSION_ID) ?: return
+        Log.d(TAG, "Emergency exit alarm for: $sessionId")
+        val serviceIntent = Intent(context, FocusForegroundService::class.java).apply {
+            action = FocusForegroundService.ACTION_EMERGENCY_EXIT_COMPLETE
+            putExtra(FocusForegroundService.EXTRA_SESSION_ID, sessionId)
         }
         ContextCompat.startForegroundService(context, serviceIntent)
     }

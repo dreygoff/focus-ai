@@ -88,6 +88,10 @@ class FocusForegroundService : Service() {
             ACTION_SYNC_STOP -> stopSessionRuntime()
             ACTION_ACCESS_WINDOW_GRANTED -> handleAccessWindowGranted(intent)
             ACTION_ACCESS_WINDOW_EXPIRED -> handleAccessWindowExpired(intent)
+            ACTION_EMERGENCY_EXIT_COMPLETE -> {
+                val sessionId = intent.getStringExtra(EXTRA_SESSION_ID) ?: activeSessionId
+                if (sessionId != null) handleEmergencyExitComplete(sessionId)
+            }
         }
         return START_STICKY
     }
@@ -172,6 +176,13 @@ class FocusForegroundService : Service() {
         stopSelf()
     }
 
+    private fun handleEmergencyExitComplete(sessionId: String) {
+        serviceScope.launch {
+            runCatching { deps.completeEmergencyExitUseCase.execute(sessionId) }
+            stopSessionRuntime()
+        }
+    }
+
     override fun onDestroy() {
         detectorJob?.cancel()
         serviceScope.cancel()
@@ -189,6 +200,7 @@ class FocusForegroundService : Service() {
         const val ACTION_RESTORE = "app.focus.service.RESTORE"
         const val ACTION_ACCESS_WINDOW_GRANTED = "app.focus.service.ACCESS_WINDOW_GRANTED"
         const val ACTION_ACCESS_WINDOW_EXPIRED = "app.focus.service.ACCESS_WINDOW_EXPIRED"
+        const val ACTION_EMERGENCY_EXIT_COMPLETE = "app.focus.service.EMERGENCY_EXIT_COMPLETE"
         const val EXTRA_BLOCKED_PACKAGE = "blockedPackage"
         const val EXTRA_BLOCKED_APP_NAME = "blockedAppName"
         const val EXTRA_EXPIRES_AT = "expiresAt"

@@ -21,4 +21,8 @@
     <string name="block_bypass_granted">Access granted for a limited time</string>
     <string name="block_open_app">Open app</string>
     <string name="block_open_focus">Open Focus</string>
+    <string name="block_emergency_exit">Emergency exit</string>
+    <string name="block_emergency_delay">Session ends in %1$d min</string>
+    <string name="block_emergency_cancel">Cancel emergency exit</string>
+    <string name="block_emergency_retype_title">Retype the text exactly to end session</string>
 </resources>

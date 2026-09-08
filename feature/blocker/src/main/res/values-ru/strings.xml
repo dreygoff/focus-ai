@@ -21,4 +21,8 @@
     <string name="block_bypass_granted">Доступ открыт на ограниченное время</string>
     <string name="block_open_app">Открыть приложение</string>
     <string name="block_open_focus">Открыть Focus</string>
+    <string name="block_emergency_exit">Аварийный выход</string>
+    <string name="block_emergency_delay">Сессия завершится через %1$d мин</string>
+    <string name="block_emergency_cancel">Отменить аварийный выход</string>
+    <string name="block_emergency_retype_title">Перепечатайте текст точно, чтобы завершить сессию</string>
 </resources>

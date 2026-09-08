@@ -6,14 +6,20 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.focus.domain.model.BypassState
+import app.focus.domain.model.EmergencyExitStep
 import app.focus.domain.model.EventLog
 import app.focus.domain.model.EventType
 import app.focus.domain.model.LockMode
 import app.focus.domain.model.Profile
+import app.focus.domain.model.SessionStatus
 import app.focus.domain.model.bypassflow.BypassFlow
+import app.focus.domain.usecase.CancelEmergencyExitUseCase
+import app.focus.domain.usecase.Clock
+import app.focus.domain.usecase.CompleteEmergencyExitUseCase
 import app.focus.domain.usecase.EventLogRepository
 import app.focus.domain.usecase.GrantBypassUseCase
 import app.focus.domain.usecase.ProfileRepository
+import app.focus.domain.usecase.RequestEmergencyExitUseCase
 import app.focus.domain.usecase.SessionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -33,7 +39,11 @@ class BlockViewModel @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val sessionRepository: SessionRepository,
     private val grantBypassUseCase: GrantBypassUseCase,
+    private val requestEmergencyExitUseCase: RequestEmergencyExitUseCase,
+    private val cancelEmergencyExitUseCase: CancelEmergencyExitUseCase,
+    private val completeEmergencyExitUseCase: CompleteEmergencyExitUseCase,
     private val eventLogRepository: EventLogRepository,
+    private val clock: Clock,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(BlockUiState())
@@ -44,6 +54,7 @@ class BlockViewModel @Inject constructor(
     private var targetPackages: List<String> = emptyList()
     private var delayJob: Job? = null
     private var breathingJob: Job? = null
+    private var emergencyDelayJob: Job? = null
 
     fun initialize(args: BlockInitArgs) {
         viewModelScope.launch {
@@ -66,7 +77,25 @@ class BlockViewModel @Inject constructor(
                 bypassesRemaining = remaining,
                 bypassLimitReached = remaining == 0 && (loadedProfile?.bypassLimitPerSession ?: 0) >= 0,
                 tamperMessage = args.tamperMessage,
+                emergencyExitMode = loadedProfile?.emergencyExitMode
+                    ?: app.focus.domain.model.EmergencyExitMode.NONE,
             )
+
+            when (val status = session?.status) {
+                is SessionStatus.EmergencyExitPending -> {
+                    val remainingMs = (status.untilMillis - clock.nowMillis()).coerceAtLeast(0)
+                    _uiState.update {
+                        it.copy(
+                            emergencyExitStep = EmergencyExitStep.Delay(
+                                untilMillis = status.untilMillis,
+                                remainingMillis = remainingMs,
+                            ),
+                        )
+                    }
+                    startEmergencyDelayTicker(status.untilMillis)
+                }
+                else -> Unit
+            }
 
             if (loadedProfile != null && bypassConfig != null) {
                 bypassFlow = BypassFlow(
@@ -85,12 +114,18 @@ class BlockViewModel @Inject constructor(
             is BlockAction.SubmitBypassReason -> submitReason(action.text)
             is BlockAction.InputPhraseChar -> inputPhraseChar(action.char)
             BlockAction.CancelBypass -> cancelBypass()
+            BlockAction.StartEmergencyExit -> startEmergencyExit()
+            BlockAction.CancelEmergencyExit -> cancelEmergencyExit()
+            is BlockAction.InputEmergencyExitChar -> inputEmergencyExitChar(action.char)
         }
     }
 
     fun resetBypassIfInProgress() {
         if (bypassFlow?.isInProgress() == true) {
             cancelBypass()
+        }
+        if (_uiState.value.emergencyExitStep is EmergencyExitStep.Retype) {
+            cancelEmergencyExit()
         }
     }
 
@@ -190,6 +225,83 @@ class BlockViewModel @Inject constructor(
         _uiState.update { it.copy(bypassStep = null) }
     }
 
+    private fun startEmergencyExit() {
+        val sessionId = _uiState.value.sessionId
+        viewModelScope.launch {
+            when (val result = requestEmergencyExitUseCase.execute(sessionId)) {
+                is RequestEmergencyExitUseCase.Result.DelayStarted -> {
+                    _uiState.update {
+                        it.copy(
+                            emergencyExitStep = EmergencyExitStep.Delay(
+                                untilMillis = result.untilMillis,
+                                remainingMillis = result.untilMillis - clock.nowMillis(),
+                            ),
+                        )
+                    }
+                    startEmergencyDelayTicker(result.untilMillis)
+                }
+                is RequestEmergencyExitUseCase.Result.RetypeRequired -> {
+                    _uiState.update {
+                        it.copy(emergencyExitStep = EmergencyExitStep.Retype(result.targetText))
+                    }
+                }
+                RequestEmergencyExitUseCase.Result.NotAvailable -> Unit
+            }
+        }
+    }
+
+    private fun cancelEmergencyExit() {
+        emergencyDelayJob?.cancel()
+        val sessionId = _uiState.value.sessionId
+        val step = _uiState.value.emergencyExitStep
+        _uiState.update { it.copy(emergencyExitStep = null) }
+        if (step is EmergencyExitStep.Delay) {
+            viewModelScope.launch {
+                runCatching { cancelEmergencyExitUseCase.execute(sessionId) }
+            }
+        }
+    }
+
+    private fun startEmergencyDelayTicker(untilMillis: Long) {
+        emergencyDelayJob?.cancel()
+        emergencyDelayJob = viewModelScope.launch {
+            while (true) {
+                val remaining = untilMillis - clock.nowMillis()
+                if (remaining <= 0) {
+                    completeEmergencyExit()
+                    return@launch
+                }
+                _uiState.update { current ->
+                    val step = current.emergencyExitStep
+                    if (step is EmergencyExitStep.Delay) {
+                        current.copy(emergencyExitStep = step.copy(remainingMillis = remaining))
+                    } else {
+                        current
+                    }
+                }
+                delay(DELAY_TICK_MS)
+            }
+        }
+    }
+
+    private fun inputEmergencyExitChar(char: Char) {
+        val step = _uiState.value.emergencyExitStep as? EmergencyExitStep.Retype ?: return
+        val typed = step.typedText + char
+        _uiState.update { it.copy(emergencyExitStep = step.copy(typedText = typed)) }
+        if (typed == step.targetText) {
+            completeEmergencyExit()
+        }
+    }
+
+    private fun completeEmergencyExit() {
+        emergencyDelayJob?.cancel()
+        val sessionId = _uiState.value.sessionId
+        viewModelScope.launch {
+            runCatching { completeEmergencyExitUseCase.execute(sessionId) }
+                .onSuccess { _uiState.update { it.copy(sessionEnded = true, emergencyExitStep = null) } }
+        }
+    }
+
     private fun updateBypassStep(state: BypassState?) {
         _uiState.update { it.copy(bypassStep = state) }
     }
@@ -251,6 +363,7 @@ class BlockViewModel @Inject constructor(
     override fun onCleared() {
         delayJob?.cancel()
         breathingJob?.cancel()
+        emergencyDelayJob?.cancel()
         super.onCleared()
     }
 }

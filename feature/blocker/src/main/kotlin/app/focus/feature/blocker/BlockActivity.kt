@@ -144,6 +144,11 @@ private fun BlockActivityContent(viewModel: BlockViewModel) {
                 }
             }
         }
+        LaunchedEffect(uiState.sessionEnded) {
+            if (uiState.sessionEnded) {
+                activity.finish()
+            }
+        }
         BlockScreen(
             state = uiState,
             onAction = { action ->

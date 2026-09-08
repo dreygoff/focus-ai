@@ -7,8 +7,10 @@ import app.focus.domain.usecase.Clock
 import app.focus.domain.usecase.EventLogRepository
 import app.focus.domain.usecase.GrantBypassUseCase
 import app.focus.domain.usecase.PauseSessionUseCase
+import app.focus.domain.usecase.ProfileRepository
 import app.focus.domain.usecase.ResumeSessionUseCase
 import app.focus.domain.usecase.SessionRepository
+import app.focus.domain.usecase.StopSessionUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -58,4 +60,46 @@ object BypassUseCaseModule {
         blockState = activeSessionBlockState,
         clock = clock,
     )
+
+    @Provides
+    fun provideRequestEmergencyExitUseCase(
+        sessionRepository: SessionRepository,
+        profileRepository: ProfileRepository,
+        eventLogRepository: EventLogRepository,
+        alarmScheduler: AlarmSchedulerService,
+        clock: Clock,
+    ): app.focus.domain.usecase.RequestEmergencyExitUseCase =
+        app.focus.domain.usecase.RequestEmergencyExitUseCase(
+            sessionRepo = sessionRepository,
+            profileRepo = profileRepository,
+            eventLogRepo = eventLogRepository,
+            alarmScheduler = alarmScheduler,
+            clock = clock,
+        )
+
+    @Provides
+    fun provideCancelEmergencyExitUseCase(
+        sessionRepository: SessionRepository,
+        alarmScheduler: AlarmSchedulerService,
+    ): app.focus.domain.usecase.CancelEmergencyExitUseCase =
+        app.focus.domain.usecase.CancelEmergencyExitUseCase(
+            sessionRepo = sessionRepository,
+            alarmScheduler = alarmScheduler,
+        )
+
+    @Provides
+    fun provideCompleteEmergencyExitUseCase(
+        sessionRepository: SessionRepository,
+        stopSessionUseCase: StopSessionUseCase,
+        eventLogRepository: EventLogRepository,
+        alarmScheduler: AlarmSchedulerService,
+        clock: Clock,
+    ): app.focus.domain.usecase.CompleteEmergencyExitUseCase =
+        app.focus.domain.usecase.CompleteEmergencyExitUseCase(
+            sessionRepo = sessionRepository,
+            stopSessionUseCase = stopSessionUseCase,
+            eventLogRepo = eventLogRepository,
+            alarmScheduler = alarmScheduler,
+            clock = clock,
+        )
 }

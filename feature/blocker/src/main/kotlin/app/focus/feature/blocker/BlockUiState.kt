@@ -1,6 +1,8 @@
 package app.focus.feature.blocker
 
 import app.focus.domain.model.BypassState
+import app.focus.domain.model.EmergencyExitMode
+import app.focus.domain.model.EmergencyExitStep
 import app.focus.domain.model.LockMode
 
 data class BlockUiState(
@@ -17,6 +19,9 @@ data class BlockUiState(
     val bypassStep: app.focus.domain.model.BypassState? = null,
     val bypassGranted: Boolean = false,
     val tamperMessage: String? = null,
+    val emergencyExitMode: EmergencyExitMode = EmergencyExitMode.NONE,
+    val emergencyExitStep: EmergencyExitStep? = null,
+    val sessionEnded: Boolean = false,
 )
 
 sealed interface BlockAction {
@@ -26,4 +31,7 @@ sealed interface BlockAction {
     data object CancelBypass : BlockAction
     data class SubmitBypassReason(val text: String) : BlockAction
     data class InputPhraseChar(val char: Char) : BlockAction
+    data object StartEmergencyExit : BlockAction
+    data object CancelEmergencyExit : BlockAction
+    data class InputEmergencyExitChar(val char: Char) : BlockAction
 }

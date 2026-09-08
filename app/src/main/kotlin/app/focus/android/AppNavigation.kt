@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,6 +45,8 @@ import app.focus.feature.profiles.AppPickerRoute
 import app.focus.feature.profiles.ProfileEditorScreen
 import app.focus.feature.profiles.ProfilesRoute
 import app.focus.feature.schedules.SchedulesScreen
+import app.focus.feature.settings.ProtectionInfoScreen
+import app.focus.feature.settings.SettingsScreen
 import app.focus.feature.stats.StatsRoutes
 import app.focus.feature.stats.StatsScreen
 
@@ -54,6 +57,8 @@ private object AppRoutes {
     const val PROFILES_EDITOR_WITH_ID = "profiles/editor/{profileId}"
     const val PROFILES_APPS = "profiles/{profileId}/apps"
     const val SCHEDULES = "schedules"
+    const val SETTINGS = "settings"
+    const val PROTECTION_INFO = "settings/protection"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +76,18 @@ fun AppNavigation(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Focus") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Focus") },
+                actions = {
+                    androidx.compose.material3.IconButton(
+                        onClick = { navController.navigate(AppRoutes.SETTINGS) },
+                    ) {
+                        Icon(Icons.Default.Settings, contentDescription = null)
+                    }
+                },
+            )
+        },
         bottomBar = {
             AppBottomBar(
                 selectedIndex = currentSelectedIndex,
@@ -103,6 +119,15 @@ fun AppNavigation(
             }
             composable(StatsRoutes.ROUTE) {
                 StatsScreen(onBack = {})
+            }
+            composable(AppRoutes.SETTINGS) {
+                SettingsScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenProtectionInfo = { navController.navigate(AppRoutes.PROTECTION_INFO) },
+                )
+            }
+            composable(AppRoutes.PROTECTION_INFO) {
+                ProtectionInfoScreen(onBack = { navController.popBackStack() })
             }
             onboardingGraph(
                 navController = navController,

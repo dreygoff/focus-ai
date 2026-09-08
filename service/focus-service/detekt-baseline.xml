@@ -2,7 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongParameterList:FocusServiceDependencies.kt$FocusServiceDependencies$( val stopSessionUseCase: StopSessionUseCase, val sessionRepository: SessionRepository, val snapshotStore: ActiveSessionSnapshotStorage, val alarmScheduler: AlarmSchedulerService, val clock: Clock, val detectorOrchestrator: DetectorOrchestrator, val usageStatsPollingDetector: UsageStatsPollingDetector, val decideBlockUseCase: DecideBlockUseCase, val blockLauncher: BlockLauncher, val eventLogRepository: EventLogRepository, val activeSessionBlockState: ActiveSessionBlockState, )</ID>
+    <ID>CyclomaticComplexMethod:FocusForegroundService.kt$FocusForegroundService$override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int</ID>
+    <ID>LongParameterList:FocusServiceDependencies.kt$FocusServiceDependencies$( val stopSessionUseCase: StopSessionUseCase, val completeEmergencyExitUseCase: CompleteEmergencyExitUseCase, val sessionRepository: SessionRepository, val snapshotStore: ActiveSessionSnapshotStorage, val alarmScheduler: AlarmSchedulerService, val clock: Clock, val detectorOrchestrator: DetectorOrchestrator, val usageStatsPollingDetector: UsageStatsPollingDetector, val decideBlockUseCase: DecideBlockUseCase, val blockLauncher: BlockLauncher, val eventLogRepository: EventLogRepository, val activeSessionBlockState: ActiveSessionBlockState, )</ID>
     <ID>LongParameterList:SessionBlockCoordinator.kt$SessionBlockCoordinator$( packageName: String, appName: String, detectedAtMillis: Long, profileName: String, plannedEndAtMillis: Long, tamperMessage: String, )</ID>
     <ID>LongParameterList:SessionBlockCoordinator.kt$SessionBlockCoordinator$( session: Session, packageName: String, appName: String, detectedAtMillis: Long, profileName: String, plannedEndAtMillis: Long, tamperMessage: String?, )</ID>
     <ID>LongParameterList:SessionEngine.kt$SessionEngine$( sessionId: String, profileId: String, durationMinutes: Int, targetPackages: List&lt;String&gt;, hardLockExtraPackages: List&lt;String&gt; = emptyList(), pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null )</ID>
@@ -16,6 +17,7 @@
     <ID>MagicNumber:SessionEngine.kt$SessionEngine$60L</ID>
     <ID>MagicNumber:SessionEngine.kt$SessionEngine$60_000</ID>
     <ID>MagicNumber:SessionEngine.kt$SessionEngine$60_000L</ID>
+    <ID>MaxLineLength:AlarmReceiver.kt$AlarmReceiver.Companion$const val ACTION_EMERGENCY_EXIT_COMPLETE = app.focus.domain.usecase.RequestEmergencyExitUseCase.ACTION_EMERGENCY_EXIT_COMPLETE</ID>
     <ID>MaxLineLength:SessionEngine.kt$SessionEngine$suspend</ID>
     <ID>ReturnCount:SessionBlockCoordinator.kt$SessionBlockCoordinator$private fun tamperMessageIfNeeded(packageName: String): String?</ID>
     <ID>ReturnCount:SessionEngine.kt$SessionEngine$fun checkBlockDecision(packageName: String): BlockDecision</ID>

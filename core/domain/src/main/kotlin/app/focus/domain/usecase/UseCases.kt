@@ -458,6 +458,114 @@ class GrantBypassUseCase(
     }
 }
 
+class RequestEmergencyExitUseCase(
+    private val sessionRepo: SessionRepository,
+    private val profileRepo: ProfileRepository,
+    private val eventLogRepo: EventLogRepository,
+    private val alarmScheduler: AlarmSchedulerService,
+    private val clock: Clock,
+) {
+    sealed interface Result {
+        data class DelayStarted(val untilMillis: Long) : Result
+        data class RetypeRequired(val targetText: String) : Result
+        data object NotAvailable : Result
+    }
+
+    suspend fun execute(sessionId: String): Result = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: return@withContext Result.NotAvailable
+        check(session.id == sessionId) { "Session mismatch" }
+        check(session.lockMode is app.focus.domain.model.LockMode.Hard) { "Emergency exit only in hard lock" }
+
+        val profile = profileRepo.getProfile(session.profileId) ?: return@withContext Result.NotAvailable
+        when (profile.emergencyExitMode) {
+            app.focus.domain.model.EmergencyExitMode.NONE -> Result.NotAvailable
+            app.focus.domain.model.EmergencyExitMode.DELAY_10_MIN -> {
+                val untilMillis = clock.nowMillis() + DELAY_MS
+                sessionRepo.update(
+                    session.copy(status = app.focus.domain.model.SessionStatus.EmergencyExitPending(untilMillis)),
+                )
+                alarmScheduler.scheduleExact(
+                    alarmMillis = untilMillis,
+                    operationCode = emergencyExitCode(sessionId),
+                    receiverClassName = ALARM_RECEIVER,
+                    sessionId = sessionId,
+                    action = ACTION_EMERGENCY_EXIT_COMPLETE,
+                )
+                eventLogRepo.log(
+                    app.focus.domain.model.EventLog(
+                        timestamp = clock.nowMillis(),
+                        sessionId = sessionId,
+                        type = app.focus.domain.model.EventType.EMERGENCY_EXIT_REQUESTED,
+                        packageName = null,
+                        payload = null,
+                    ),
+                )
+                Result.DelayStarted(untilMillis)
+            }
+            app.focus.domain.model.EmergencyExitMode.RETYPE_TEXT -> {
+                Result.RetypeRequired(app.focus.domain.model.EmergencyExitTextGenerator.generate())
+            }
+        }
+    }
+
+    companion object {
+        const val ALARM_RECEIVER = "app.focus.service.focus.AlarmReceiver"
+        const val ACTION_EMERGENCY_EXIT_COMPLETE = "app.focus.service.focus.ACTION_EMERGENCY_EXIT_COMPLETE"
+        private const val DELAY_MS = 10 * 60 * 1000L
+
+        fun emergencyExitCode(sessionId: String): Int = "emergency_$sessionId".hashCode()
+    }
+}
+
+class CancelEmergencyExitUseCase(
+    private val sessionRepo: SessionRepository,
+    private val alarmScheduler: AlarmSchedulerService,
+) {
+    suspend fun execute(sessionId: String) = withContext(Dispatchers.IO) {
+        val session = sessionRepo.observeActiveSession().first()
+            ?: error("No active session")
+        check(session.id == sessionId) { "Session mismatch" }
+        check(session.status is app.focus.domain.model.SessionStatus.EmergencyExitPending) {
+            "No pending emergency exit"
+        }
+
+        sessionRepo.update(session.copy(status = app.focus.domain.model.SessionStatus.Running))
+        alarmScheduler.cancelAlarm(
+            operationCode = RequestEmergencyExitUseCase.emergencyExitCode(sessionId),
+            receiverClassName = RequestEmergencyExitUseCase.ALARM_RECEIVER,
+        )
+    }
+}
+
+class CompleteEmergencyExitUseCase(
+    private val sessionRepo: SessionRepository,
+    private val stopSessionUseCase: StopSessionUseCase,
+    private val eventLogRepo: EventLogRepository,
+    private val alarmScheduler: AlarmSchedulerService,
+    private val clock: Clock,
+) {
+    suspend fun execute(sessionId: String) = withContext(Dispatchers.IO) {
+        runCatching {
+            alarmScheduler.cancelAlarm(
+                operationCode = RequestEmergencyExitUseCase.emergencyExitCode(sessionId),
+                receiverClassName = RequestEmergencyExitUseCase.ALARM_RECEIVER,
+            )
+        }
+
+        stopSessionUseCase.execute(sessionId, app.focus.domain.model.SessionStatus.Cancelled)
+        eventLogRepo.log(
+            app.focus.domain.model.EventLog(
+                timestamp = clock.nowMillis(),
+                sessionId = sessionId,
+                type = app.focus.domain.model.EventType.EMERGENCY_EXIT_COMPLETED,
+                packageName = null,
+                payload = null,
+            ),
+        )
+    }
+}
+
 class SessionStateMachineExecutor(
     private val clock: Clock,
 ) {

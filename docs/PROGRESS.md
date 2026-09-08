@@ -91,14 +91,16 @@
 - `DummyAdminReceiver.onDisableRequested()` warning (FR-38)
 - Home: двухшаговое подтверждение старта hard lock (§11.2)
 - `ProtectionInfoScreen` + strings ru/en (FR-39a partial); ссылка в Settings
+- `RequestEmergencyExitUseCase` / `CancelEmergencyExitUseCase` / `CompleteEmergencyExitUseCase` (FR-35)
+- Block screen: аварийный выход (delay 10 min / retype 300 chars) для hard lock
+- Alarm + FGS handler для завершения сессии по таймеру аварийного выхода
+- Навигация Settings → ProtectionInfo (иконка шестерёнки в TopAppBar)
 
 ### Осталось
-- Аварийный выход FR-35 (delay 10 min / retype text)
 - Device Admin activation UI + auto-deactivate
 - Разрешённые ярлыки Settings (Wi‑Fi и т.д.) с access window
 - Launcher blocking via Device Admin
 - FR-14/FR-91 editing restrictions during hard session
-- Навигация Settings → ProtectionInfo в AppNavigation
 
 ### Проверки
 - assembleDebug ✅ / testDebugUnitTest ✅ / detekt ✅

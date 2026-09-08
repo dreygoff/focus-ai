@@ -82,6 +82,7 @@ object ServiceModule {
     @Singleton
     fun provideFocusServiceDependencies(
         stopSessionUseCase: StopSessionUseCase,
+        completeEmergencyExitUseCase: app.focus.domain.usecase.CompleteEmergencyExitUseCase,
         sessionRepository: SessionRepository,
         snapshotStore: ActiveSessionSnapshotStorage,
         alarmScheduler: AlarmSchedulerService,
@@ -94,6 +95,7 @@ object ServiceModule {
         activeSessionBlockState: ActiveSessionBlockState,
     ): FocusServiceDependencies = FocusServiceDependencies(
         stopSessionUseCase = stopSessionUseCase,
+        completeEmergencyExitUseCase = completeEmergencyExitUseCase,
         sessionRepository = sessionRepository,
         snapshotStore = snapshotStore,
         alarmScheduler = alarmScheduler,

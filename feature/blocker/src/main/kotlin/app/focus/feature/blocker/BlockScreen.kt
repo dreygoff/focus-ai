@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.focus.domain.model.BreathingPhase
 import app.focus.domain.model.BypassState
+import app.focus.domain.model.EmergencyExitStep
 import app.focus.domain.model.LockMode
 import java.util.concurrent.TimeUnit
 
@@ -55,7 +56,10 @@ fun BlockScreen(
             BlockHeader(state)
 
             when (val step = state.bypassStep) {
-                null -> BlockMainActions(state, onAction)
+                null -> when (val emergency = state.emergencyExitStep) {
+                    null -> BlockMainActions(state, onAction)
+                    else -> EmergencyExitContent(emergency, onAction)
+                }
                 is BypassState.Granted -> BypassGrantedContent(onAction)
                 else -> BypassStepContent(step = step, onAction = onAction)
             }
@@ -156,7 +160,73 @@ private fun BlockMainActions(
                     )
                 }
             }
+        } else if (state.emergencyExitMode != app.focus.domain.model.EmergencyExitMode.NONE) {
+            OutlinedButton(
+                onClick = { onAction(BlockAction.StartEmergencyExit) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.block_emergency_exit))
+            }
         }
+    }
+}
+
+@Composable
+private fun EmergencyExitContent(
+    step: EmergencyExitStep,
+    onAction: (BlockAction) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        when (step) {
+            is EmergencyExitStep.Delay -> {
+                val remainingMinutes = TimeUnit.MILLISECONDS.toMinutes(step.remainingMillis.coerceAtLeast(0))
+                Text(
+                    stringResource(R.string.block_emergency_delay, remainingMinutes + 1),
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                TextButton(onClick = { onAction(BlockAction.CancelEmergencyExit) }) {
+                    Text(stringResource(R.string.block_emergency_cancel))
+                }
+            }
+            is EmergencyExitStep.Retype -> EmergencyRetypeStep(step, onAction)
+        }
+    }
+}
+
+@Composable
+private fun EmergencyRetypeStep(
+    step: EmergencyExitStep.Retype,
+    onAction: (BlockAction) -> Unit,
+) {
+    var fieldText by remember(step.targetText) { mutableStateOf(step.typedText) }
+    Text(
+        stringResource(R.string.block_emergency_retype_title),
+        style = MaterialTheme.typography.titleMedium,
+    )
+    Text(step.targetText, style = MaterialTheme.typography.bodySmall)
+    OutlinedTextField(
+        value = fieldText,
+        onValueChange = { newValue ->
+            if (newValue.length - fieldText.length > 1) return@OutlinedTextField
+            if (newValue.length < fieldText.length) {
+                fieldText = newValue
+                return@OutlinedTextField
+            }
+            if (newValue.length > fieldText.length) {
+                fieldText = newValue
+                onAction(BlockAction.InputEmergencyExitChar(newValue.last()))
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        keyboardOptions = KeyboardOptions(autoCorrect = false),
+    )
+    TextButton(onClick = { onAction(BlockAction.CancelEmergencyExit) }) {
+        Text(stringResource(R.string.block_emergency_cancel))
     }
 }
 

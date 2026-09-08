@@ -100,7 +100,9 @@ class OverlayBlocker(private val context: Context) {
                                     dismiss()
                                 }
                                 BlockAction.StartBypass, BlockAction.CancelBypass,
+                                BlockAction.StartEmergencyExit, BlockAction.CancelEmergencyExit,
                                 is BlockAction.SubmitBypassReason, is BlockAction.InputPhraseChar,
+                                is BlockAction.InputEmergencyExitChar,
                                 -> Unit
                             }
                         },
