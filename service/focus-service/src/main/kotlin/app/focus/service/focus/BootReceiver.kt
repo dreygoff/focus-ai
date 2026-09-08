@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat
-import app.focus.domain.internal.statemachine.SessionSnapshot
+import app.focus.datastore.ProtoActiveSessionSnapshotStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -29,17 +29,19 @@ class BootReceiver : BroadcastReceiver() {
     private fun handleRestore(context: Context, fromAction: String) {
         Log.d(TAG, "Boot event: $fromAction")
 
+        val pendingResult = goAsync()
         val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         scope.launch {
             try {
-                val snapshot = retrieveActiveSessionSnapshot(context) ?: run {
+                val snapshotStore = ProtoActiveSessionSnapshotStorage.create(context)
+                val snapshot = snapshotStore.load() ?: run {
                     Log.d(TAG, "No active session snapshot found")
                     return@launch
                 }
 
                 if (snapshot.plannedEndAtMillis <= System.currentTimeMillis()) {
                     Log.d(TAG, "Session expired at restore: ${snapshot.sessionId}")
-                    expireExpiredSession(context, snapshot)
+                    expireExpiredSession(snapshotStore, snapshot.sessionId)
                     return@launch
                 }
 
@@ -51,13 +53,17 @@ class BootReceiver : BroadcastReceiver() {
                 Log.d(TAG, "Service restored with sessionId=${snapshot.sessionId}")
             } catch (e: Exception) {
                 Log.e(TAG, "Error restoring session on boot", e)
+            } finally {
+                pendingResult.finish()
             }
         }
     }
 
-    private suspend fun expireExpiredSession(context: Context, snapshot: SessionSnapshot) {
-        Log.d(TAG, "Marking session ${snapshot.sessionId} as EXPIRED")
+    private suspend fun expireExpiredSession(
+        snapshotStore: app.focus.domain.usecase.ActiveSessionSnapshotStorage,
+        sessionId: String,
+    ) {
+        Log.d(TAG, "Marking session $sessionId as EXPIRED")
+        snapshotStore.clear()
     }
-
-    private fun retrieveActiveSessionSnapshot(context: Context): SessionSnapshot? = null
 }

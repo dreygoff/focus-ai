@@ -31,7 +31,7 @@ import app.focus.database.entity.SessionEntity
         DailyStatsEntity::class
     ],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class FocusDatabase : RoomDatabase() {
     abstract fun profileDao(): ProfileDao

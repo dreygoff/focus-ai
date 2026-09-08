@@ -40,4 +40,11 @@ dependencies {
 
     implementation(project(":core:domain"))
     implementation(project(":core:system"))
+    implementation(project(":core:datastore"))
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(project(":core:testing"))
 }

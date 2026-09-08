@@ -2,6 +2,7 @@ package app.focus.data
 
 import app.focus.database.dao.AccessWindowDao
 import app.focus.database.dao.AllowlistDao
+import app.focus.database.dao.DailyStatsDao
 import app.focus.database.dao.EventLogDao
 import app.focus.database.dao.ProfileAppDao
 import app.focus.database.dao.ScheduleDao
@@ -12,6 +13,7 @@ import app.focus.domain.model.AccessWindow
 import app.focus.domain.model.DailyStats
 import app.focus.domain.model.EventLog
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Qualifier
 
@@ -20,7 +22,8 @@ annotation class SystemAllowlistQualifier
 
 class RealSessionRepository(
     private val sessionDao: SessionDao,
-    private val profileAppDao: ProfileAppDao
+    private val profileAppDao: ProfileAppDao,
+    private val dailyStatsDao: DailyStatsDao,
 ) : app.focus.domain.usecase.SessionRepository {
 
     override suspend fun insert(session: app.focus.domain.model.Session): Long = sessionDao.insert(session.toEntity())
@@ -28,9 +31,41 @@ class RealSessionRepository(
     override fun observeActiveSession(): Flow<app.focus.domain.model.Session?> = sessionDao.observeActiveSession().map { it?.toDomain() }
     override fun observeSessions(startDate: Long, endDate: Long): Flow<List<app.focus.domain.model.Session>> =
         sessionDao.observeSessionsInRange(startDate, endDate).map { sessions -> sessions.map { it.toDomain() } }
-    override suspend fun getStatsDaily(startDate: Long, days: Int): List<DailyStats> = emptyList()
+
+    override suspend fun getStatsDaily(startDate: Long, days: Int): List<DailyStats> {
+        val startEpochDay = startDate / MILLIS_PER_DAY
+        val endEpochDay = startEpochDay + days
+        return dailyStatsDao.getStatsInRange(startEpochDay, endEpochDay).map { it.toDomain() }
+    }
+
     override suspend fun cancelOldEvents(beforeMillis: Long) {}
-    override suspend fun exportStatsCsv(startDate: Long, endDate: Long): String = "id,profileId,startAt,endAt,durationMin,status\n"
+
+    override suspend fun exportStatsCsv(startDate: Long, endDate: Long): String {
+        val sessions = sessionDao.observeSessionsInRange(startDate, endDate).first()
+        val header = "id,profileId,profileName,startAt,endAt,durationMin,status,blockAttempts,bypasses\n"
+        val rows = sessions.joinToString("\n") { session ->
+            val durationMin = session.plannedEndAt?.let { end ->
+                ((end - session.startedAt) / MILLIS_PER_MINUTE).coerceAtLeast(0)
+            } ?: 0
+            listOf(
+                session.id,
+                session.profileId,
+                session.profileNameSnapshot,
+                session.startedAt,
+                session.actualEndAt ?: session.plannedEndAt ?: "",
+                durationMin,
+                session.status,
+                session.blockAttempts,
+                session.bypassesUsed,
+            ).joinToString(",")
+        }
+        return header + rows
+    }
+
+    companion object {
+        private const val MILLIS_PER_DAY = 86_400_000L
+        private const val MILLIS_PER_MINUTE = 60_000L
+    }
 }
 
 class RealScheduleRepository(

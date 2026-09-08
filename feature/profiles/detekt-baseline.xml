@@ -2,28 +2,30 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FunctionNaming:ProfileEditorScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileEditorScreen( profile: app.focus.domain.model.Profile? = null, onSave: (app.focus.domain.model.Profile) -&gt; Unit = {}, onCancel: () -&gt; Unit = {} )</ID>
-    <ID>FunctionNaming:ProfilesListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfilesListScreen( profiles: List&lt;app.focus.domain.model.Profile&gt; = emptyList(), onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, onAddProfile: () -&gt; Unit = {}, onEditProfile: (String) -&gt; Unit = {}, onDeleteProfile: (String) -&gt; Unit = {}, onToggleLockMode: (String) -&gt; Unit = {} )</ID>
-    <ID>FunctionNaming:ProfilesListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ProfileCard( profile: app.focus.domain.model.Profile, onToggleLockMode: () -&gt; Unit, onEdit: () -&gt; Unit, onDelete: () -&gt; Unit, onStartSession: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:ProfileEditorScreen.kt$private fun buildProfile( profileId: String, name: String, lockMode: LockMode, duration: Int, loadedProfile: Profile?, ): Profile</ID>
+    <ID>FunctionNaming:AppPickerScreen.kt$@Composable fun AppPickerRoute( onDone: () -&gt; Unit, onBack: () -&gt; Unit, viewModel: AppPickerViewModel = hiltViewModel(), )</ID>
+    <ID>FunctionNaming:AppPickerScreen.kt$@Composable fun ProfilesRoute( onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit, onEditProfile: (String?) -&gt; Unit, viewModel: ProfilesViewModel = hiltViewModel(), )</ID>
+    <ID>FunctionNaming:AppPickerScreen.kt$@Composable private fun AppPickerRow( app: AppPickerViewModel.AppRow, onToggle: () -&gt; Unit, )</ID>
+    <ID>FunctionNaming:AppPickerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AppPickerScreen( state: AppPickerViewModel.AppPickerUiState, onSearchChange: (String) -&gt; Unit, onSortChange: (AppSortOrder) -&gt; Unit, onToggleSystemSection: () -&gt; Unit, onToggleApp: (String, Boolean) -&gt; Unit, onDone: () -&gt; Unit, onBack: () -&gt; Unit, )</ID>
+    <ID>FunctionNaming:ProfileEditorScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileEditorScreen( onSave: () -&gt; Unit, onCancel: () -&gt; Unit, onPickApps: (String) -&gt; Unit, viewModel: ProfileEditorViewModel = hiltViewModel(), )</ID>
+    <ID>FunctionNaming:ProfilesListScreen.kt$@Composable private fun EmptyProfilesState(onAddProfile: () -&gt; Unit, editingLocked: Boolean)</ID>
+    <ID>FunctionNaming:ProfilesListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfilesListScreen( profiles: List&lt;Profile&gt; = emptyList(), editingLocked: Boolean = false, editingLockedReason: String? = null, onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, onAddProfile: () -&gt; Unit = {}, onEditProfile: (String) -&gt; Unit = {}, onDeleteProfile: (String) -&gt; Unit = {}, onToggleLockMode: (String) -&gt; Unit = {}, )</ID>
+    <ID>FunctionNaming:ProfilesListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ProfileCard( profile: Profile, editingLocked: Boolean, onToggleLockMode: () -&gt; Unit, onEdit: () -&gt; Unit, onDelete: () -&gt; Unit, onStartSession: () -&gt; Unit, )</ID>
     <ID>FunctionNaming:ProfilesScreen.kt$@Composable fun PickAppsScreen(onDone: () -&gt; Unit)</ID>
     <ID>FunctionNaming:ProfilesScreen.kt$@Composable fun ProfilesListScreen( onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, onBack: () -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:ProfilesScreen.kt$@Composable private fun ProfileCard(name: String, emoji: String, mode: String)</ID>
-    <ID>LongMethod:ProfileEditorScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileEditorScreen( profile: app.focus.domain.model.Profile? = null, onSave: (app.focus.domain.model.Profile) -&gt; Unit = {}, onCancel: () -&gt; Unit = {} )</ID>
-    <ID>LongMethod:ProfilesListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ProfileCard( profile: app.focus.domain.model.Profile, onToggleLockMode: () -&gt; Unit, onEdit: () -&gt; Unit, onDelete: () -&gt; Unit, onStartSession: () -&gt; Unit )</ID>
-    <ID>LongParameterList:ProfilesListScreen.kt$( profiles: List&lt;app.focus.domain.model.Profile&gt; = emptyList(), onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, onAddProfile: () -&gt; Unit = {}, onEditProfile: (String) -&gt; Unit = {}, onDeleteProfile: (String) -&gt; Unit = {}, onToggleLockMode: (String) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:AppPickerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AppPickerScreen( state: AppPickerViewModel.AppPickerUiState, onSearchChange: (String) -&gt; Unit, onSortChange: (AppSortOrder) -&gt; Unit, onToggleSystemSection: () -&gt; Unit, onToggleApp: (String, Boolean) -&gt; Unit, onDone: () -&gt; Unit, onBack: () -&gt; Unit, )</ID>
+    <ID>LongMethod:ProfileEditorScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileEditorScreen( onSave: () -&gt; Unit, onCancel: () -&gt; Unit, onPickApps: (String) -&gt; Unit, viewModel: ProfileEditorViewModel = hiltViewModel(), )</ID>
+    <ID>LongMethod:ProfilesListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ProfileCard( profile: Profile, editingLocked: Boolean, onToggleLockMode: () -&gt; Unit, onEdit: () -&gt; Unit, onDelete: () -&gt; Unit, onStartSession: () -&gt; Unit, )</ID>
+    <ID>LongParameterList:AppPickerScreen.kt$( state: AppPickerViewModel.AppPickerUiState, onSearchChange: (String) -&gt; Unit, onSortChange: (AppSortOrder) -&gt; Unit, onToggleSystemSection: () -&gt; Unit, onToggleApp: (String, Boolean) -&gt; Unit, onDone: () -&gt; Unit, onBack: () -&gt; Unit, )</ID>
+    <ID>LongParameterList:ProfilesListScreen.kt$( profile: Profile, editingLocked: Boolean, onToggleLockMode: () -&gt; Unit, onEdit: () -&gt; Unit, onDelete: () -&gt; Unit, onStartSession: () -&gt; Unit, )</ID>
+    <ID>LongParameterList:ProfilesListScreen.kt$( profiles: List&lt;Profile&gt; = emptyList(), editingLocked: Boolean = false, editingLockedReason: String? = null, onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, onAddProfile: () -&gt; Unit = {}, onEditProfile: (String) -&gt; Unit = {}, onDeleteProfile: (String) -&gt; Unit = {}, onToggleLockMode: (String) -&gt; Unit = {}, )</ID>
     <ID>MagicNumber:ProfileEditorScreen.kt$15</ID>
     <ID>MagicNumber:ProfileEditorScreen.kt$25</ID>
     <ID>MagicNumber:ProfileEditorScreen.kt$45</ID>
     <ID>MagicNumber:ProfileEditorScreen.kt$60</ID>
     <ID>MagicNumber:ProfileEditorScreen.kt$90</ID>
-    <ID>MaxLineLength:ProfilesListScreen.kt$imageVector = if (profile.lockMode is app.focus.domain.model.LockMode.Hard) Icons.Default.VisibilityOff else Icons.Default.Visibility</ID>
     <ID>UnusedParameter:ProfilesScreen.kt$onBack: () -&gt; Unit = {}</ID>
     <ID>UnusedParameter:ProfilesScreen.kt$onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }</ID>
-    <ID>WildcardImport:ProfileEditorScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:ProfileEditorScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:ProfileEditorScreen.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ProfilesListScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:ProfilesListScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:ProfilesListScreen.kt$import androidx.compose.runtime.*</ID>
   </CurrentIssues>
 </SmellBaseline>

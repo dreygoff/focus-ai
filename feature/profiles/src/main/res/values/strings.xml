@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profiles_title">Profiles</string>
+    <string name="profiles_empty_title">No profiles yet</string>
+    <string name="profiles_empty_body">Create your first focus profile to get started.</string>
+    <string name="profiles_create">Create profile</string>
+    <string name="app_picker_title">Choose apps</string>
+    <string name="app_picker_search">Search apps</string>
+    <string name="app_picker_sort_alpha">A–Z</string>
+    <string name="app_picker_sort_usage">Usage</string>
+    <string name="app_picker_system_section">System apps</string>
+    <string name="app_picker_allowlisted">Always allowed — cannot block</string>
+    <string name="app_picker_selected_count">Selected: %1$d</string>
+    <string name="app_picker_done">Done</string>
+    <string name="profile_editor_new_title">New profile</string>
+    <string name="profile_editor_edit_title">Edit profile</string>
+    <string name="profile_editor_name">Profile name</string>
+    <string name="profile_editor_lock_mode">Lock mode</string>
+    <string name="profile_editor_soft_lock">Soft lock</string>
+    <string name="profile_editor_hard_lock">Hard lock</string>
+    <string name="profile_editor_duration">Default duration</string>
+    <string name="profile_editor_duration_minutes">%1$d min</string>
+    <string name="profile_editor_apps_selected">Apps (%1$d selected)</string>
+    <string name="profile_editor_save">Save</string>
+    <string name="profile_editor_locked">Profile editing is disabled during an active hard lock session.</string>
+    <string name="profiles_editing_locked">Profile editing is disabled during an active hard lock session.</string>
+    <string name="profiles_delete">Delete</string>
+    <string name="profiles_start_session">Start %1$d min session</string>
+</resources>

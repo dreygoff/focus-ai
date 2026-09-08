@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="permission_device_admin_explanation">Allows Focus to prevent uninstallation during hard lock sessions.</string>
+</resources>

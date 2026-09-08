@@ -14,6 +14,7 @@ data class StartSessionResult(
 
 class StartSessionUseCase(
     private val sessionRepo: SessionRepository,
+    private val profileRepo: ProfileRepository,
     private val snapshotStore: ActiveSessionSnapshotStorage,
     private val alarmScheduler: AlarmSchedulerService,
     private val clock: Clock
@@ -25,15 +26,19 @@ class StartSessionUseCase(
         source: app.focus.domain.model.SessionSource = app.focus.domain.model.SessionSource.MANUAL,
         pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null
     ): StartSessionResult = withContext(Dispatchers.IO) {
+        val profile = profileRepo.getProfile(profileId)
+            ?: throw IllegalArgumentException("Profile not found: $profileId")
+
         val startedAt = clock.nowMillis()
         val plannedEndAt = startedAt + durationMinutes * 60L * 1000L
+        val targetPackages = profile.targetPackageNames
 
         val session = app.focus.domain.model.Session(
             id = UUID.randomUUID().toString(),
             profileId = profileId,
-            profileNameSnapshot = "", // would be resolved from ProfileRepository
-            lockMode = app.focus.domain.model.LockMode.Soft, // default
-            targetPackagesSnapshot = emptyList(),
+            profileNameSnapshot = profile.name,
+            lockMode = profile.lockMode,
+            targetPackagesSnapshot = targetPackages,
             goalText = goalText,
             startedAt = startedAt,
             plannedEndAt = plannedEndAt,
@@ -49,24 +54,22 @@ class StartSessionUseCase(
 
         sessionRepo.insert(session)
 
-        // Save snapshot to device-protected storage for recovery on boot (TR-05)
         snapshotStore.save(
             app.focus.domain.internal.statemachine.SessionSnapshot(
                 sessionId = session.id,
                 lockMode = if (session.lockMode is app.focus.domain.model.LockMode.Hard) "HARD" else "SOFT",
                 plannedEndAtMillis = plannedEndAt,
-                targetPackages = session.targetPackagesSnapshot,
+                targetPackages = targetPackages,
                 hardLockExtraPackages = emptyList(),
                 defaultLauncherPkg = null,
                 isPomodoro = pomodoroConfig != null,
-                currentPhase = if (pomodoroConfig != null) "FOCUS" else null ?: "FOCUS",
+                currentPhase = "FOCUS",
                 phaseEndAtMillis = plannedEndAt
             )
         )
 
-        // Schedule alarm for session end (TR-05)
         val alarmScheduled = try {
-            alarmScheduler.scheduleExact(plannedEndAt, session.id.hashCode(), "app.focus.service.receiver.AlarmReceiver")
+            alarmScheduler.scheduleExact(plannedEndAt, session.id.hashCode(), "app.focus.service.focus.AlarmReceiver")
             true
         } catch (e: Exception) {
             false
@@ -106,7 +109,7 @@ class StopSessionUseCase(
     }
 
     private suspend fun cancelAlarm(session: app.focus.domain.model.Session) {
-        alarmScheduler.cancelAlarm(session.id.hashCode(), "app.focus.service.receiver.AlarmReceiver")
+        alarmScheduler.cancelAlarm(session.id.hashCode(), "app.focus.service.focus.AlarmReceiver")
     }
 }
 

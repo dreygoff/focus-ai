@@ -2,18 +2,10 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>EmptyFunctionBlock:DataStoreModule.kt$RealUserSettingsRepository${}</ID>
-    <ID>FunctionNaming:AppNavigation.kt$@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class) @Composable fun AppNavigation( navController: NavHostController, startDestination: String, onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, shouldShowOnboarding: Boolean = false )</ID>
-    <ID>LongMethod:AppNavigation.kt$@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class) @Composable fun AppNavigation( navController: NavHostController, startDestination: String, onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, shouldShowOnboarding: Boolean = false )</ID>
+    <ID>FunctionNaming:AppNavigation.kt$@Composable private fun AppBottomBar( selectedIndex: Int, onNavigate: (String) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:AppNavigation.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun AppNavigation( navController: NavHostController, startDestination: String, onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -&gt; Unit = { _, _ -&gt; }, onOnboardingComplete: () -&gt; Unit = {}, )</ID>
     <ID>MagicNumber:AppNavigation.kt$3</ID>
-    <ID>MagicNumber:DataStoreModule.kt$RealUserSettingsRepository$90L</ID>
-    <ID>MaxLineLength:DataStoreModule.kt$DeviceProtectedSessionSnapshotStorage$hardLockExtraPackages = prefs.getString("hard_lock_extra_packages", "")?.split("|")?.filter { it.isNotBlank() }?.toList() ?: emptyList()</ID>
-    <ID>MaxLineLength:DataStoreModule.kt$DeviceProtectedSessionSnapshotStorage$targetPackages = prefs.getString("target_packages", "")?.split("|")?.filter { it.isNotBlank() }?.toList() ?: emptyList()</ID>
-    <ID>MaxLineLength:DataStoreModule.kt$RealUserSettingsRepository$override fun getEventLogRetentionDays(): kotlinx.coroutines.flow.Flow&lt;Long&gt;</ID>
-    <ID>ReturnCount:DataStoreModule.kt$DeviceProtectedSessionSnapshotStorage$override suspend fun load(): app.focus.domain.internal.statemachine.SessionSnapshot?</ID>
     <ID>TooGenericExceptionCaught:ServiceModule.kt$AlarmSchedulerImpl$e: Exception</ID>
-    <ID>UnusedParameter:AppNavigation.kt$startDestination: String</ID>
-    <ID>UnusedParameter:DataStoreModule.kt$DataStoreModule$@ApplicationContext context: Context</ID>
     <ID>UnusedParameter:ServiceModule.kt$ServiceModule$snapshotStore: ActiveSessionSnapshotStorage</ID>
     <ID>UseCheckOrError:ServiceModule.kt$AlarmSchedulerImpl$throw IllegalStateException("AlarmManager not available")</ID>
   </CurrentIssues>
