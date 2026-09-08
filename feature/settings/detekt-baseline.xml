@@ -2,8 +2,9 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FunctionNaming:SettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( onBack: () -&gt; Unit = {} )</ID>
-    <ID>LongMethod:SettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( onBack: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:ProtectionInfoScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProtectionInfoScreen(onBack: () -&gt; Unit = {})</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( onBack: () -&gt; Unit = {}, onOpenProtectionInfo: () -&gt; Unit = {}, )</ID>
+    <ID>LongMethod:SettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( onBack: () -&gt; Unit = {}, onOpenProtectionInfo: () -&gt; Unit = {}, )</ID>
     <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.runtime.*</ID>

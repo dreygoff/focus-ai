@@ -18,6 +18,8 @@ class StartSessionUseCase(
     private val snapshotStore: ActiveSessionSnapshotStorage,
     private val alarmScheduler: AlarmSchedulerService,
     private val sessionRuntime: SessionRuntimeController,
+    private val hardLockExtras: HardLockExtrasContributor,
+    private val hardLockLifecycle: HardLockLifecycleController,
     private val clock: Clock
 ) {
     suspend fun execute(
@@ -55,19 +57,26 @@ class StartSessionUseCase(
 
         sessionRepo.insert(session)
 
+        val isHardLock = session.lockMode is app.focus.domain.model.LockMode.Hard
+        val hardExtras = if (isHardLock) hardLockExtras.resolveExtras() else HardLockExtras(emptyList(), null)
+
         snapshotStore.save(
             app.focus.domain.internal.statemachine.SessionSnapshot(
                 sessionId = session.id,
-                lockMode = if (session.lockMode is app.focus.domain.model.LockMode.Hard) "HARD" else "SOFT",
+                lockMode = if (isHardLock) "HARD" else "SOFT",
                 plannedEndAtMillis = plannedEndAt,
                 targetPackages = targetPackages,
-                hardLockExtraPackages = emptyList(),
-                defaultLauncherPkg = null,
+                hardLockExtraPackages = hardExtras.extraPackages,
+                defaultLauncherPkg = hardExtras.defaultLauncherPkg,
                 isPomodoro = pomodoroConfig != null,
                 currentPhase = "FOCUS",
                 phaseEndAtMillis = plannedEndAt
             )
         )
+
+        if (isHardLock) {
+            hardLockLifecycle.onHardLockSessionStarted(profile.deviceAdminProtection)
+        }
 
         val alarmScheduled = try {
             alarmScheduler.scheduleExact(
@@ -98,9 +107,11 @@ data class StopSessionResult(
 
 class StopSessionUseCase(
     private val sessionRepo: SessionRepository,
+    private val profileRepo: ProfileRepository,
     private val snapshotStore: ActiveSessionSnapshotStorage,
     private val alarmScheduler: AlarmSchedulerService,
     private val sessionRuntime: SessionRuntimeController,
+    private val hardLockLifecycle: HardLockLifecycleController,
     private val clock: Clock
 ) {
     suspend fun execute(
@@ -116,6 +127,11 @@ class StopSessionUseCase(
 
             val updated = session.copy(actualEndAt = clock.nowMillis(), status = status)
             sessionRepo.update(updated)
+
+            if (session.lockMode is app.focus.domain.model.LockMode.Hard) {
+                val profile = profileRepo.getProfile(session.profileId)
+                hardLockLifecycle.onHardLockSessionStopped(profile?.deviceAdminProtection == true)
+            }
 
             // Clear snapshot and cancel alarm (TR-05)
             snapshotStore.clear()

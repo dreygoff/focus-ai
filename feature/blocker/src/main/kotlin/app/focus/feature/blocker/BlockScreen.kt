@@ -101,6 +101,16 @@ private fun BlockHeader(state: BlockUiState) {
                 style = MaterialTheme.typography.bodySmall,
             )
         }
+
+        if (state.tamperMessage != null) {
+            Text(
+                state.tamperMessage,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 

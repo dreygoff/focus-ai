@@ -14,8 +14,9 @@ data class BlockUiState(
     val lockMode: LockMode = LockMode.Soft,
     val bypassesRemaining: Int = -1,
     val bypassLimitReached: Boolean = false,
-    val bypassStep: BypassState? = null,
+    val bypassStep: app.focus.domain.model.BypassState? = null,
     val bypassGranted: Boolean = false,
+    val tamperMessage: String? = null,
 )
 
 sealed interface BlockAction {

@@ -14,12 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onOpenProtectionInfo: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -100,6 +102,13 @@ fun SettingsScreen(
             // About section
             Spacer(Modifier.height(16.dp))
             Text("About", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+
+            TextButton(
+                onClick = onOpenProtectionInfo,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.settings_protection_link))
+            }
             
             Row(
                 modifier = Modifier.fillMaxWidth(),

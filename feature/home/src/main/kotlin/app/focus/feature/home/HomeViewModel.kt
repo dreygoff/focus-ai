@@ -2,6 +2,7 @@ package app.focus.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.focus.domain.model.LockMode
 import app.focus.domain.model.SessionStatus
 import app.focus.domain.usecase.ObserveActiveSessionsUseCase
 import app.focus.domain.usecase.PauseSessionUseCase
@@ -33,7 +34,11 @@ class HomeViewModel @Inject constructor(
         val streakDays: Int = 0,
         val lastUsedProfileId: String? = null,
         val showStopConfirmation: Boolean = false,
+        val showHardLockConfirmation: Boolean = false,
+        val pendingStart: PendingStart? = null,
     )
+
+    data class PendingStart(val profileId: String, val durationMinutes: Int)
 
     private val _uiStateFlow = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> get() = _uiStateFlow
@@ -61,9 +66,39 @@ class HomeViewModel @Inject constructor(
 
     fun startSession(profileId: String, durationMinutes: Int) {
         viewModelScope.launch {
+            val profile = profileRepo.getProfile(profileId) ?: return@launch
+            if (profile.lockMode is LockMode.Hard) {
+                _uiStateFlow.value = _uiStateFlow.value.copy(
+                    showHardLockConfirmation = true,
+                    pendingStart = PendingStart(profileId, durationMinutes),
+                )
+            } else {
+                startSessionUseCase.execute(
+                    profileId = profileId,
+                    durationMinutes = durationMinutes,
+                    goalText = null,
+                )
+            }
+        }
+    }
+
+    fun dismissHardLockConfirmation() {
+        _uiStateFlow.value = _uiStateFlow.value.copy(
+            showHardLockConfirmation = false,
+            pendingStart = null,
+        )
+    }
+
+    fun confirmHardLockStart() {
+        val pending = _uiStateFlow.value.pendingStart ?: return
+        _uiStateFlow.value = _uiStateFlow.value.copy(
+            showHardLockConfirmation = false,
+            pendingStart = null,
+        )
+        viewModelScope.launch {
             startSessionUseCase.execute(
-                profileId = profileId,
-                durationMinutes = durationMinutes,
+                profileId = pending.profileId,
+                durationMinutes = pending.durationMinutes,
                 goalText = null,
             )
         }

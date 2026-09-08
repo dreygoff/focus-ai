@@ -67,6 +67,8 @@ object UseCaseModule {
         snapshotStore: ActiveSessionSnapshotStorage,
         alarmScheduler: AlarmSchedulerService,
         sessionRuntime: app.focus.domain.usecase.SessionRuntimeController,
+        hardLockExtras: app.focus.domain.usecase.HardLockExtrasContributor,
+        hardLockLifecycle: app.focus.domain.usecase.HardLockLifecycleController,
         clock: Clock,
     ): StartSessionUseCase = StartSessionUseCase(
         sessionRepo = sessionRepo,
@@ -74,21 +76,27 @@ object UseCaseModule {
         snapshotStore = snapshotStore,
         alarmScheduler = alarmScheduler,
         sessionRuntime = sessionRuntime,
+        hardLockExtras = hardLockExtras,
+        hardLockLifecycle = hardLockLifecycle,
         clock = clock,
     )
 
     @Provides
     fun provideStopSessionUseCase(
         sessionRepo: SessionRepository,
+        profileRepo: ProfileRepository,
         snapshotStore: ActiveSessionSnapshotStorage,
         alarmScheduler: AlarmSchedulerService,
         sessionRuntime: app.focus.domain.usecase.SessionRuntimeController,
+        hardLockLifecycle: app.focus.domain.usecase.HardLockLifecycleController,
         clock: Clock,
     ): StopSessionUseCase = StopSessionUseCase(
         sessionRepo = sessionRepo,
+        profileRepo = profileRepo,
         snapshotStore = snapshotStore,
         alarmScheduler = alarmScheduler,
         sessionRuntime = sessionRuntime,
+        hardLockLifecycle = hardLockLifecycle,
         clock = clock,
     )
 

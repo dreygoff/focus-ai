@@ -90,6 +90,7 @@ data class BlockRequest(
     val attemptNumber: Int,
     val bypassesUsed: Int = 0,
     val forceOverlay: Boolean = false,
+    val tamperMessage: String? = null,
 )
 
 interface BlockLauncher {

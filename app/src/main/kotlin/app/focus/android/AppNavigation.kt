@@ -202,6 +202,29 @@ private fun NavGraphBuilder.homeRoute(
                     },
                 )
             }
+
+            if (state.showHardLockConfirmation) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { viewModel.dismissHardLockConfirmation() },
+                    title = { androidx.compose.material3.Text("Start hard lock?") },
+                    text = {
+                        androidx.compose.material3.Text(
+                            "Settings, installers, and other launchers will be blocked until the session ends. " +
+                                "This cannot be undone early without emergency exit.",
+                        )
+                    },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = { viewModel.confirmHardLockStart() }) {
+                            androidx.compose.material3.Text("Start hard lock")
+                        }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.TextButton(onClick = { viewModel.dismissHardLockConfirmation() }) {
+                            androidx.compose.material3.Text("Cancel")
+                        }
+                    },
+                )
+            }
         }
     }
 }

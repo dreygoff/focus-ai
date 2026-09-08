@@ -65,6 +65,7 @@ class BlockViewModel @Inject constructor(
                 lockMode = args.lockMode,
                 bypassesRemaining = remaining,
                 bypassLimitReached = remaining == 0 && (loadedProfile?.bypassLimitPerSession ?: 0) >= 0,
+                tamperMessage = args.tamperMessage,
             )
 
             if (loadedProfile != null && bypassConfig != null) {

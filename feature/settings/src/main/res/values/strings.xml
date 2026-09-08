@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="protection_info_title">How protection works</string>
+    <string name="protection_info_body">Hard lock adds Settings, installers, and other launchers to the block list for the session. Focus uses accessibility and usage stats to detect foreground apps and show the block screen quickly.</string>
+    <string name="protection_info_limitations_title">What cannot be blocked</string>
+    <string name="protection_info_limitations_body">Safe mode, ADB, factory reset, and secondary users can bypass any non-system app. Focus does not claim otherwise — these limits are by design on standard Android.</string>
+    <string name="settings_protection_link">How protection works</string>
+</resources>

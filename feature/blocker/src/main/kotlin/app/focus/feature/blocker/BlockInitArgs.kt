@@ -12,4 +12,5 @@ data class BlockInitArgs(
     val attemptNumber: Int,
     val lockMode: LockMode,
     val bypassesUsed: Int,
+    val tamperMessage: String? = null,
 )

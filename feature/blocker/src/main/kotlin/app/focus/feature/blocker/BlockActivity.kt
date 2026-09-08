@@ -37,6 +37,7 @@ class BlockActivity : ComponentActivity() {
         const val EXTRA_REMAINING_MILLIS = "remainingMillis"
         const val EXTRA_SESSION_ID = "sessionId"
         const val EXTRA_BYPASSES_USED = "bypassesUsed"
+        const val EXTRA_TAMPER_MESSAGE = "tamperMessage"
 
         @Volatile
         var isInForeground: Boolean = false
@@ -67,6 +68,7 @@ class BlockActivity : ComponentActivity() {
                 attemptNumber = intent.getIntExtra(EXTRA_ATTEMPT_NUMBER, 1),
                 lockMode = if (intent.getStringExtra(EXTRA_LOCK_MODE) == "HARD") LockMode.Hard else LockMode.Soft,
                 bypassesUsed = intent.getIntExtra(EXTRA_BYPASSES_USED, 0),
+                tamperMessage = intent.getStringExtra(EXTRA_TAMPER_MESSAGE),
             ),
         )
 

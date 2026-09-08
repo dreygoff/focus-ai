@@ -57,6 +57,7 @@ class DefaultBlockerLauncher @Inject constructor(
             putExtra(BlockActivity.EXTRA_REMAINING_MILLIS, request.remainingMillis)
             putExtra(BlockActivity.EXTRA_SESSION_ID, request.sessionId)
             putExtra(BlockActivity.EXTRA_BYPASSES_USED, request.bypassesUsed)
+            putExtra(BlockActivity.EXTRA_TAMPER_MESSAGE, request.tamperMessage)
         }
         context.startActivity(intent)
 

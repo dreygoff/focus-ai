@@ -60,7 +60,7 @@
 ### Проверки
 - assembleDebug ✅ / testDebugUnitTest ✅ / lintDebug ✅ / detekt ✅
 
-## Фаза 5 — Soft Lock — статус: in progress — дата: 2026-09-09
+## Фаза 5 — Soft Lock — статус: done — дата: 2026-09-09
 
 ### Сделано
 - `BypassFlow` UI в `BlockViewModel` + `BlockScreen`: delay, breathing, reason, phrase (FR-31)
@@ -75,6 +75,30 @@
 - Overlay fallback не поддерживает полный bypass flow (только BlockActivity)
 - Авто-resume после 10 мин паузы — не реализован (ручной Resume)
 - E2E §14.3 на устройстве не прогнан
+
+### Проверки
+- assembleDebug ✅ / testDebugUnitTest ✅ / detekt ✅
+
+## Фаза 6 — Hard Lock — статус: in progress — дата: 2026-09-09
+
+### Сделано
+- `HardLockExtrasResolver`: settings/installer/non-default launcher packages в snapshot (FR-36 partial)
+- `HardLockExtrasContributor` / `HardLockLifecycleController` + Android bindings (Hilt)
+- `StartSessionUseCase`: hard lock extras + default launcher в snapshot; lifecycle on stop
+- `TamperResponder`: BACK+HOME при попытке открыть Settings во время hard lock (FR-37, TR-08)
+- `SessionBlockCoordinator`: tamper detection → block с tamper message + `TAMPER_ATTEMPT` event
+- Block UI: `tamperMessage` в BlockRequest/BlockScreen
+- `DummyAdminReceiver.onDisableRequested()` warning (FR-38)
+- Home: двухшаговое подтверждение старта hard lock (§11.2)
+- `ProtectionInfoScreen` + strings ru/en (FR-39a partial); ссылка в Settings
+
+### Осталось
+- Аварийный выход FR-35 (delay 10 min / retype text)
+- Device Admin activation UI + auto-deactivate
+- Разрешённые ярлыки Settings (Wi‑Fi и т.д.) с access window
+- Launcher blocking via Device Admin
+- FR-14/FR-91 editing restrictions during hard session
+- Навигация Settings → ProtectionInfo в AppNavigation
 
 ### Проверки
 - assembleDebug ✅ / testDebugUnitTest ✅ / detekt ✅
