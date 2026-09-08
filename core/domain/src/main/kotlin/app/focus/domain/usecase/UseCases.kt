@@ -2,7 +2,8 @@ package app.focus.domain.usecase
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.first
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
@@ -89,6 +90,7 @@ class StopSessionUseCase(
     suspend fun execute(sessionId: String, status: app.focus.domain.model.SessionStatus = app.focus.domain.model.SessionStatus.Cancelled): StopSessionResult {
         return withContext(Dispatchers.IO) {
             val session = sessionRepo.observeSessions(clock.nowMillis() - 86400000L, clock.nowMillis())
+                .first()
                 .firstOrNull { it.id == sessionId }
                 ?: throw IllegalArgumentException("Session not found: $sessionId")
 
@@ -99,7 +101,7 @@ class StopSessionUseCase(
             snapshotStore.clear()
             try { cancelAlarm(session) } catch(e: Exception) { /* ignore */ }
 
-            return@stopWithResult StopSessionResult(oldStatus = session.status, newStatus = status)
+            return@withContext StopSessionResult(oldStatus = session.status, newStatus = status)
         }
     }
 
@@ -268,9 +270,11 @@ class BypassFlowExecutor(
 class SessionStateMachineExecutor(
     private val clock: Clock
 ) {
-    // Wrapper over the domain state machine from core.domain.internal.statemachine
     fun execute(event: app.focus.domain.internal.statemachine.SessionEvent): app.focus.domain.internal.statemachine.StateMachineResult {
-        return app.focus.domain.internal.statemachine.SessionStateMachine(clock).execute(event)
+        val stateMachineClock = object : app.focus.domain.internal.statemachine.Clock {
+            override fun nowMillis(): Long = clock.nowMillis()
+        }
+        return app.focus.domain.internal.statemachine.SessionStateMachine(stateMachineClock).execute(event)
     }
 }
 

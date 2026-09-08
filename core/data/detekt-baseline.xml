@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:RealProfileRepository.kt$RealProfileRepository${}</ID>
+    <ID>EmptyFunctionBlock:RepositoryImpl.kt$RealSessionRepository${}</ID>
+    <ID>MagicNumber:RepositoryImpl.kt$RealAccessWindowRepository$5</ID>
+    <ID>MagicNumber:RepositoryImpl.kt$RealAccessWindowRepository$60_000L</ID>
+    <ID>MagicNumber:SessionMapper.kt$15</ID>
+    <ID>MagicNumber:SessionMapper.kt$25</ID>
+    <ID>MagicNumber:SessionMapper.kt$4</ID>
+    <ID>MagicNumber:SessionMapper.kt$5</ID>
+    <ID>MaxLineLength:RepositoryImpl.kt$RealAllowlistRepository$override fun isAllowed(packageName: String): Boolean</ID>
+    <ID>MaxLineLength:RepositoryImpl.kt$RealAllowlistRepository$override fun observeAllowlist(): Flow&lt;Set&lt;String&gt;&gt;</ID>
+    <ID>MaxLineLength:RepositoryImpl.kt$RealAllowlistRepository$override suspend fun addPackage(packageName: String)</ID>
+    <ID>MaxLineLength:RepositoryImpl.kt$RealScheduleRepository$override suspend fun getScheduleById(id: String): app.focus.domain.model.Schedule?</ID>
+    <ID>MaxLineLength:RepositoryImpl.kt$RealScheduleRepository$override suspend fun insert(schedule: app.focus.domain.model.Schedule): Long</ID>
+    <ID>MaxLineLength:RepositoryImpl.kt$RealSessionRepository$override fun observeActiveSession(): Flow&lt;app.focus.domain.model.Session?&gt;</ID>
+    <ID>MaxLineLength:RepositoryImpl.kt$RealSessionRepository$override suspend fun exportStatsCsv(startDate: Long, endDate: Long): String</ID>
+    <ID>MaxLineLength:SessionMapper.kt$lockMode = if (lockMode == "HARD") app.focus.domain.model.LockMode.Hard else app.focus.domain.model.LockMode.Soft</ID>
+    <ID>MaxLineLength:SessionMapper.kt$return """{"focusMinutes":$focusMinutes,"shortBreakMinutes":$shortBreakMinutes,"longBreakMinutes":$longBreakMinutes,"cyclesBeforeLongBreak":$cyclesBeforeLongBreak,"totalCycles":$totalCycles}"""</ID>
+    <ID>ReturnCount:SessionMapper.kt$private fun parsePomodoroConfig(json: String?): PomodoroConfig?</ID>
+    <ID>TooManyFunctions:SessionMapper.kt$app.focus.data.mapper.SessionMapper.kt</ID>
+    <ID>UnusedPrivateProperty:RealProfileRepository.kt$RealProfileRepository.Companion$private const val KEY_DEFAULT_PROFILE = "default_profile_id"</ID>
+    <ID>UnusedPrivateProperty:RealProfileRepository.kt$RealProfileRepository.Companion$private const val SETTINGS_PREFS = "core_settings"</ID>
+    <ID>UnusedPrivateProperty:RepositoryImpl.kt$RealEventLogRepository$private val clock: app.focus.domain.usecase.Clock</ID>
+    <ID>UnusedPrivateProperty:RepositoryImpl.kt$RealSessionRepository$private val profileAppDao: ProfileAppDao</ID>
+  </CurrentIssues>
+</SmellBaseline>

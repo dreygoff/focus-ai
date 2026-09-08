@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:FakeRepositories.kt$FakeProfileRepository${}</ID>
+    <ID>EmptyFunctionBlock:FakeRepositories.kt$FakeScheduleRepository${}</ID>
+    <ID>EmptyFunctionBlock:FakeRepositories.kt$FakeSessionRepository${}</ID>
+    <ID>InvalidPackageDeclaration:FakeRepositories.kt$package app.focus.core.testing</ID>
+    <ID>MaxLineLength:FakeRepositories.kt$FakeAccessWindowRepository$override</ID>
+    <ID>MaxLineLength:FakeRepositories.kt$FakeEventLogRepository$override</ID>
+    <ID>MaxLineLength:FakeRepositories.kt$FakeSessionRepository$override</ID>
+    <ID>MaxLineLength:FakeRepositories.kt$FakeSessionRepository$override suspend fun getStatsDaily(startDate: Long, days: Int): List&lt;app.focus.domain.model.DailyStats&gt;</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -49,3 +49,15 @@ include(":feature:widget")
 // Service modules
 include(":service:focus-service")
 include(":service:accessibility")
+
+// Centralize module build outputs under root build/ to reduce Windows lint-cache file locks
+// when IDE/antivirus hold handles under per-module build/ directories.
+gradle.beforeProject {
+    if (this != rootProject) {
+        val outputPath = path.removePrefix(":").replace(':', '/')
+        layout.buildDirectory.set(rootProject.layout.buildDirectory.dir(outputPath))
+    }
+}
+
+// Avoid JVM jar URL connection caches holding lint migrated-jar handles on Windows.
+java.net.URL("jar:file:///dummy.jar!/").openConnection().setDefaultUseCaches(false)

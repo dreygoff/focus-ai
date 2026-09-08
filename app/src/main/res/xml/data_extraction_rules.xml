@@ -2,6 +2,7 @@
 <full-backup-content>
     <include domain="database" path="." />
     <include domain="sharedpref" path="." />
+    <include domain="file" path="." />
     <exclude domain="file" path="active_session/" />
     <exclude domain="file" path="logs/" />
 </full-backup-content>

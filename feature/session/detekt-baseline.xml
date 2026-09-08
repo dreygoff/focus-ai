@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:SessionScreens.kt$@Composable fun ActiveSessionScreen( session: app.focus.domain.model.Session, remainingSeconds: Int, onPause: () -&gt; Unit, onStop: () -&gt; Unit, onOpenFocus: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:SessionScreens.kt$@Composable fun SessionSummaryScreen( session: app.focus.domain.model.Session, remainingSessionMinutes: Int? = null, onBackToHome: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:SessionScreens.kt$@Composable private fun TimerDialBig(secondsRemaining: Int, totalSeconds: Int)</ID>
+    <ID>FunctionNaming:StartSessionScreen.kt$@Composable fun StartSessionScreen( profiles: List&lt;app.focus.domain.model.Profile&gt;, uiState: StartSessionUiState, onAction: (StartSessionEvent) -&gt; Unit, onConfirm: () -&gt; Unit, onBack: () -&gt; Unit )</ID>
+    <ID>ImplicitDefaultLocale:SessionScreens.kt$String.format("%02d:%02d", minutes, secs)</ID>
+    <ID>InvalidPackageDeclaration:Navigation.kt$package app.focus.feature.session.routes</ID>
+    <ID>InvalidPackageDeclaration:StartSessionScreen.kt$package app.focus.feature.session.start</ID>
+    <ID>MagicNumber:SessionScreens.kt$60</ID>
+    <ID>MagicNumber:SessionScreens.kt$7</ID>
+    <ID>MagicNumber:StartSessionScreen.kt$15</ID>
+    <ID>MagicNumber:StartSessionScreen.kt$25</ID>
+    <ID>MagicNumber:StartSessionScreen.kt$45</ID>
+    <ID>MagicNumber:StartSessionScreen.kt$60</ID>
+    <ID>MagicNumber:StartSessionScreen.kt$90</ID>
+    <ID>MatchingDeclarationName:Navigation.kt$SessionRoutes</ID>
+    <ID>MaxLineLength:SessionScreens.kt$Text("${session.profileNameSnapshot}", style = androidx.compose.material3.MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:SessionScreens.kt$Text("Blocked attempts: ${session.blockAttempts}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)</ID>
+    <ID>MaxLineLength:SessionScreens.kt$Text("Session Complete!", style = androidx.compose.material3.MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:SessionScreens.kt$Text(it, style = androidx.compose.material3.MaterialTheme.typography.titleMedium, modifier = Modifier.padding(8.dp))</ID>
+    <ID>MaxLineLength:StartSessionScreen.kt$StartSessionUiState$val targetPackagesList: List&lt;String&gt; = if (selectedProfileId != null) listOf("instagram", "facebook") else emptyList()</ID>
+    <ID>MaxLineLength:StartSessionScreen.kt$if</ID>
+    <ID>UnusedParameter:SessionScreens.kt$onOpenFocus: () -&gt; Unit</ID>
+    <ID>UnusedParameter:SessionScreens.kt$remainingSessionMinutes: Int? = null</ID>
+    <ID>UnusedParameter:SessionScreens.kt$totalSeconds: Int</ID>
+  </CurrentIssues>
+</SmellBaseline>

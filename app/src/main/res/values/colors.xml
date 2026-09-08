@@ -36,4 +36,5 @@
     <!-- Placeholder colors for shimmer loading -->
     <color name="shimmer_base">#2C2F32</color>
     <color name="shimmer_highlight">#383A3D</color>
+    <color name="ic_launcher_background">#2F6F6D</color>
 </resources>

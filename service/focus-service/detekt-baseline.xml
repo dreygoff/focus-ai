@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionOnlyReturningConstant:BootReceiver.kt$BootReceiver$private fun retrieveActiveSessionSnapshot(context: Context): SessionSnapshot?</ID>
+    <ID>LongParameterList:SessionEngine.kt$SessionEngine$( sessionId: String, profileId: String, durationMinutes: Int, targetPackages: List&lt;String&gt;, hardLockExtraPackages: List&lt;String&gt; = emptyList(), pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null )</ID>
+    <ID>LoopWithTooManyJumpStatements:SessionEngine.kt$SessionEngine$while</ID>
+    <ID>MagicNumber:AlarmReceiver.kt$AlarmReceiver$1000L</ID>
+    <ID>MagicNumber:AlarmReceiver.kt$AlarmReceiver$25</ID>
+    <ID>MagicNumber:AlarmReceiver.kt$AlarmReceiver$60L</ID>
+    <ID>MagicNumber:FocusForegroundService.kt$FocusForegroundService.Companion$9001</ID>
+    <ID>MagicNumber:FocusForegroundService.kt$FocusForegroundService.Companion$9002</ID>
+    <ID>MagicNumber:SessionEngine.kt$SessionEngine$1000</ID>
+    <ID>MagicNumber:SessionEngine.kt$SessionEngine$1000L</ID>
+    <ID>MagicNumber:SessionEngine.kt$SessionEngine$60L</ID>
+    <ID>MagicNumber:SessionEngine.kt$SessionEngine$60_000</ID>
+    <ID>MagicNumber:SessionEngine.kt$SessionEngine$60_000L</ID>
+    <ID>MaxLineLength:SessionEngine.kt$SessionEngine$suspend</ID>
+    <ID>ReturnCount:SessionEngine.kt$SessionEngine$fun checkBlockDecision(packageName: String): BlockDecision</ID>
+    <ID>TooGenericExceptionCaught:BootReceiver.kt$BootReceiver$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SessionEngine.kt$SessionEngine$e: Exception</ID>
+    <ID>TooManyFunctions:SessionEngine.kt$SessionEngine</ID>
+    <ID>UnusedParameter:BootReceiver.kt$BootReceiver$context: Context</ID>
+    <ID>UnusedPrivateProperty:SessionEngine.kt$SessionEngine$private val scheduleAlarmPlanner: ScheduleAlarmPlanner</ID>
+    <ID>WildcardImport:SessionEngine.kt$import kotlinx.coroutines.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

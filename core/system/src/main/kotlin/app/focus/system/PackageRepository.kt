@@ -1,17 +1,16 @@
 package app.focus.system
 
+import android.annotation.SuppressLint
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.app.usage.UsageStatsManager
 import androidx.core.content.ContextCompat.checkSelfPermission
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.stateIn
 
 data class PackageInfo(
     val packageName: String,
@@ -27,7 +26,6 @@ interface PackageRepository {
 
 class DefaultPackageRepository(
     private val context: Context,
-    scope: android.os.Build.VERSION.SDK_INT > -1 /* placeholder for actual CoroutineScope */,
 ) : PackageRepository {
 
     companion object {
@@ -37,7 +35,7 @@ class DefaultPackageRepository(
 
     private val _appsFlow = MutableStateFlow<List<PackageInfo>>(emptyList())
 
-    override fun observeInstalledApps(): Flow<List<PackageInfo>> = _appsFlow.distinctUntilChanged()
+    override fun observeInstalledApps(): Flow<List<PackageInfo>> = _appsFlow
 
     init {
         refresh(includeUsage = true)
@@ -99,6 +97,7 @@ class DefaultPackageRepository(
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun queryUsageMinutes(pkgName: String): Long {
         @Suppress("UNCHECKED_CAST")
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
@@ -113,8 +112,6 @@ class DefaultPackageRepository(
             UsageStatsManager.INTERVAL_DAILY, startTime, endTime
         )
 
-        return (stats.orEmpty().find { it.packageName == pkgName }?.run {
-            totalTime / 60_000L
-        }) ?: 0L
+        return (stats.orEmpty().find { it.packageName == pkgName }?.totalTimeInForeground?.div(60_000L)) ?: 0L
     }
 }

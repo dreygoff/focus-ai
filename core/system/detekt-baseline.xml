@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionOnlyReturningConstant:HardLockEnforcer.kt$HardLockEnforcer$fun isRestrictedMode(): Boolean</ID>
+    <ID>LongMethod:PermissionChecker.kt$PermissionChecker$fun refreshPermissions(): Set&lt;PermissionState&gt;</ID>
+    <ID>MagicNumber:PackageRepository.kt$DefaultPackageRepository$1000</ID>
+    <ID>MagicNumber:PackageRepository.kt$DefaultPackageRepository$24L</ID>
+    <ID>MagicNumber:PackageRepository.kt$DefaultPackageRepository$60</ID>
+    <ID>MagicNumber:PackageRepository.kt$DefaultPackageRepository$60_000L</ID>
+    <ID>MagicNumber:SessionTimerManager.kt$SessionTimerManager$1000</ID>
+    <ID>MagicNumber:SessionTimerManager.kt$SessionTimerManager.&lt;no name provided&gt;$100</ID>
+    <ID>MagicNumber:SessionTimerManager.kt$SessionTimerManager.&lt;no name provided&gt;$5_000</ID>
+    <ID>MagicNumber:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector$1000</ID>
+    <ID>MagicNumber:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector.&lt;no name provided&gt;$1000</ID>
+    <ID>MagicNumber:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector.&lt;no name provided&gt;$200</ID>
+    <ID>MagicNumber:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector.&lt;no name provided&gt;$2000</ID>
+    <ID>MagicNumber:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector.&lt;no name provided&gt;$300</ID>
+    <ID>MatchingDeclarationName:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector : UsageStatsPollingDetector</ID>
+    <ID>MaxLineLength:DefaultAppsResolver.kt$DefaultAppsResolver$val resolved = context.packageManager.resolveActivity(intent, android.content.pm.PackageManager.MATCH_DEFAULT_ONLY)</ID>
+    <ID>MaxLineLength:PermissionChecker.kt$PermissionChecker$val adminComponent = android.content.ComponentName(context, app.focus.system.internal.DummyAdminReceiver::class.java)</ID>
+    <ID>MaxLineLength:PermissionChecker.kt$PermissionChecker$val devicePolicyManager = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager</ID>
+    <ID>MaxLineLength:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector.&lt;no name provided&gt;$val statsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return</ID>
+    <ID>MaxLineLength:VendorHintsProvider.kt$VendorHintsProvider$"HUAWEI" -&gt; "To allow Focus to work correctly, please add it to the Protected apps list in Huawei battery optimization settings."</ID>
+    <ID>ReturnCount:HardLockEnforcer.kt$HardLockEnforcer$@SuppressLint("WrongConstant") fun canBlockLauncherSwitching(): Boolean</ID>
+    <ID>ReturnCount:HardLockEnforcer.kt$HardLockEnforcer$fun shouldBlockEvent(intent: Intent): Boolean</ID>
+    <ID>ReturnCount:HardLockEnforcer.kt$HardLockEnforcer$fun shouldBlockPackage(packageName: String): Boolean</ID>
+    <ID>TooGenericExceptionCaught:HardLockEnforcer.kt$HardLockEnforcer$e: Exception</ID>
+    <ID>TooManyFunctions:HardLockEnforcer.kt$HardLockEnforcer</ID>
+    <ID>UnusedParameter:HardLockEnforcer.kt$HardLockEnforcer$maxNum: Int</ID>
+    <ID>UnusedParameter:HardLockEnforcer.kt$HardLockEnforcer$minSdkVersion: Int = 26</ID>
+    <ID>UnusedParameter:HardLockEnforcer.kt$HardLockEnforcer$packageName: String</ID>
+    <ID>UnusedPrivateProperty:DetectorOrchestrator.kt$DetectorOrchestrator$private val context: Context</ID>
+    <ID>UnusedPrivateProperty:HardLockEnforcer.kt$HardLockEnforcer.Companion$private val HARD_LOCK_SCHEMES = setOf( "settings:", "content://com.android.providers.settings/", "package:", // Package manager URIs "market:", // Play Store )</ID>
+    <ID>UnusedPrivateProperty:PackageRepository.kt$DefaultPackageRepository.Companion$private const val CACHE_KEY = "installed_packages"</ID>
+    <ID>UnusedPrivateProperty:SessionTimerManager.kt$SessionTimerManager$private val context: Context</ID>
+    <ID>UnusedPrivateProperty:SessionTimerManager.kt$SessionTimerManager.Companion$private const val TAG = "SessionTimerManager"</ID>
+    <ID>UnusedPrivateProperty:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector.Companion$private const val TAG = "UsageStatsPollingDetector"</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
-
     <application>
         <service
             android:name=".FocusAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:exported="true"
+            android:exported="false"
+            android:process=":accessibility"
             android:label="@string/accessibility_service_summary">
 
             <intent-filter>

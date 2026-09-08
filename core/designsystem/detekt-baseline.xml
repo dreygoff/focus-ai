@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:Color.kt$@Composable fun FocusTheme( darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = true, content: @Composable () -&gt; Unit )</ID>
+    <ID>MagicNumber:Color.kt$0xFF003635</ID>
+    <ID>MagicNumber:Color.kt$0xFF1C1B1F</ID>
+    <ID>MagicNumber:Color.kt$0xFF2F6F6D</ID>
+    <ID>MagicNumber:Color.kt$0xFF4A7C58</ID>
+    <ID>MagicNumber:Color.kt$0xFF6F9E7A</ID>
+    <ID>MagicNumber:Color.kt$0xFF8CD1CF</ID>
+    <ID>MagicNumber:Color.kt$0xFFF4B400</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFD767</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFFBFE</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFFBFF</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFFFFF</ID>
+  </CurrentIssues>
+</SmellBaseline>

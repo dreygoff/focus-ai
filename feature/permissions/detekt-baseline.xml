@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:PermissionsScreen.kt$@Composable private fun ErrorScreen(message: String, onRetry: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:PermissionsScreen.kt$@Composable private fun LoadingScreen()</ID>
+    <ID>FunctionNaming:PermissionsScreen.kt$@Composable private fun PermissionRow(item: PermissionCheckItem, onGrantClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:PermissionsScreen.kt$@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class) @Composable fun PermissionsScreen( state: PermissionsUiState, onRequestPermission: (String) -&gt; Unit, onAllGranted: () -&gt; Unit, onBack: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:PermissionsScreen.kt$@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class) @Composable private fun ReadyPermissionScreen( items: List&lt;PermissionCheckItem&gt;, mandatoryGranted: Boolean, onRequestPermission: (String) -&gt; Unit, onAllGranted: () -&gt; Unit, onBack: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:PermissionsScreen.kt$( items: List&lt;PermissionCheckItem&gt;, mandatoryGranted: Boolean, onRequestPermission: (String) -&gt; Unit, onAllGranted: () -&gt; Unit, onBack: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>MatchingDeclarationName:PermissionsScreen.kt$PermissionCheckItem</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$Column</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$OutlinedButton(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), onClick = onAllGranted) { Text("Continue") }</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$OutlinedButton(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), onClick = onBack) { Text("Go Back") }</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$PermissionCheckItem.Companion$"accessibility" -&gt; Triple("Accessibility Service", "Provides faster and more reliable app detection than the fallback polling method.", true)</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$PermissionCheckItem.Companion$"battery" -&gt; Triple("Ignore Battery Optimization", "Prevents the system from killing Focus in background.", true)</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$PermissionCheckItem.Companion$"device_admin" -&gt; Triple("Device Admin", "Protects Focus from being uninstalled during hard lock sessions.", true)</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$PermissionCheckItem.Companion$"exact_alarm" -&gt; Triple("Exact Alarms", "Enables precise scheduling for automatic session start/stop.", true)</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$PermissionCheckItem.Companion$"notifications" -&gt; Triple("Notifications", "Shows session status and alerts during focus sessions.", true)</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$PermissionCheckItem.Companion$"overlay" -&gt; Triple("Display Over Other Apps", "Allows the block screen to appear over other apps when target apps are opened.", false)</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$PermissionCheckItem.Companion$"usage_stats" -&gt; Triple("Usage Stats Access", "Allows Focus to detect which apps are currently running. Required for blocking.", false)</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$Row</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$Text(text = "Required", style = MaterialTheme.typography.labelSmall, color = Color.Red, modifier = Modifier.padding(top = 2.dp))</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$Text(text = item.descriptionRes, style = MaterialTheme.typography.bodySmall, color = Color.Gray.copy(alpha = 0.8f), modifier = Modifier.padding(top = 4.dp))</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$Text(text = item.titleRes, style = MaterialTheme.typography.bodyLarge, fontWeight = FW.Medium, modifier = Modifier.padding(start = 8.dp))</ID>
+    <ID>MaxLineLength:PermissionsScreen.kt$style = MaterialTheme.typography.titleMedium</ID>
+    <ID>TooGenericExceptionCaught:PermissionsViewModel.kt$PermissionsViewModel$e: Exception</ID>
+    <ID>UnusedParameter:PermissionsViewModel.kt$PermissionsViewModel$permissionType: String</ID>
+    <ID>UnusedPrivateProperty:PermissionsViewModel.kt$PermissionsViewModel$private val hardLockEnforcer: HardLockEnforcer</ID>
+  </CurrentIssues>
+</SmellBaseline>

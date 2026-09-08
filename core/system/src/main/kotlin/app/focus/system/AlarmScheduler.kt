@@ -3,6 +3,7 @@ package app.focus.system
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
@@ -63,7 +64,7 @@ class DefaultAlarmScheduler(
 
     fun canScheduleExactAlarms(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Settings.AlarmClock.canScheduleExactAlarms(context.packageName)
+            alarmManager.canScheduleExactAlarms()
         } else {
             true
         }

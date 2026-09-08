@@ -1,26 +1,24 @@
 package com.focus.convention
 
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 /**
- * Convention plugin for Android Library modules.
- * Applies AGP, Kotlin, KSP, and configures compile options.
+ * Convention plugin for Android Library modules (AGP 9.x, built-in Kotlin).
  */
 class AndroidLibraryPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            with(pluginManager) {
-                apply("com.android.library")
-                apply("org.jetbrains.kotlin.android")
-                apply("com.google.devtools.ksp")
-            }
+            pluginManager.apply("com.android.library")
+            pluginManager.apply("com.google.devtools.ksp")
 
             extensions.configure(LibraryExtension::class.java) { ext ->
-                ext.compileSdk = 35
+                ext.compileSdk = 37
 
                 ext.defaultConfig {
                     minSdk = 26
@@ -30,11 +28,7 @@ class AndroidLibraryPlugin : Plugin<Project> {
                 ext.buildTypes {
                     getByName("debug") { isDebuggable = true }
                     getByName("release") {
-                        isMinifyEnabled = true
-                        proguardFiles(
-                            getDefaultProguardFile("proguard-android-optimize.txt"),
-                            "proguard-rules.pro"
-                        )
+                        isMinifyEnabled = false
                     }
                 }
 
@@ -43,8 +37,15 @@ class AndroidLibraryPlugin : Plugin<Project> {
                     targetCompatibility = JavaVersion.VERSION_17
                 }
 
-                ext.kotlinOptions { jvmTarget = "17" }
-                ext.lint { abortOnError = false; checkReleaseBuilds = false }
+                ext.lint {
+                    lintConfig = rootProject.file("lint.xml")
+                }
+            }
+
+            extensions.configure(KotlinAndroidProjectExtension::class.java) { ext ->
+                ext.compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_17)
+                }
             }
         }
     }

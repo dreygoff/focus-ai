@@ -22,7 +22,10 @@
     <string name="home_no_session">Ready to focus?</string>
     <string name="home_start_focus">Start Focus</string>
     <string name="home_quick_start">Quick start</string>
-    <string name="home_today_minutes">%d min focused today</string>
+    <plurals name="home_today_minutes">
+        <item quantity="one">%d min focused today</item>
+        <item quantity="other">%d min focused today</item>
+    </plurals>
     <string name="home_streak">Streak: %d days</string>
     <string name="home_permission_warning">Some permissions have been lost. Tap to re-enable.</string>
 
@@ -36,9 +39,18 @@
 
     <!-- Pomodoro -->
     <string name="pomodoro_enabled">Pomodoro enabled</string>
-    <string name="pomodoro_focus_phase">Focus %d min</string>
-    <string name="pomodoro_short_break">Short break %d min</string>
-    <string name="pomodoro_long_break">Long break %d min</string>
+    <plurals name="pomodoro_focus_phase">
+        <item quantity="one">Focus %d min</item>
+        <item quantity="other">Focus %d min</item>
+    </plurals>
+    <plurals name="pomodoro_short_break">
+        <item quantity="one">Short break %d min</item>
+        <item quantity="other">Short break %d min</item>
+    </plurals>
+    <plurals name="pomodoro_long_break">
+        <item quantity="one">Long break %d min</item>
+        <item quantity="other">Long break %d min</item>
+    </plurals>
     <string name="pomodoro_cycles_left">%d cycles remaining</string>
 
     <!-- Profile editor -->
@@ -54,7 +66,7 @@
     <string name="profile_emergency_delay_10min">10 min delay</string>
     <string name="profile_emergency_retype">Retype text</string>
     <string name="profile_device_admin">Device admin protection</string>
-    <string name="profile_block_new_appsBlock new installs</string>
+    <string name="profile_block_new_apps">Block new installs</string>
     <string name="profile_save">Save</string>
     <string name="profile_delete">Delete profile</string>
     
@@ -65,15 +77,18 @@
     <string name="block_enter_phrase">Type the phrase exactly:</string>
     <string name="block_enter_phrase_default">Я осознанно отвлекаюсь от своей цели</string>
     <string name="bypass_limit_reached">Bypasses exhausted for this session</string>
-    <string name="access_window_remaining">%d minutes remaining</string>
+    <plurals name="access_window_remaining">
+        <item quantity="one">%d minute remaining</item>
+        <item quantity="other">%d minutes remaining</item>
+    </plurals>
 
     <!-- Permissions screen -->
     <string name="permissions_title">Required permissions</string>
     <string name="permission_usage_stats">Usage access</string>
-    <string name="permission_usage_stats_descriptionAllows Focus to detect which apps you are using</string>
+    <string name="permission_usage_stats_description">Allows Focus to detect which apps you are using</string>
     <string name="permission_accessibility">Accessibility service</string>
     <string name="permission_accessibility_description">For instant detection of foreground apps without polling</string>
-    <string name="permission_overlay">Overlapp screens</string>
+    <string name="permission_overlay">Overlay screens</string>
     <string name="permission_overlay_description">Allows Focus to show the blocking screen over other apps</string>
     <string name="permission_notifications">Notifications</string>
     <string name="permission_notifications_description">Show session progress and alerts in the status bar</string>
@@ -93,7 +108,7 @@
     <string name="profiles_default_detox">Detox</string>
 
     <!-- Schedules -->
-    <String name="schedules_title">Schedules</string>
+    <string name="schedules_title">Schedules</string>
     <string name="schedules_add_schedule">Add schedule</string>
     <plurals name="days_selected">
         <item quantity="one">%d day</item>
@@ -227,3 +242,4 @@
     <string name="vendor_hint_title" translatable="false">%s tips</string>
     <string name="vendor_text_autostart" translatable="false">Enable autostart for Focus in your %s settings to prevent it from being killed.</string>
     <string name="vendor_text_battery" translatable="false">Set battery optimization to \"Not optimized\" for Focus.</string>
+</resources>

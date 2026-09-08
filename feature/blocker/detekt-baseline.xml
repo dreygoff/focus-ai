@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:BlockScreen.kt$@Composable fun BlockScreen( blockedPackage: String, appName: String, profileName: String, onReturnToWork: () -&gt; Unit = {}, onBypassAttempt: (reason: String) -&gt; Boolean = { false } )</ID>
+    <ID>LongMethod:BlockScreen.kt$@Composable fun BlockScreen( blockedPackage: String, appName: String, profileName: String, onReturnToWork: () -&gt; Unit = {}, onBypassAttempt: (reason: String) -&gt; Boolean = { false } )</ID>
+    <ID>MagicNumber:BlockScreen.kt$0xFFF5F5F5</ID>
+    <ID>TooGenericExceptionCaught:BlockActivity.kt$BlockActivity$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:OverlayBlocker.kt$OverlayBlocker$e: Exception</ID>
+    <ID>UnusedParameter:BlockScreen.kt$blockedPackage: String</ID>
+    <ID>WildcardImport:BlockScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:BlockScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:BlockScreen.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

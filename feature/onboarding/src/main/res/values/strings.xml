@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_welcome_title">regain control of your attention</string>
+    <string name="onboarding_welcome_description">Focus helps you break free from distracting apps. No internet, no analytics - everything stays on your device.</string>
+    <string name="onboarding_start">Get started</string>
+    <string name="onboarding_skip">Skip</string>
+</resources>

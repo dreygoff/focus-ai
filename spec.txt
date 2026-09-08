@@ -10,11 +10,12 @@
      ./gradlew testDebugUnitTest
      ./gradlew lintDebug detekt
      ```
-  6. **Не выдумывай API.** Если не уверен в сигнатуре Android API / библиотеки — сверяйся с официальной документацией (developer.android.com) и исходниками библиотек. Версии библиотек фиксируй в `gradle/libs.versions.toml`.
+  6. **Не выдумывай API.** Если не уверен в сигнатуре Android API / библиотеки — сверяйся с официальной документацией (developer.android.com) и исходниками библиотек. **Все версии зависимостей зафиксированы в §6 и `gradle/libs.versions.toml` на весь срок разработки v1.0 — менять их запрещено** (см. §6.1). Новые артефакты подключать только через ADR в `docs/DECISIONS.md`.
   7. **Никаких заглушек в релизных путях.** `TODO()` и `NotImplementedError` допустимы только внутри фазы, в которой над ними ведётся работа, и должны быть закрыты до её завершения.
   8. **Приватность по умолчанию:** приложение не имеет разрешения `INTERNET` (см. NFR-10). Любое добавление сетевого кода — запрещено без явного изменения ТЗ.
   9. **Требования к коду:** Kotlin, идиоматичный стиль, без Java. Публичные классы и неочевидные решения — с KDoc. Строки UI — только в ресурсах (`strings.xml`, ru + en).
   10. Если требование противоречит ограничениям платформы (например, изменилась политика Android), **не обходи ограничение хаками** — зафиксируй проблему в `PROGRESS.md`, предложи альтернативу и реализуй наиболее близкое допустимое поведение.
+  11. Не запускай параллельных субагентов.
   
   ---
   
@@ -22,7 +23,7 @@
   
   **Название:** Focus
   **Package name:** `app.focus.android` (изменяемо при публикации)
-  **Платформа:** Android, `minSdk = 26` (Android 8.0), `targetSdk = compileSdk = 35` (обновлять до актуального стабильного при старте разработки).
+  **Платформа:** Android, `minSdk = 26` (Android 8.0), `compileSdk = 37`, `targetSdk = 36` (Android 16). Версии toolchain и библиотек — **§6 (LOCKED до релиза 1.0.0)**.
   **Тип:** offline-приложение цифрового благополучия (digital wellbeing).
   
   ### 1.1. Суть
@@ -207,8 +208,8 @@
   - **NFR-04. Устойчивость:** сессия восстанавливается после перезагрузки, kill процесса, обновления приложения, смены времени/часового пояса.
   - **NFR-05. Размер APK:** ≤ 8 МБ (release, R8, ресурсы только ru/en, векторные иконки).
   - **NFR-06. Холодный старт главного экрана:** ≤ 800 мс на референс-устройстве; использовать Baseline Profiles.
-  - **NFR-07. Адаптивность:** корректная работа в портрете/ландшафте, на экранах 320–1000 dp ширины (базовое поведение через `WindowSizeClass`), edge-to-edge (обязательно для targetSdk 35).
-  - **NFR-08. Совместимость:** Android 8.0–15 (+ Android 16 при наличии), вендорские прошивки: Samsung One UI, Xiaomi HyperOS/MIUI, Huawei EMUI (без GMS — приложение не должно зависеть от GMS), OnePlus, Pixel.
+  - **NFR-07. Адаптивность:** корректная работа в портрете/ландшафте, на экранах 320–1000 dp ширины (базовое поведение через `WindowSizeClass`), edge-to-edge (обязательно для targetSdk 36).
+  - **NFR-08. Совместимость:** Android 8.0–16 (API 26–36), вендорские прошивки: Samsung One UI, Xiaomi HyperOS/MIUI, Huawei EMUI (без GMS — приложение не должно зависеть от GMS), OnePlus, Pixel.
   - **NFR-09. Качество кода:** покрытие unit-тестами доменного и data-слоёв ≥ 80 %; 0 предупреждений detekt/lint уровня error; предупреждения — не более 20 в baseline.
   - **NFR-10. Приватность:** без разрешения `INTERNET`; без сторонних SDK аналитики/крашей; данные не покидают устройство, кроме явного экспорта пользователем. Политика конфиденциальности — локальный HTML/текст.
   - **NFR-11. Безопасность данных:** БД в защищённом хранилище приложения; состояние активной сессии дублируется в Device Protected Storage (для Direct Boot). Шифрование БД (SQLCipher) — не требуется в v1.0.
@@ -216,30 +217,164 @@
   
   ---
   
-  ## 6. Технологический стек (фиксируется в `gradle/libs.versions.toml`)
-  
+  ## 6. Технологический стек и зафиксированные версии
+
+  Единственный источник правды по версиям — `gradle/libs.versions.toml`. Раздел §6 дублирует его для чтения без открытия Gradle-файлов.
+
+  ### 6.1. Политика версий (LOCKED)
+
+  **Все версии из §6.2–§6.5 зафиксированы на весь срок разработки Focus v1.0 (до релиза 1.0.0 включительно).**
+
+  - **Запрещено** повышать/понижать версии Gradle, AGP, Kotlin, KSP, BOM, AndroidX и любых сторонних библиотек «для актуальности», «по совету lint» или «потому что вышла новая stable».
+  - **Запрещено** подключать альтернативные артефакты с другими координатами/версиями вместо перечисленных в catalog (в т.ч. захардкоженные строки `implementation("group:artifact:version")` в модулях).
+  - **Разрешено** только: (a) добавить *новую* зависимость, которой ещё нет в §6, — через ADR в `docs/DECISIONS.md` с обновлением §6 и `libs.versions.toml`; (b) исправить опечатку в catalog, если она ломает сборку и не меняет задуманную версию.
+  - Compose-артефакты **без явной версии** в catalog (`ui`, `material3`, `foundation` и т.д.) управляются **только** через `compose-bom` — отдельно их версии не задаются и не меняются.
+  - Kotlin **2.4.x** и KSP под него **не использовать**: последний стабильный KSP — **2.3.11**, связка **Kotlin 2.3.21 + KSP 2.3.11** обязательна.
+
+  ### 6.2. Toolchain и SDK
+
+  | Компонент | Версия | Примечание |
+  |---|---|---|
+  | Gradle Wrapper | **9.7.1** | `gradle/wrapper/gradle-wrapper.properties` |
+  | Android Gradle Plugin (AGP) | **9.4.0** | встроенный Kotlin в AGP 9; плагин `org.jetbrains.kotlin.android` на Android-модулях **не применять** |
+  | Kotlin | **2.3.21** | K2, JDK **17** toolchain |
+  | KSP | **2.3.11** | Room, Hilt |
+  | Compose Compiler | **2.3.21** | плагин `org.jetbrains.kotlin.plugin.compose` (та же версия, что Kotlin) |
+  | `minSdk` | **26** | Android 8.0 |
+  | `compileSdk` | **37** | требование Compose BOM 2026.08 и androidx 1.19+ |
+  | `targetSdk` | **36** | Android 16; edge-to-edge обязателен (NFR-07) |
+
+  ### 6.3. Version Catalog — `[versions]`
+
+  | Ключ catalog | Версия | Артефакт / область |
+  |---|---|---|
+  | `agp` | 9.4.0 | Android Gradle Plugin |
+  | `kotlin` | 2.3.21 | Kotlin, Compose Compiler plugin |
+  | `ksp` | 2.3.11 | KSP |
+  | `compose-bom` | **2026.08.00** | `androidx.compose:compose-bom` — **единственный источник версий Compose UI/Material** |
+  | `core-ktx` | 1.19.0 | `androidx.core:core-ktx` |
+  | `activity-compose` | 1.13.0 | `androidx.activity:activity-compose` |
+  | `lifecycle` | 2.11.0 | `lifecycle-runtime-ktx`, `lifecycle-viewmodel-compose`, `lifecycle-livedata-ktx` |
+  | `navigation` | 2.10.0 | `androidx.navigation:navigation-compose` |
+  | `hilt` | 2.60.1 | `hilt-android`, `hilt-android-compiler` |
+  | `hilt-ext` | 1.4.0 | `androidx.hilt:hilt-navigation-compose` |
+  | `room` | 2.8.4 | Room runtime/ktx/compiler + Room Gradle plugin |
+  | `datastore` | 1.2.1 | `androidx.datastore:datastore-preferences` |
+  | `protobuf` | 4.36.1 | protobuf-java (lite) |
+  | `protobufPlugin` | 0.10.0 | `com.google.protobuf` Gradle plugin |
+  | `work` | 2.11.2 | `androidx.work:work-runtime-ktx` |
+  | `glance` | 1.2.0 | `glance-appwidget`, `glance-material3` |
+  | `coil` | 3.6.2 | Coil 3 (`coil-compose`, `coil-network-okhttp`) |
+  | `timber` | 5.0.1 | `com.jakewharton.timber:timber` |
+  | `kotlinx-serialization` | 1.11.0 | `kotlinx-serialization-json` (type-safe Navigation) |
+  | `kotlinx-coroutines` | 1.11.0 | `kotlinx-coroutines-core`, `kotlinx-coroutines-test` |
+  | `material3-adaptive` | 1.3.0 | `material3-adaptive`, `adaptive-layout` |
+  | `junit` | 4.13.2 | JUnit 4 |
+  | `turbine` | 1.2.1 | Flow-тесты |
+  | `mockk` | 1.14.11 | моки |
+  | `robolectric` | 4.16.1 | Robolectric |
+  | `roborazzi` | 1.74.0 | скриншот-тесты (фаза 8+) |
+  | `detekt` | 1.23.8 | статический анализ |
+  | `spotless` | 8.10.2 | форматирование (ktlint) |
+
+  ### 6.4. Библиотеки — `[libraries]` (координаты)
+
+  **Compose BOM `2026.08.00`** (версии артефактов задаёт BOM, в модулях — `platform(libs.androidx.compose.bom)`):
+
+  | Ключ catalog | Maven coordinate |
+  |---|---|
+  | `androidx-compose-ui` | `androidx.compose.ui:ui` |
+  | `androidx-compose-ui-tooling-preview` | `androidx.compose.ui:ui-tooling-preview` |
+  | `androidx-compose-ui-tooling` | `androidx.compose.ui:ui-tooling` |
+  | `androidx-compose-material3` | `androidx.compose.material3:material3` |
+  | `androidx-compose-foundation` | `androidx.compose.foundation:foundation` |
+  | `androidx-compose-runtime` | `androidx.compose.runtime:runtime-livedata` |
+  | `androidx-compose-material-icons-extended` | `androidx.compose.material:material-icons-extended` |
+
+  **Явные версии** (через `version.ref` из §6.3):
+
+  | Ключ catalog | Maven coordinate |
+  |---|---|
+  | `androidx-core-ktx` | `androidx.core:core-ktx:1.19.0` |
+  | `androidx-activity-compose` | `androidx.activity:activity-compose:1.13.0` |
+  | `androidx-navigation-compose` | `androidx.navigation:navigation-compose:2.10.0` |
+  | `androidx-lifecycle-runtime-ktx` | `androidx.lifecycle:lifecycle-runtime-ktx:2.11.0` |
+  | `androidx-lifecycle-viewmodel-compose` | `androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0` |
+  | `androidx-lifecycle-livedata-ktx` | `androidx.lifecycle:lifecycle-livedata-ktx:2.11.0` |
+  | `com-google-dagger-hilt-android` | `com.google.dagger:hilt-android:2.60.1` |
+  | `com-google-dagger-hilt-compiler` | `com.google.dagger:hilt-android-compiler:2.60.1` |
+  | `androidx-hilt-navigation-compose` | `androidx.hilt:hilt-navigation-compose:1.4.0` |
+  | `androidx-room-runtime` | `androidx.room:room-runtime:2.8.4` |
+  | `androidx-room-ktx` | `androidx.room:room-ktx:2.8.4` |
+  | `androidx-room-compiler` | `androidx.room:room-compiler:2.8.4` |
+  | `androidx-datastore-preferences` | `androidx.datastore:datastore-preferences:1.2.1` |
+  | `org-jetbrains-kotlinx-json` | `org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0` |
+  | `coil-compose` | `io.coil-kt.coil3:coil-compose:3.6.2` |
+  | `coil-network` | `io.coil-kt.coil3:coil-network-okhttp:3.6.2` |
+  | `glance-appwidget` | `androidx.glance:glance-appwidget:1.2.0` |
+  | `glance-material3` | `androidx.glance:glance-material3:1.2.0` |
+  | `androidx-work-ktx` | `androidx.work:work-runtime-ktx:2.11.2` |
+  | `com-jakewharton-timber` | `com.jakewharton.timber:timber:5.0.1` |
+  | `kotlinx-coroutines-core` | `org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0` |
+  | `kotlinx-coroutines-test` | `org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0` |
+  | `material3-adaptive` | `androidx.compose.material3.adaptive:adaptive:1.3.0` |
+  | `androidx-material3-adaptive-nav` | `androidx.compose.material3.adaptive:adaptive-layout:1.3.0` |
+  | `turbine` | `app.cash.turbine:turbine:1.2.1` |
+  | `mockk` | `io.mockk:mockk:1.14.11` |
+  | `robolectric` | `org.robolectric:robolectric:4.16.1` |
+  | `junit` | `junit:junit:4.13.2` |
+
+  **Build-logic** (только `build-logic/convention`, не в app-модулях):
+
+  | Ключ catalog | Maven coordinate |
+  |---|---|
+  | `android-gradle-plugin` | `com.android.tools.build:gradle:9.4.0` |
+  | `kotlin-gradle-plugin` | `org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.21` |
+  | `kotlin-serialization-gradle-plugin` | `org.jetbrains.kotlin:kotlin-serialization:2.3.21` |
+  | `ksp-gradle-plugin` | `com.google.devtools.ksp:symbol-processing-gradle-plugin:2.3.11` |
+  | `detekt-gradle-plugin` | `io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.8` |
+  | `spotless-gradle-plugin` | `com.diffplug.spotless:spotless-plugin-gradle:8.10.2` |
+
+  ### 6.5. Gradle plugins — `[plugins]`
+
+  | Ключ catalog | Plugin ID | Версия |
+  |---|---|---|
+  | `android-application` | `com.android.application` | 9.4.0 |
+  | `android-library` | `com.android.library` | 9.4.0 |
+  | `kotlin-jvm` | `org.jetbrains.kotlin.jvm` | 2.3.21 |
+  | `kotlin-serialization` | `org.jetbrains.kotlin.plugin.serialization` | 2.3.21 |
+  | `kotlin-compose` / `compose-compiler` | `org.jetbrains.kotlin.plugin.compose` | 2.3.21 |
+  | `ksp` | `com.google.devtools.ksp` | 2.3.11 |
+  | `hilt` | `com.google.dagger.hilt.android` | 2.60.1 |
+  | `room` | `androidx.room` | 2.8.4 |
+  | `protobuf` | `com.google.protobuf` | 0.10.0 |
+  | `detekt` | `io.gitlab.arturbosch.detekt` | 1.23.8 |
+  | `spotless` | `com.diffplug.spotless` | 8.10.2 |
+
+  > `kotlin-android` (`org.jetbrains.kotlin.android`) объявлен в catalog для совместимости tooling, но **на Android-модулях не применяется** — Kotlin встроен в AGP 9.
+
+  ### 6.6. Области стека (кратко)
+
   | Область | Технология | Примечание |
   |---|---|---|
-  | Язык | **Kotlin 2.x** (K2), JDK 17 toolchain | `kotlin("android")`, Compose Compiler Gradle plugin |
-  | Сборка | **AGP 8.x**, Gradle 8.x Kotlin DSL, Version Catalog, Convention plugins в `build-logic/` | `minSdk 26`, `targetSdk 35` |
-  | UI | **Jetpack Compose** (BOM), **Material 3**, `material3-adaptive`, `material-icons-extended` | никаких XML-layout, кроме виджетов/notification remote views |
-  | Навигация | **Navigation Compose** с type-safe routes (`kotlinx.serialization`) | один `NavHost`, вложенные графы по фичам |
-  | DI | **Hilt** (+ `hilt-navigation-compose`, `hilt-work`) | KSP |
-  | Асинхронность | Kotlin **Coroutines + Flow** | `Dispatchers` инжектируются (`@IoDispatcher` и т. д.) |
-  | Хранение структурных данных | **Room** (KSP, `room-ktx`, автомиграции + ручные там, где нужно, экспорт схем) | |
-  | Настройки | **DataStore Proto** (`protobuf-lite`) для настроек и «снимка активной сессии» | Preferences DataStore допускается для простых флагов |
-  | Фоновые задачи | **WorkManager** (очистка логов, пересчёт статистики), **AlarmManager** (точные события), **Foreground Service** | |
-  | Виджеты | **Jetpack Glance** (`glance-appwidget`, `glance-material3`) | |
-  | Изображения | **Coil 3** (`coil-compose`) для иконок приложений с кастомным `Fetcher`/`Keyer` по `packageName+versionCode` | |
-  | Дата/время | `java.time` (desugaring не нужен при minSdk 26) | |
-  | Логирование | **Timber** (в release — no-op tree или запись в файл ring-buffer 1 МБ для диагностики по запросу пользователя) | |
-  | Графики | **Vico** (compose) или собственный Canvas | выбрать в фазе 8 |
-  | Тесты | JUnit 4 (+ `kotlinx-coroutines-test`, **Turbine**, **MockK**), **Robolectric**, Compose UI Test, **Roborazzi** (скриншоты), Macrobenchmark + Baseline Profile | |
-  | Качество | **detekt**, **ktlint** (spotless), Android Lint, `dependency-analysis` plugin | |
-  | CI | **GitHub Actions**: build, unit tests, lint/detekt, screenshot tests, сборка release AAB (unsigned) как артефакт | |
-  | Релиз | R8 full mode, resource shrinking, `isDebuggable=false`, App Bundle, подпись через Play App Signing | |
-  
-  **Запрещено:** Java-код, XML-layouts для экранов, RxJava, Dagger без Hilt, EventBus, `AsyncTask`, `SharedPreferences` напрямую (кроме миграции), `GlobalScope`.
+  | Язык | **Kotlin 2.3.21** (K2), JDK 17 | см. §6.2 |
+  | Сборка | **AGP 9.4.0**, **Gradle 9.7.1**, Version Catalog, Convention plugins | `compileSdk 37`, `targetSdk 36` |
+  | UI | **Jetpack Compose** (BOM **2026.08.00**), **Material 3**, `material3-adaptive` 1.3.0, `material-icons-extended` | XML-layout только виджеты / notification remote views |
+  | Навигация | **Navigation Compose 2.10.0** + type-safe routes (`kotlinx-serialization-json` 1.11.0) | один `NavHost` |
+  | DI | **Hilt 2.60.1** + `hilt-navigation-compose` 1.4.0 | KSP 2.3.11 |
+  | Асинхронность | **Coroutines 1.11.0** + Flow | `@IoDispatcher` и т.д. |
+  | Хранение | **Room 2.8.4**, **DataStore 1.2.1**, **protobuf 4.36.1** | KSP, экспорт схем Room |
+  | Фон | **WorkManager 2.11.2**, AlarmManager, Foreground Service | |
+  | Виджеты | **Glance 1.2.0** | |
+  | Изображения | **Coil 3.6.2** | иконки приложений |
+  | Логирование | **Timber 5.0.1** | |
+  | Графики | **Vico** (compose) или Canvas | выбрать в фазе 8; версия фиксируется отдельным ADR при подключении |
+  | Тесты | JUnit 4.13.2, coroutines-test 1.11.0, Turbine 1.2.1, MockK 1.14.11, Robolectric 4.16.1, Roborazzi 1.74.0 | Macrobenchmark — ADR при подключении |
+  | Качество | detekt 1.23.8, spotless 8.10.2, Android Lint | |
+  | CI | GitHub Actions | build, unit tests, lint/detekt |
+  | Релиз | R8 full mode, resource shrinking, App Bundle | Play App Signing |
+
+  **Запрещено:** Java-код, XML-layouts для экранов, RxJava, Dagger без Hilt, EventBus, `AsyncTask`, `SharedPreferences` напрямую (кроме миграции), `GlobalScope`, **изменение версий из §6 без ADR**.
   
   ---
   
@@ -603,7 +738,7 @@
   | 13 (33) | `POST_NOTIFICATIONS`; Restricted settings для Accessibility side-loaded приложений; per-app language; `USE_EXACT_ALARM`. |
   | 14 (34) | Обязательный `foregroundServiceType` + `FOREGROUND_SERVICE_SPECIAL_USE`; `SCHEDULE_EXACT_ALARM` по умолчанию отключён (кроме `USE_EXACT_ALARM`); ограничения на неявные intents для non-exported компонентов; `RECEIVER_EXPORTED/NOT_EXPORTED` при `registerReceiver`. |
   | 15 (35) | Edge-to-edge принудительно; изменения в `PendingIntent` (обязательный `FLAG_IMMUTABLE`, уже с 31); ограничения на FGS `dataSync`; более строгие проверки старта Activity из фона — проверять сценарий с `SYSTEM_ALERT_WINDOW` на реальном устройстве; при неудаче — fallback на overlay (TR-02). |
-  | 16+ | При выходе — прогнать регрессионный чек-лист раздела 14.5 и зафиксировать в `PROGRESS.md`. |
+  | 16 (36) | Edge-to-edge обязателен для targetSdk 36; прогнать регрессионный чек-лист раздела 14.5 и зафиксировать в `PROGRESS.md`. |
   
   ### 12.3. Вендорские особенности
   - Xiaomi/HyperOS: отдельное разрешение «Показывать всплывающие окна в фоновом режиме» (deep link `miui.intent.action.APP_PERM_EDITOR`), автозапуск.
@@ -674,7 +809,7 @@
   ### Фаза 0. Инициализация проекта (≈ 1)
   **Задачи:**
   1. Создать репозиторий, структуру модулей из §7.2, `build-logic` с convention-плагинами (`focus.android.application/library/feature/compose`, `focus.jvm.library`, `focus.hilt`, `focus.room`).
-  2. `gradle/libs.versions.toml` со всеми зависимостями §6 (актуальные стабильные версии).
+  2. `gradle/libs.versions.toml` — **точная копия версий из §6.3–§6.5**; после фазы 0 файл не меняется без ADR.
   3. Настроить detekt (`config/detekt/detekt.yml`), spotless+ktlint, Android Lint (`lint.xml`), `.editorconfig`.
   4. GitHub Actions `ci.yml`.
   5. `docs/PROGRESS.md`, `docs/DECISIONS.md` (ADR-0001 «Стек и архитектура»), `README.md`.
@@ -847,16 +982,43 @@
   </device-admin>
   ```
   
-  ### 19.3. Скелет `libs.versions.toml` (ключи; версии — актуальные стабильные на момент старта)
+  ### 19.3. Канонический `gradle/libs.versions.toml` (LOCKED — §6.1)
+
+  > Файл в репозитории должен **байт-в-байт соответствовать** этому скелету по версиям и ключам. Любое расхождение — ошибка; исправлять catalog или §6, но не менять версии без ADR.
+
   ```toml
   [versions]
-  agp = "8.x"; kotlin = "2.x"; ksp = "2.x"; composeBom = "2025.xx.xx"; activityCompose = "1.x"
-  lifecycle = "2.x"; navigation = "2.8+"; hilt = "2.5x"; hiltExt = "1.2+"; room = "2.6+"; datastore = "1.1+"
-  protobuf = "4.x"; protobufPlugin = "0.9.x"; work = "2.9+"; glance = "1.1+"; coil = "3.x"; timber = "5.x"
-  kotlinxSerialization = "1.7+"; coroutines = "1.9+"; turbine = "1.x"; mockk = "1.13+"; robolectric = "4.1x"
-  roborazzi = "1.x"; detekt = "1.23+"; spotless = "6.x"; vico = "2.x"; benchmark = "1.3+"; baselineprofile = "1.3+"
-  [libraries]  # объявить все артефакты соответствующих версий
-  [plugins]    # android-application, android-library, kotlin-android, kotlin-jvm, kotlin-compose, kotlin-serialization, ksp, hilt, room, protobuf, detekt, spotless, roborazzi, baselineprofile
+  agp = "9.4.0"
+  core-ktx = "1.19.0"
+  kotlin = "2.3.21"
+  ksp = "2.3.11"
+  compose-bom = "2026.08.00"
+  activity-compose = "1.13.0"
+  lifecycle = "2.11.0"
+  navigation = "2.10.0"
+  hilt = "2.60.1"
+  hilt-ext = "1.4.0"
+  room = "2.8.4"
+  datastore = "1.2.1"
+  protobuf = "4.36.1"
+  protobufPlugin = "0.10.0"
+  work = "2.11.2"
+  glance = "1.2.0"
+  coil = "3.6.2"
+  timber = "5.0.1"
+  kotlinx-serialization = "1.11.0"
+  kotlinx-coroutines = "1.11.0"
+  turbine = "1.2.1"
+  mockk = "1.14.11"
+  robolectric = "4.16.1"
+  roborazzi = "1.74.0"
+  detekt = "1.23.8"
+  spotless = "8.10.2"
+  junit = "4.13.2"
+  material3-adaptive = "1.3.0"
+
+  # [libraries] и [plugins] — полный перечень ключей см. §6.4–§6.5 и файл gradle/libs.versions.toml
+  # Gradle Wrapper: 9.7.1 (gradle/wrapper/gradle-wrapper.properties, не в catalog)
   ```
   
   ### 19.4. Чек-лист релиза (`docs/RELEASE_CHECKLIST.md`)

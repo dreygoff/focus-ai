@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- AGP 8.7 + Kotlin 2.1: NonNullableMutableLiveDataDetector crashes during analysis -->
+    <issue id="NullSafeMutableLiveData" severity="ignore" />
+    <!-- Required for app blocking; package visibility via manifest queries where possible -->
+    <issue id="QueryAllPackagesPermission" severity="ignore" />
+    <!-- Partial ru locale; default strings cover all keys -->
+    <issue id="MissingTranslation" severity="ignore" />
+</lint>

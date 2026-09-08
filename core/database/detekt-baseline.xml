@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaxLineLength:Dao.kt$DailyStatsDao$@Query("SELECT * FROM daily_stats WHERE dateEpochDay &gt;= :startDate AND dateEpochDay &lt;= :endDate ORDER BY dateEpochDay ASC")</ID>
+    <ID>MaxLineLength:Dao.kt$EventLogDao$@Query("SELECT COUNT(*) FROM event_log WHERE type IN ('BLOCK_SHOWN','BYPASS_GRANTED') AND sessionId = :sessionId AND timestamp &gt;= :since")</ID>
+  </CurrentIssues>
+</SmellBaseline>

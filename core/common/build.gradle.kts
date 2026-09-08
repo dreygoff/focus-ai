@@ -3,13 +3,9 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
 dependencies {
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    api(libs.kotlinx.coroutines.core)
+    api("javax.inject:javax.inject:1")
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation(libs.kotlinx.coroutines.test)
 }

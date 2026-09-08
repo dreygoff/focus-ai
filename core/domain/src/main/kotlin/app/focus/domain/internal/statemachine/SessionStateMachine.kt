@@ -61,7 +61,7 @@ class SessionStateMachine(
         return stateMachineTransition(
             newState = SessionStatus.Running,
             sideEffects = listOf(
-                SideEffect.ScheduleAlarm(alarmMillis = plannedEndAt),
+                SideEffect.ScheduleAlarm(atMillis = plannedEndAt),
                 SideEffect.StartForegroundService,
                 SideEffect.LogEvent(EventType.SESSION_STARTED),
             )
@@ -71,7 +71,7 @@ class SessionStateMachine(
     private fun handlePause(): StateMachineResult {
         return when (currentState) {
             is SessionStatus.Running -> stateMachineTransition(
-                newState = SessionStatus.Paused(pausesRemaining = 3),
+                newState = SessionStatus.Paused(),
                 sideEffects = listOf(SideEffect.LogEvent(EventType.SESSION_PAUSED))
             )
 
@@ -121,18 +121,19 @@ class SessionStateMachine(
     }
 
     private fun handleEmergencyExitRequested(): StateMachineResult {
+        val untilMillis = clock.nowMillis() + 10 * 60 * 1000
         return when (currentState) {
-            is SessionStatus.Running -> StateMachineResult(
-                newState = currentState,
-                sideEffects = listOf(SideEffect.LogEvent(EventType.EMERGENCY_EXIT_REQUESTED))
+            is SessionStatus.Running -> stateMachineTransition(
+                newState = SessionStatus.EmergencyExitPending(untilMillis = untilMillis),
+                sideEffects = listOf(
+                    SideEffect.ScheduleAlarm(atMillis = untilMillis),
+                    SideEffect.LogEvent(EventType.EMERGENCY_EXIT_REQUESTED),
+                )
             )
 
-            is SessionStatus.EmergencyExitPending -> stateMachineTransition(
-                newState = SessionStatus.EmergencyExitPending(untilMillis = clock.nowMillis() + 10 * 60 * 1000),
-                sideEffects = listOf(
-                    SideEffect.ScheduleAlarm(alarmMillis = clock.nowMillis() + 10 * 60 * 1000),
-                    SideEffect.LogEvent(EventType.EMERGENCY_EXIT_REQUESTED)
-                )
+            is SessionStatus.EmergencyExitPending -> StateMachineResult(
+                newState = currentState,
+                sideEffects = listOf(SideEffect.LogEvent(EventType.EMERGENCY_EXIT_REQUESTED)),
             )
 
             else -> StateMachineResult(newState = currentState, sideEffects = emptyList())
@@ -199,7 +200,7 @@ class SessionStateMachine(
             sideEffects = listOf(
                 SideEffect.RestoreSnapshot(restoredSnapshot),
                 SideEffect.StartForegroundService,
-                SideEffect.ScheduleAlarm(alarmMillis = snapshot.plannedEndAtMillis),
+                SideEffect.ScheduleAlarm(atMillis = snapshot.plannedEndAtMillis),
                 SideEffect.LogEvent(EventType.SERVICE_RESTARTED)
             )
         )

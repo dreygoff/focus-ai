@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:ObserveAsEvents.kt$@Composable fun &lt;T&gt; ObserveAsEvents(flow: Flow&lt;T&gt;, onEvent: (T) -&gt; Unit)</ID>
+  </CurrentIssues>
+</SmellBaseline>

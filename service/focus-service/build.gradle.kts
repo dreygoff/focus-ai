@@ -1,11 +1,11 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "app.focus.service.focus"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
@@ -16,9 +16,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 }
 
 dependencies {
@@ -29,10 +26,10 @@ dependencies {
     implementation(project(":core:system"))
     implementation(project(":core:notifications"))
     
-    implementation("androidx.core:core-ktx:1.15.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.8")
-    implementation("androidx.work:work-runtime-ktx:2.10.0")
-    implementation("com.google.dagger:hilt-android:2.55.0")
-    ksp("com.google.dagger:hilt-compiler:2.55.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.work.ktx)
+    implementation(libs.com.google.dagger.hilt.android)
+    ksp(libs.com.google.dagger.hilt.compiler)
+    implementation(libs.kotlinx.coroutines.core)
 }

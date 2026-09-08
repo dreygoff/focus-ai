@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:SchedulesScreen.kt$@Composable private fun ScheduleCard( schedule: app.focus.domain.model.Schedule, onEdit: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:SchedulesScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SchedulesScreen( schedules: List&lt;app.focus.domain.model.Schedule&gt; = emptyList(), onAddSchedule: () -&gt; Unit = {}, onEditSchedule: (String) -&gt; Unit = {}, onDeleteSchedule: (String) -&gt; Unit = {} )</ID>
+    <ID>ImplicitDefaultLocale:SchedulesScreen.kt$String.format("%02d", schedule.endMinuteOfDay % 60)</ID>
+    <ID>ImplicitDefaultLocale:SchedulesScreen.kt$String.format("%02d", schedule.startMinuteOfDay % 60)</ID>
+    <ID>MagicNumber:SchedulesScreen.kt$60</ID>
+    <ID>MaxLineLength:SchedulesScreen.kt$Text("Create a schedule to automatically start focus sessions.", style = MaterialTheme.typography.bodyMedium)</ID>
+    <ID>UnusedParameter:SchedulesScreen.kt$onEdit: () -&gt; Unit</ID>
+    <ID>WildcardImport:SchedulesScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:SchedulesScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:SchedulesScreen.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

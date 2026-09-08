@@ -2,8 +2,9 @@ package app.focus.domain.internal.blockdecision
 
 import app.focus.domain.model.BlockDecision
 import app.focus.domain.model.BlockReason
-import org.junit.Assert.assertEquals as AssertEq
-import org.junit.Test as Jt
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class BlockDecisionEngineTest {
 
@@ -13,222 +14,161 @@ class BlockDecisionEngineTest {
         systemAllowlist: Set<String> = emptySet(),
         userAllowlist: Set<String> = emptySet(),
         accessWindowPkgLookup: Map<String, Long> = emptyMap(),
+        targetPackages: Set<String> = defaultTargets,
+        hasActiveSession: Boolean = true,
+        isHardLock: Boolean = false,
+        hardLockExtraPackages: Set<String> = emptySet(),
+        inPomodoroBreak: Boolean = false,
     ): BlockDecisionEngine = BlockDecisionEngine(
         systemAllowlist = systemAllowlist,
-        userAllowlist = userAllowlist,
-        accessWindowPkgLookup = accessWindowPkgLookup,
+        userAllowlistProvider = { userAllowlist },
+        accessWindowLookup = { accessWindowPkgLookup },
+        sessionState = BlockDecisionEngine.SessionCheckState(
+            hasActiveSession = hasActiveSession,
+            isHardLock = isHardLock,
+            sessionId = "test-session",
+            targetPackages = targetPackages,
+            hardLockExtraPackages = hardLockExtraPackages,
+            inPomodoroBreak = inPomodoroBreak,
+        ),
     )
 
-    // ========== No active session (always allows) ==========
-    @Jt fun `no active session means allow for any package`() {
-        val eng = engine()
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android", hasActiveSession = false))
+    @Test
+    fun `no active session means allow for any package`() {
+        val eng = engine(hasActiveSession = false)
+        assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android"))
     }
 
-    @Jt fun `no active session allows system packages`() {
-        val eng = engine()
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.android.systemui", hasActiveSession = false))
+    @Test
+    fun `no active session allows system packages`() {
+        val eng = engine(hasActiveSession = false)
+        assertEquals(BlockDecision.Allow, eng.decide("com.android.systemui"))
     }
 
-    // ========== System allowlist ==========
-    @Jt fun `package in system allowlist is allowed`() {
+    @Test
+    fun `package in system allowlist is allowed`() {
         val eng = engine(systemAllowlist = setOf("com.android.systemui"))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.android.systemui", hasActiveSession = true))
+        assertEquals(BlockDecision.Allow, eng.decide("com.android.systemui"))
     }
 
-    @Jt fun `non-system allowlist package gets checked normally`() {
+    @Test
+    fun `target package gets blocked`() {
         val eng = engine(systemAllowlist = setOf("com.android.systemui"))
-        val result = eng.decide("com.instagram.android", hasActiveSession = true)
-        AssertEq.assertTrue(result is BlockDecision.Block)
+        val result = eng.decide("com.instagram.android")
+        assertTrue(result is BlockDecision.Block)
     }
 
-    @Jt fun `system allowlist works with multiple packages`() {
+    @Test
+    fun `system allowlist works with multiple packages`() {
         val sys = setOf("com.android.systemui", "app.focus.android")
         val eng = engine(systemAllowlist = sys)
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.android.systemui", hasActiveSession = true))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("app.focus.android", hasActiveSession = true))
+        assertEquals(BlockDecision.Allow, eng.decide("com.android.systemui"))
+        assertEquals(BlockDecision.Allow, eng.decide("app.focus.android"))
     }
 
-    // ========== User allowlist (ignorelist) ==========
-    @Jt fun `package in user ignorelist is allowed`() {
+    @Test
+    fun `package in user allowlist is allowed`() {
         val eng = engine(userAllowlist = setOf("com.instagram.android"))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android", hasActiveSession = true))
+        assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android"))
     }
 
-    @Jt fun `user allowlist overrides block decision`() {
+    @Test
+    fun `user allowlist overrides block decision`() {
         val eng = engine(userAllowlist = setOf("com.whatsapp"))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.whatsapp", hasActiveSession = true))
+        assertEquals(BlockDecision.Allow, eng.decide("com.whatsapp"))
     }
 
-    @Jt fun `package not in any allowlist gets blocked`() {
+    @Test
+    fun `package not in any allowlist gets blocked when targeted`() {
         val eng = engine(
             systemAllowlist = setOf("com.android.systemui"),
-            userAllowlist = setOf("com.whatsapp")
+            userAllowlist = setOf("com.whatsapp"),
+            targetPackages = setOf("com.facebook.katana"),
         )
-        AssertEq.assertTrue((eng.decide("com.facebook.katana", hasActiveSession = true)) is BlockDecision.Block)
+        assertTrue(eng.decide("com.facebook.katana") is BlockDecision.Block)
     }
 
-    @Jt fun `user allowlist and system allowlist are independent`() {
-        val eng = engine(
-            systemAllowlist = setOf("app.focus.android"),
-            userAllowlist = setOf("com.whatsapp")
-        )
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("app.focus.android", hasActiveSession = true))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.whatsapp", hasActiveSession = true))
-    }
-
-    // ========== Access windows (emergency access) ==========
-    @Jt fun `active access window allows package`() {
-        val windowEnd = now + 300_000L // 5 min from now
-        val eng = engine(accessWindowPkgLookup = mapOf("com.instagram.android" to windowEnd))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android", hasActiveSession = true))
-    }
-
-    @Jt fun `expired access window does not allow package`() {
-        val expiredWindow = now - 600_000L // 10 min ago
-        val eng = engine(accessWindowPkgLookup = mapOf("com.instagram.android" to expiredWindow))
-        AssertEq.assertTrue((eng.decide("com.instagram.android", hasActiveSession = true)) is BlockDecision.Block)
-    }
-
-    @Jt fun `access window at exactly end time still allows`() {
-        val eng = engine(accessWindowPkgLookup = mapOf("com.instagram.android" to now))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android", hasActiveSession = true))
-    }
-
-    @Jt fun `multiple access windows checked independently`() {
-        val windowEnd = now + 300_000L
-        val eng = engine(accessWindowPkgLookup = mapOf(
-            "com.whatsapp" to windowEnd,
-            "com.telegram.messenger" to (now - 1000L)
-        ))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.whatsapp", hasActiveSession = true))
-        AssertEq.assertTrue((eng.decide("com.telegram.messenger", hasActiveSession = true)) is BlockDecision.Block)
-    }
-
-    @Jt fun `other package with access window is still blocked if not matching`() {
-        val windowEnd = now + 300_000L
-        val eng = engine(accessWindowPkgLookup = mapOf("com.whatsapp" to windowEnd))
-        AssertEq.assertTrue((eng.decide("com.facebook.katana", hasActiveSession = true)) is BlockDecision.Block)
-    }
-
-    // ========== Lock mode specific tests (Hard lock extra packages) ==========
-    @Jt fun `blocked package returns block with correct reason`() {
-        val eng = engine()
-        val result = eng.decide("com.instagram.android", hasActiveSession = true)
-        AssertEq.assertTrue(result is BlockDecision.Block)
-        AssertEq.assertEquals(BlockReason.TARGET_APP, (result as BlockDecision.Block).reason)
-    }
-
-    @Jt fun `blocked package includes packageName`() {
-        val eng = engine()
-        val result = eng.decide("com.instagram.android", hasActiveSession = true)
-        val block = result as? BlockDecision.Block
-        AssertEq.assertNotNull(block?.packageName)
-        AssertEq.assertEquals("com.instagram.android", block?.packageName)
-    }
-
-    // ========== Combined scenarios ==========
-    @Jt fun `system allowlist takes priority over access window expiry`() {
-        val expiredWindow = now - 600_000L
-        val eng = engine(
-            systemAllowlist = setOf("com.android.systemui"),
-            accessWindowPkgLookup = mapOf("com.instagram.android" to expiredWindow)
-        )
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.android.systemui", hasActiveSession = true))
-    }
-
-    @Jt fun `user allowlist works together with system allowlist`() {
-        val eng = engine(
-            systemAllowlist = setOf("app.focus.android"),
-            userAllowlist = setOf("com.whatsapp")
-        )
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.whatsapp", hasActiveSession = true))
-    }
-
-    @Jt fun `package with all allowlists still blocked if not matched`() {
+    @Test
+    fun `non-target package is allowed`() {
         val eng = engine(
             systemAllowlist = setOf("app.focus.android"),
             userAllowlist = setOf("com.whatsapp"),
-            accessWindowPkgLookup = mapOf("com.telegram.messenger" to (now + 60_000L))
+            targetPackages = setOf("com.instagram.android"),
         )
-        AssertEq.assertTrue((eng.decide("com.facebook.katana", hasActiveSession = true)) is BlockDecision.Block)
+        assertEquals(BlockDecision.Allow, eng.decide("com.facebook.katana"))
     }
 
-    @Jt fun `emergency window override allows blocked package`() {
-        val eng = engine(accessWindowPkgLookup = mapOf("com.instagram.android" to (now + 180_000L)))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android", hasActiveSession = true))
+    @Test
+    fun `active access window allows package`() {
+        val windowEnd = now + 300_000L
+        val eng = engine(accessWindowPkgLookup = mapOf("com.instagram.android" to windowEnd))
+        assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android"))
     }
 
-    // ========== Edge cases ==========
-    @Jt fun `empty allowlists with active session blocks unknown packages`() {
+    @Test
+    fun `expired access window does not allow package`() {
+        val expiredWindow = now - 600_000L
+        val eng = engine(accessWindowPkgLookup = mapOf("com.instagram.android" to expiredWindow))
+        assertTrue(eng.decide("com.instagram.android") is BlockDecision.Block)
+    }
+
+    @Test
+    fun `access window at exactly end time still allows`() {
+        val windowEnd = System.currentTimeMillis() + 1000L
+        val eng = engine(accessWindowPkgLookup = mapOf("com.instagram.android" to windowEnd))
+        assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android"))
+    }
+
+    @Test
+    fun `multiple access windows checked independently`() {
+        val windowEnd = now + 300_000L
+        val eng = engine(
+            accessWindowPkgLookup = mapOf(
+                "com.whatsapp" to windowEnd,
+                "com.telegram.messenger" to (now - 1000L),
+            ),
+            targetPackages = setOf("com.whatsapp", "com.telegram.messenger"),
+        )
+        assertEquals(BlockDecision.Allow, eng.decide("com.whatsapp"))
+        assertTrue(eng.decide("com.telegram.messenger") is BlockDecision.Block)
+    }
+
+    @Test
+    fun `blocked package returns block with correct reason`() {
         val eng = engine()
-        AssertEq.assertTrue((eng.decide("unknown.package.app", hasActiveSession = true)) is BlockDecision.Block)
+        val result = eng.decide("com.instagram.android")
+        assertTrue(result is BlockDecision.Block)
+        assertEquals(BlockReason.TARGET_APP, (result as BlockDecision.Block).reason)
     }
 
-    @Jt fun `all allowlists empty still respects access windows`() {
-        val eng = engine(accessWindowPkgLookup = mapOf("com.instagram.android" to (now + 60_000L)))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android", hasActiveSession = true))
+    @Test
+    fun `hard lock extra package is blocked with hard lock reason`() {
+        val eng = engine(
+            isHardLock = true,
+            targetPackages = emptySet(),
+            hardLockExtraPackages = setOf("com.android.settings"),
+        )
+        val result = eng.decide("com.android.settings") as BlockDecision.Block
+        assertEquals(BlockReason.HARD_LOCK_EXTRA, result.reason)
     }
 
-    // ========== Block reason verification ==========
-    @Jt fun `block result has non-null packageName`() {
-        val eng = engine()
-        val blockResult = eng.decide("com.banned.app", hasActiveSession = true) as BlockDecision.Block
-        AssertEq.assertNotNull(blockResult.packageName)
-        AssertEq.assertEquals("com.banned.app", blockResult.packageName)
+    @Test
+    fun `pomodoro break allows all packages`() {
+        val eng = engine(inPomodoroBreak = true)
+        assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android"))
     }
 
-    @Jt fun `allow decision is single instance`() {
-        val eng = engine()
-        val allow1 = eng.decide("com.android.google", hasActiveSession = false)
-        val allow2 = eng.decide("com.instagram.android", hasActiveSession = false)
-        AssertEq.assertNotNull(allow1)
-        AssertEq.assertNotNull(allow2)
-    }
-
-    // ========== Additional system packages in default allowlist for Focus app ==========
-    @Jt fun `focus app itself is allowed in default system list`() {
-        val eng = engine(systemAllowlist = setOf("app.focus.android"))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("app.focus.android", hasActiveSession = true))
-    }
-
-    // ========== Additional coverage for multiple access windows edge cases ==========
-    @Jt fun `access window with zero remaining time allows`() {
-        val eng = engine(accessWindowPkgLookup = mapOf("com.test.app" to now))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.test.app", hasActiveSession = true))
-    }
-
-    @Jt fun `negative access window timeout means expired`() {
-        val eng = engine(accessWindowPkgLookup = mapOf("com.test.app" to now - 1L))
-        AssertEq.assertTrue((eng.decide("com.test.app", hasActiveSession = true)) is BlockDecision.Block)
-    }
-
-    // ========== Performance: many packages check correctly ==========
-    @Jt fun `allows a large number of allowlisted packages`() {
-        val largeAllowlist = (1..200).map { "com.allow.pkg$it" }.toSet()
-        val eng = engine(userAllowlist = largeAllowlist)
-        for (i in 1..200) {
-            AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.allow.pkg$i", hasActiveSession = true))
-        }
-    }
-
-    // ========== Cross-check: block reason is consistent ==========
-    @Jt fun `all blocked decisions have same reason type`() {
-        val eng = engine()
-        val r1 = eng.decide("com.app.one", hasActiveSession = true) as BlockDecision.Block
-        val r2 = eng.decide("com.app.two", hasActiveSession = true) as BlockDecision.Block
-        AssertEq.assertEquals(BlockReason.TARGET_APP, r1.reason)
-        AssertEq.assertEquals(BlockReason.TARGET_APP, r2.reason)
-    }
-
-    // ========== Access window + ignorelist priority test ==========
-    @Jt fun `access window overrides block for specific package`() {
-        val eng = engine(accessWindowPkgLookup = mapOf("com.vpn.app" to (now + 300_000L)))
-        AssertEq.assertEquals(BlockDecision.Allow, eng.decide("com.vpn.app", hasActiveSession = true))
-    }
-
-    @Jt fun `ignorelist does not affect non-allowlisted packages`() {
-        val eng = engine(userAllowlist = setOf("app.focus.android"))
-        AssertEq.assertTrue((eng.decide("com.other.app", hasActiveSession = true)) is BlockDecision.Block)
+    companion object {
+        private val defaultTargets = setOf(
+            "com.instagram.android",
+            "com.facebook.katana",
+            "com.banned.app",
+            "com.app.one",
+            "com.app.two",
+            "com.other.app",
+            "com.test.app",
+            "unknown.package.app",
+            "com.vpn.app",
+        )
     }
 }

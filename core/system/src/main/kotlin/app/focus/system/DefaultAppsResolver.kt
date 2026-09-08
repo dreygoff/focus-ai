@@ -3,7 +3,7 @@ package app.focus.system
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
-import android.telecom.TelecommManager
+import android.telecom.TelecomManager
 
 class DefaultAppsResolver(private val context: Context) {
 
@@ -21,7 +21,7 @@ class DefaultAppsResolver(private val context: Context) {
 
     fun dialerPackage(): String? {
         return try {
-            val telecommManager = context.getSystemService(Context.TELECOMM_SERVICE) as TelecommManager
+            val telecommManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
             telecommManager.defaultDialerPackage
         } catch (_: Exception) {
             null

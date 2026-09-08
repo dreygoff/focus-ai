@@ -58,7 +58,7 @@ class BlockDecisionEngine(
         // Rule 5: Active access window for this package
         val windows = accessWindowLookup(sessionState.sessionId ?: "")
         val now = System.currentTimeMillis()
-        if (!windows.isNullOrEmpty()) {
+        if (windows != null && windows.isNotEmpty()) {
             val pkgExpireTime = windows[packageName]
             if (pkgExpireTime != null && now <= pkgExpireTime) {
                 return BlockDecision.Allow
@@ -85,6 +85,4 @@ class BlockDecisionEngine(
         // Rule 7: Otherwise → Allow
         return BlockDecision.Allow
     }
-
-    private fun Map<*, *>?.isNullOrEmpty(): Boolean = this.isNullOrEmpty()
 }

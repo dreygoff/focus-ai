@@ -78,7 +78,7 @@
     <string name="profile_bypass_delay">Задержка пропуска (сек.)</string>
     <string name="profile_breathing_enabled">Включить дыхательное упражнение</string>
     <string name="profile_reason_required">Требовать причину для пропуска</string>
-    <string name="profile_emergency_none">Отключён</string>
+    <string name="profile_emergency_noneDisabled">Отключён</string>
     <string name="profile_emergency_delay_10min">Задержка 10 мин</string>
     <string name="profile_emergency_retype">Перепечатать текст</string>
     <string name="profile_device_admin">Защита администратора устройства</string>
@@ -218,14 +218,10 @@
 
     <!-- Pomodoro -->
     <string name="pomodoro_settings_title">Настройки помодоро</string>
-    <plurals name="pomodoro_focus_duration">
-        <item quantity="one">%d мин фокус</item>
-        <item quantity="few">%d мин фокус</item>
-        <item quantity="many">%d мин фокус</item>
-        <item quantity="other">%d мин фокус</item>
-    </plurals>
+    <string name="pomodoro_focus_duration">Длительность фокуса (мин.)</string>
 
     <string name="pomodoro_short_break_duration">Короткий перерыв (мин.)</string>
     <string name="pomodoro_long_break_duration">Длинный перерыв (мин.)</string>
     <string name="pomodoro_cycles_long_break">Циклы до длинного перерыва</string>
     <string name="pomodoro_total_cycles">Всего циклов</string>
+</resources>

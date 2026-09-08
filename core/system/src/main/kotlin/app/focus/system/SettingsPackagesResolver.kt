@@ -40,7 +40,7 @@ class SettingsPackagesResolver(private val context: Context) {
 
     fun resolveApplicationDetails(packageName: String): String? {
         return try {
-            val intent = Intent(Settings.APPLICATION_DETAILS_SETTINGS).apply {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                 data = android.net.Uri.fromParts("package", packageName, null)
             }
             val resolved = context.packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)

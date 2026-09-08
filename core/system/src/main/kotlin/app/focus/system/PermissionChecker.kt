@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.UserManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat.checkSelfPermission
 import app.focus.domain.model.PermissionState
@@ -38,7 +37,7 @@ class PermissionChecker(private val context: Context) {
 
         states += PermissionState(
             name = PACKAGE_USAGE_STATS,
-            granted = checkPackageUsageStats(),
+            granted = checkPackageUsageStatsInternal(),
             type = PermissionType.MANDATORY
         )
 
@@ -61,7 +60,7 @@ class PermissionChecker(private val context: Context) {
 
         states += PermissionState(
             name = REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-            granted = canIgnoreBatteryOptimizations(),
+            granted = canIgnoreBatteryOptimizationsInternal(),
             type = PermissionType.RECOMMENDED
         )
 
@@ -88,7 +87,7 @@ class PermissionChecker(private val context: Context) {
         )
 
         val adminComponent = android.content.ComponentName(context, app.focus.system.internal.DummyAdminReceiver::class.java)
-        val devicePolicyManager = context.getSystemService(Context.DEVICE_ADMIN_SERVICE) as? android.app.admin.DevicePolicyManager
+        val devicePolicyManager = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
         val isAdminActive = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && devicePolicyManager != null) {
             devicePolicyManager.isAdminActive(adminComponent)
         } else false
@@ -111,13 +110,21 @@ class PermissionChecker(private val context: Context) {
         permissions.map { perms -> perms.filter { it.type == PermissionType.RECOMMENDED }.toSet() }
     }
 
-    private fun checkPackageUsageStats(): Boolean {
+    fun checkPackageUsageStats(): Boolean = checkPackageUsageStatsInternal()
+
+    fun canIgnoreBatteryOptimizations(): Boolean = canIgnoreBatteryOptimizationsInternal()
+
+    private fun checkPackageUsageStatsInternal(): Boolean {
         return try {
-            val manager = context.checkPackageUsageStats() as? UsageStatsManager
-            if (manager != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                true
+            val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? android.app.AppOpsManager
+            if (appOps != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                appOps.unsafeCheckOpNoThrow(
+                    android.app.AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    android.os.Process.myUid(),
+                    context.packageName,
+                ) == android.app.AppOpsManager.MODE_ALLOWED
             } else {
-                true
+                context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager != null
             }
         } catch (_: Exception) {
             false
@@ -132,10 +139,10 @@ class PermissionChecker(private val context: Context) {
         }
     }
 
-    private fun canIgnoreBatteryOptimizations(): Boolean {
+    private fun canIgnoreBatteryOptimizationsInternal(): Boolean {
         return try {
-            val manager: UserManager = context.getSystemService(Context.USER_SERVICE) as UserManager
-            manager.isIgnoringBatteryOptimizations(context.packageName)
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+            powerManager.isIgnoringBatteryOptimizations(context.packageName)
         } catch (_: Exception) {
             false
         }

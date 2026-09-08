@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. Material3 -->
-    <style name="Theme.Focus" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
-        <item name="android:windowLightNavigationBar" tools:targetApi="27">?attr/isLightTheme</item>
-        <item name="android:enforceNavigationBarContrast" tools:targetApi="30">false</item>
-        <item name="android:enforceStatusBarContrast" tools:targetApi="30">false</item>
-    </style>
-
-    <!-- BlockActivity theme - translucent full-screen per TR-02 -->
-    <style name="Theme.Focus.Block" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:backgroundDimEnabled">false</item>
-    </style>
-
     <!-- Spacer for vertical gaps -->
     <dimen name="spacer_4sp">4sp</dimen>
     <dimen name="spacer_8sp">8sp</dimen>

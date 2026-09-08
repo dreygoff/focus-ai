@@ -1,11 +1,11 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "app.focus.system"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
@@ -16,15 +16,22 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+
+    buildFeatures {
+        compose = true
     }
 }
 
 dependencies {
-    api(project(":core:domain"))
-    api(project(":core:common"))
-    implementation("androidx.core:core-ktx:1.15.0")
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.14.1")
+    implementation(project(":core:domain"))
+    implementation(project(":core:common"))
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation("androidx.savedstate:savedstate:1.2.1")
+    implementation("androidx.savedstate:savedstate-ktx:1.2.1")
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
 }

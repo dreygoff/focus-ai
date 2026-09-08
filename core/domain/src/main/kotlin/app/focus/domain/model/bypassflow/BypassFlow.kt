@@ -169,7 +169,7 @@ class BypassFlow(
     fun inputPhraseCharacter(char: Char): BypassState? {
         return when (_state) {
             is BypassState.Phrase -> {
-                val currentIndex = (state as BypassState.Phrase).characterIndex
+                val currentIndex = (_state as BypassState.Phrase).characterIndex
                 if (currentIndex < phraseTarget.length) {
                     if (char == phraseTarget[currentIndex].lowercaseChar()) {
                         // Correct character

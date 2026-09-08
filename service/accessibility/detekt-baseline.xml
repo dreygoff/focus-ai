@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:FocusAccessibilityService.kt$FocusAccessibilityService${}</ID>
+    <ID>ReturnCount:FocusAccessibilityService.kt$FocusAccessibilityService$override fun onAccessibilityEvent(event: AccessibilityEvent)</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -11,11 +11,12 @@
         <service
             android:name=".FocusForegroundService"
             android:foregroundServiceType="specialUse"
-            android:exported="false">
+            android:exported="false"
+            android:directBootAware="true">
 
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="app.focus.service.focus" />
+                android:value="Blocks user-selected apps during focus sessions" />
         </service>
 
         <receiver

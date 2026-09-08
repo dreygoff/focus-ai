@@ -7,15 +7,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 data class FocusEvent(
     val packageName: String,
@@ -57,7 +58,10 @@ class DetectorOrchestrator(
     private var usageStatsPollingDetector: UsageStatsPollingDetector? = null
 
     private val _currentSource = MutableStateFlow<DetectorSource>(DetectorSource.UNDETERMINED)
-    private val _events = MutableSharedFlow<FocusEvent>(extraBufferCapacity = 64, overflowBehavior = kotlinx.coroutines.flow.OverflowBuffer)
+    private val _events = MutableSharedFlow<FocusEvent>(
+        extraBufferCapacity = 64,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
 
     val currentSource: StateFlow<DetectorSource> = _currentSource
     val events: Flow<FocusEvent> = _events.asSharedFlow()
@@ -65,7 +69,7 @@ class DetectorOrchestrator(
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     init {
-        permissionsFlow.distinctUntilChanged().map { perms ->
+        permissionsFlow.map { perms ->
             detectSource(perms)
         }.stateIn(
             scope = scope,
@@ -75,7 +79,7 @@ class DetectorOrchestrator(
 
         // Observe permission changes and reactively switch detectors
         scope.launch {
-            permissionsFlow.distinctUntilChanged().collect { perms ->
+            permissionsFlow.collect { perms ->
                 val newSource = detectSource(perms)
                 if (newSource != _currentSource.value) {
                     switchTo(newSource, force = true)
@@ -140,7 +144,7 @@ class DetectorOrchestrator(
 
     fun onDestroy() {
         stopCurrent()
-        if (!scope.isCancelled) scope.cancel()
+        scope.cancel()
     }
 
     private fun detectSource(perms: Set<PermissionState>): DetectorSource {

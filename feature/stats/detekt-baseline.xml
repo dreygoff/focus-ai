@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:StatsScreen.kt$@Composable private fun StatSummaryCard( label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:StatsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StatsScreen( onBack: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:StatsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun StatsScreen( onBack: () -&gt; Unit = {} )</ID>
+    <ID>MagicNumber:StatsScreen.kt$30</ID>
+    <ID>MagicNumber:StatsScreen.kt$7</ID>
+    <ID>MatchingDeclarationName:StatsScreen.kt$StatsRoutes</ID>
+    <ID>WildcardImport:StatsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:StatsScreen.kt$import androidx.compose.material3.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaxLineLength:Models.kt$ActiveSessionSnapshot.Companion$return snapshot != null &amp;&amp; snapshot.sessionId.isNotEmpty() &amp;&amp; snapshot.plannedEndAtMillis &gt; System.currentTimeMillis()</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ForbiddenComment:FocusNotificationChannels.kt$SessionNotificationBuilder$// TODO: Replace with actual app icon</ID>
+    <ID>UnusedPrivateProperty:FocusNotificationChannels.kt$FocusNotificationChannelManager$@IoDispatcher private val ioDispatcher: CoroutineDispatcher = kotlinx.coroutines.Dispatchers.IO</ID>
+  </CurrentIssues>
+</SmellBaseline>
