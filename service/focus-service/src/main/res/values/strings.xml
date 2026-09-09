@@ -20,4 +20,8 @@
     <string name="pomodoro_break_warning_body">Focus resumes in 30 seconds</string>
     <string name="notification_pomodoro_focus">Focus phase — %1$s</string>
     <string name="notification_pomodoro_break">Break — %1$s</string>
+    <string name="package_added_channel">New apps</string>
+    <string name="package_added_title">New app installed</string>
+    <string name="package_added_body">Add %1$s to the current focus profile?</string>
+    <string name="package_added_add">Add to profile</string>
 </resources>

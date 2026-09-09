@@ -6,12 +6,26 @@
     <string name="onboarding_start">Начать</string>
     <string name="onboarding_skip">Пропустить</string>
     <string name="onboarding_cd_next">Продолжить</string>
+    <string name="onboarding_cd_hero">Иллюстрация приложения Focus</string>
     <string name="onboarding_back">Назад</string>
     <string name="onboarding_continue">Продолжить</string>
+    <string name="onboarding_step">Шаг %1$d из %2$d</string>
+    <string name="onboarding_cd_step">Шаг онбординга %1$d из %2$d</string>
 
     <string name="onboarding_pick_apps_title">Выберите приложения для блокировки</string>
-    <string name="onboarding_pick_apps_search">Поиск приложений…</string>
+    <string name="onboarding_pick_apps_search">Поиск приложений</string>
     <string name="onboarding_pick_apps_recommended">Рекомендуемые</string>
+    <string name="onboarding_pick_apps_sort_alpha">А–Я</string>
+    <string name="onboarding_pick_apps_sort_usage">По использованию</string>
+    <string name="onboarding_pick_apps_selected_count">Выбрано: %1$d</string>
+    <string name="onboarding_pick_apps_system_section">Системные приложения</string>
+    <string name="onboarding_pick_apps_allowlisted">В белом списке — нельзя блокировать</string>
+    <string name="onboarding_pick_apps_empty">Приложения не найдены. Попробуйте другой запрос.</string>
+    <string name="onboarding_pick_apps_cd_selected">%1$s, выбрано</string>
+    <string name="onboarding_pick_apps_cd_not_selected">%1$s, не выбрано</string>
+    <string name="onboarding_pick_apps_cd_expand_system">Показать системные приложения</string>
+    <string name="onboarding_pick_apps_cd_collapse_system">Скрыть системные приложения</string>
+    <string name="onboarding_cd_loading_apps">Загрузка установленных приложений</string>
 
     <string name="onboarding_permissions_title">Включите разрешения</string>
     <string name="onboarding_permissions_body">Focus нужны несколько разрешений для работы. Мы проведём вас через каждое из них.</string>
@@ -20,7 +34,8 @@
     <string name="onboarding_cd_permissions">Разрешения</string>
 
     <string name="onboarding_first_profile_title">Создайте первый профиль</string>
-    <string name="onboarding_first_profile_body">Профиль объединяет правила блокировки. Начните с «Глубокая работа» или создайте свой.</string>
+    <string name="onboarding_first_profile_body">Мы настроим профиль «Глубокая работа» с выбранными приложениями. Позже его можно изменить в разделе Профили.</string>
+    <string name="onboarding_first_profile_selected">В профиле будет заблокировано приложений: %1$d</string>
     <string name="onboarding_create_deep_work">Создать профиль «Глубокая работа»</string>
     <string name="onboarding_skip_for_now">Пропустить</string>
 </resources>

@@ -25,7 +25,7 @@ internal object FocusSessionNotificationFactory {
         val chronometerEnd = chronometerEnd(plannedEndAtMillis, pomodoroPhase, phaseEndAtMillis)
 
         NotificationCompat.Builder(context, FocusForegroundService.CHANNEL_SESSION)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_stat_focus)
             .setContentTitle(context.getString(R.string.notification_session_title))
             .setContentText(remainingText)
             .setContentIntent(openPending)

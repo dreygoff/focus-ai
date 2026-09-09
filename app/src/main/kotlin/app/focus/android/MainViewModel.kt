@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.focus.datastore.UserSettingsRepository
 import app.focus.domain.model.Theme
+import app.focus.domain.usecase.ObserveActiveSessionsUseCase
 import app.focus.domain.usecase.QuickStartProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,10 +19,16 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val userSettingsRepository: UserSettingsRepository,
     private val quickStartProfileUseCase: QuickStartProfileUseCase,
+    private val observeActiveSessionsUseCase: ObserveActiveSessionsUseCase,
 ) : ViewModel() {
 
     private val _showOnboarding = MutableStateFlow<Boolean?>(null)
     val showOnboarding: StateFlow<Boolean?> = _showOnboarding.asStateFlow()
+
+    private var trackedActiveSessionId: String? = null
+
+    private val _pendingSessionSummaryId = MutableStateFlow<String?>(null)
+    val pendingSessionSummaryId: StateFlow<String?> = _pendingSessionSummaryId.asStateFlow()
 
     val theme: StateFlow<Theme> = userSettingsRepository.getTheme()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(SUBSCRIBE_TIMEOUT_MS), Theme.SYSTEM)
@@ -33,6 +40,23 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             _showOnboarding.value = !userSettingsRepository.isOnboardingCompleted()
         }
+        viewModelScope.launch {
+            observeActiveSessionsUseCase.execute().collect { session ->
+                if (session != null) {
+                    trackedActiveSessionId = session.id
+                } else {
+                    val endedSessionId = trackedActiveSessionId
+                    trackedActiveSessionId = null
+                    if (endedSessionId != null) {
+                        _pendingSessionSummaryId.value = endedSessionId
+                    }
+                }
+            }
+        }
+    }
+
+    fun consumeSessionSummaryNavigation() {
+        _pendingSessionSummaryId.value = null
     }
 
     fun completeOnboarding() {

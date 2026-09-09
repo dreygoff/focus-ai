@@ -7,6 +7,7 @@ import app.focus.domain.model.PomodoroConfig
 import app.focus.domain.model.SessionSource
 import app.focus.domain.model.SessionStatus
 import app.focus.domain.usecase.ActiveSessionSnapshotStorage
+import app.focus.domain.usecase.GetCurrentStreakUseCase
 import app.focus.domain.usecase.LastUsedProfileProvider
 import app.focus.domain.usecase.ObserveActiveSessionsUseCase
 import app.focus.domain.usecase.PauseSessionUseCase
@@ -32,6 +33,7 @@ class HomeViewModel @Inject constructor(
     private val resumeSessionUseCase: ResumeSessionUseCase,
     snapshotStore: ActiveSessionSnapshotStorage,
     private val lastUsedProfileProvider: LastUsedProfileProvider,
+    private val getCurrentStreakUseCase: GetCurrentStreakUseCase,
     @DebugPomodoroAccelerated private val debugPomodoroAccelerated: Boolean,
 ) : ViewModel() {
 
@@ -58,11 +60,6 @@ class HomeViewModel @Inject constructor(
     private val _uiStateFlow = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> get() = _uiStateFlow
 
-    sealed interface Event {
-        data object NavigateToProfiles : Event
-        data class StartSession(val profileId: String, val durationMinutes: Int) : Event
-    }
-
     init {
         viewModelScope.launch {
             observeActiveSessionsUseCase.execute().collect { session ->
@@ -84,6 +81,10 @@ class HomeViewModel @Inject constructor(
                     phaseEndAtMillis = snapshot?.phaseEndAtMillis?.takeIf { it > 0L },
                 )
             }
+        }
+        viewModelScope.launch {
+            val streak = runCatching { getCurrentStreakUseCase.execute() }.getOrDefault(0)
+            _uiStateFlow.value = _uiStateFlow.value.copy(streakDays = streak)
         }
     }
 
@@ -193,6 +194,8 @@ class HomeViewModel @Inject constructor(
         _uiStateFlow.value = _uiStateFlow.value.copy(showStopConfirmation = false)
         viewModelScope.launch {
             stopSessionUseCase.execute(session.id, SessionStatus.Cancelled)
+            val streak = runCatching { getCurrentStreakUseCase.execute() }.getOrDefault(_uiStateFlow.value.streakDays)
+            _uiStateFlow.value = _uiStateFlow.value.copy(streakDays = streak)
         }
     }
 

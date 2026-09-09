@@ -3,6 +3,8 @@ package app.focus.feature.home
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,15 +27,22 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 data class HomeUiState(
     val activeSession: app.focus.domain.model.Session? = null,
@@ -93,14 +102,12 @@ fun HomeScreen(
                 StatCard(
                     label = stringResource(R.string.home_stat_today),
                     value = uiState.todayFocusMinutes.toString(),
-                    iconContentDescription = stringResource(R.string.home_cd_today_focus),
                     icon = Icons.Default.Timer,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
                     label = stringResource(R.string.home_stat_streak),
                     value = stringResource(R.string.home_streak_days, uiState.streakDays),
-                    iconContentDescription = stringResource(R.string.home_cd_streak),
                     icon = Icons.Default.Star,
                     modifier = Modifier.weight(1f),
                 )
@@ -117,6 +124,7 @@ fun HomeScreen(
                     ActiveSessionCardState(
                         sessionId = uiState.activeSession.id,
                         profileId = uiState.activeSession.profileId,
+                        startedAt = uiState.activeSession.startedAt,
                         plannedEndAt = uiState.activeSession.plannedEndAt,
                         isPaused = isPaused,
                         pomodoroPhase = uiState.pomodoroPhase,
@@ -162,7 +170,6 @@ private fun StatCard(
     label: String,
     value: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    iconContentDescription: String,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier) {
@@ -172,7 +179,7 @@ private fun StatCard(
         ) {
             Icon(
                 icon,
-                contentDescription = iconContentDescription,
+                contentDescription = null,
                 modifier = Modifier.size(24.dp),
             )
             Spacer(Modifier.height(4.dp))
@@ -185,11 +192,33 @@ private fun StatCard(
 private data class ActiveSessionCardState(
     val sessionId: String,
     val profileId: String?,
+    val startedAt: Long,
     val plannedEndAt: Long?,
     val isPaused: Boolean,
     val pomodoroPhase: String? = null,
     val phaseEndAtMillis: Long? = null,
 )
+
+private fun formatTimerSeconds(totalSeconds: Int): String {
+    val minutes = totalSeconds / 60
+    val secs = totalSeconds % 60
+    return "%02d:%02d".format(minutes, secs)
+}
+
+private fun sessionEndAtMillis(state: ActiveSessionCardState): Long? =
+    state.phaseEndAtMillis?.takeIf { it > 0L } ?: state.plannedEndAt
+
+private fun sessionRemainingSeconds(state: ActiveSessionCardState, nowMillis: Long): Int? {
+    val endAt = sessionEndAtMillis(state) ?: return null
+    return ((endAt - nowMillis).coerceAtLeast(0L) / 1000L).toInt()
+}
+
+private fun sessionProgress(state: ActiveSessionCardState, nowMillis: Long): Float {
+    val endAt = sessionEndAtMillis(state) ?: return 0f
+    val totalMs = (endAt - state.startedAt).coerceAtLeast(1L)
+    val remainingMs = (endAt - nowMillis).coerceAtLeast(0L)
+    return (remainingMs.toFloat() / totalMs).coerceIn(0f, 1f)
+}
 
 @Composable
 private fun pomodoroPhaseLabel(phase: String?): String? = when (phase) {
@@ -206,6 +235,25 @@ private fun ActiveSessionCard(
     onPause: () -> Unit,
     onStop: () -> Unit,
 ) {
+    var tick by remember(state.sessionId) { mutableIntStateOf(0) }
+    LaunchedEffect(state.sessionId, state.isPaused, state.phaseEndAtMillis, state.plannedEndAt) {
+        while (!state.isPaused) {
+            delay(1_000)
+            tick++
+        }
+    }
+    val nowMillis = remember(tick, state.isPaused) { System.currentTimeMillis() }
+    val remainingSeconds = sessionRemainingSeconds(state, nowMillis)
+    val displayTime = remainingSeconds?.let(::formatTimerSeconds) ?: "—"
+    val timerDescription = if (state.isPaused && remainingSeconds != null) {
+        stringResource(R.string.home_cd_session_timer_paused, formatTimerSeconds(remainingSeconds))
+    } else if (remainingSeconds != null) {
+        stringResource(R.string.home_cd_session_timer, formatTimerSeconds(remainingSeconds))
+    } else {
+        stringResource(R.string.home_cd_session_no_limit)
+    }
+    val progress = sessionProgress(state, nowMillis)
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -229,15 +277,23 @@ private fun ActiveSessionCard(
             }
             Spacer(Modifier.height(8.dp))
             Box(
-                modifier = Modifier.size(120.dp).clip(CircleShape),
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .semantics { contentDescription = timerDescription },
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator(
-                    progress = { 0.6f },
-                    modifier = Modifier.fillMaxSize(),
-                    strokeWidth = 8.dp,
+                if (remainingSeconds != null) {
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxSize(),
+                        strokeWidth = 8.dp,
+                    )
+                }
+                Text(
+                    displayTime,
+                    style = MaterialTheme.typography.titleMedium,
                 )
-                Text("4:30", style = MaterialTheme.typography.titleMedium)
             }
             Spacer(Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -258,6 +314,7 @@ private fun ActiveSessionCard(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun StartSessionCard(
     profiles: List<app.focus.domain.model.Profile>,
@@ -265,6 +322,7 @@ private fun StartSessionCard(
     onSelectProfile: (String) -> Unit,
     onStartPomodoro: (String?) -> Unit,
 ) {
+    val useStackedDurations = LocalConfiguration.current.fontScale >= LARGE_FONT_SCALE_THRESHOLD
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(24.dp),
@@ -273,17 +331,32 @@ private fun StartSessionCard(
             Text(stringResource(R.string.home_ready), style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                listOf(15, 25, 45, 60).forEach { duration ->
-                    Button(
-                        onClick = { onQuickStart(duration) },
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(stringResource(R.string.home_duration_min, duration))
+            val durations = listOf(15, 25, 45, 60)
+            if (useStackedDurations) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    durations.forEach { duration ->
+                        Button(onClick = { onQuickStart(duration) }) {
+                            Text(stringResource(R.string.home_duration_min, duration))
+                        }
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    durations.forEach { duration ->
+                        Button(
+                            onClick = { onQuickStart(duration) },
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(stringResource(R.string.home_duration_min, duration))
+                        }
                     }
                 }
             }
@@ -342,3 +415,5 @@ private fun QuickStartButton(
         Text(label)
     }
 }
+
+private const val LARGE_FONT_SCALE_THRESHOLD = 1.3f

@@ -239,4 +239,5 @@
     <string name="dialog_hard_lock_body">Настройки, установщики и другие лаунчеры будут заблокированы до конца сессии. Отменить досрочно можно только через аварийный выход.</string>
     <string name="dialog_hard_lock_confirm">Запустить hard lock</string>
     <string name="dialog_cancel">Отмена</string>
+    <string name="cd_loading">Загрузка</string>
 </resources>

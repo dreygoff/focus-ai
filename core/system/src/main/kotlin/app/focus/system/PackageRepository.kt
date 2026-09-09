@@ -44,8 +44,8 @@ class DefaultPackageRepository(
     override suspend fun clearCache() {
         synchronized(this) {
             _cachedPackages = emptyList()
-            updateFlow(emptyList())
         }
+        refresh(includeUsage = true)
     }
 
     private var _cachedPackages: List<PackageInfo> = emptyList()
@@ -76,10 +76,6 @@ class DefaultPackageRepository(
             _cachedPackages = apps.sortedBy { it.appName.lowercase() }
             _appsFlow.value = _cachedPackages
         }
-    }
-
-    private fun updateFlow(list: List<PackageInfo>) {
-        _appsFlow.value = list
     }
 
     private fun hasFlag(pkg: String, flag: Int): Boolean {

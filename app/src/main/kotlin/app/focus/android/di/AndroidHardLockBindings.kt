@@ -28,14 +28,15 @@ class AndroidHardLockExtrasContributor @Inject constructor(
 
 @Singleton
 class AndroidHardLockLifecycleController @Inject constructor(
-    @ApplicationContext private val context: Context,
+    private val enforcer: HardLockEnforcer,
 ) : HardLockLifecycleController {
-
-    private val enforcer = HardLockEnforcer(context)
 
     override fun onHardLockSessionStarted(deviceAdminProtection: Boolean) = Unit
 
     override fun onHardLockSessionStopped(deviceAdminProtection: Boolean) {
         enforcer.unregisterHardLock()
+        if (deviceAdminProtection) {
+            enforcer.deactivateDeviceAdmin()
+        }
     }
 }

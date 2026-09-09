@@ -30,4 +30,6 @@
     <string name="stats_filter_bypasses">Пропуски</string>
     <string name="stats_no_events">Нет событий</string>
     <string name="stats_cd_kpi">Сводка статистики</string>
+    <string name="stats_cd_kpi_card">%1$s: %2$s</string>
+    <string name="stats_cd_loading">Загрузка статистики</string>
 </resources>

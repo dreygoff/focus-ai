@@ -38,16 +38,16 @@ data class ActiveSessionSnapshot(
     val phaseEndAtMillis: Long? = null,
 ) {
     companion object {
-        fun empty(): ActiveSessionSnapshot = ActiveSessionSnapshot(
-            sessionId = "",
-            lockMode = "",
-            plannedEndAtMillis = 0L,
-            targetPackages = emptyList(),
-        )
+        fun empty(): ActiveSessionSnapshot =
+            ActiveSessionSnapshot(
+                sessionId = "",
+                lockMode = "",
+                plannedEndAtMillis = 0L,
+                targetPackages = emptyList(),
+            )
 
         /** Check if the snapshot represents a valid (non-expired) session. */
-        fun isValid(snapshot: ActiveSessionSnapshot?): Boolean {
-            return snapshot != null && snapshot.sessionId.isNotEmpty() && snapshot.plannedEndAtMillis > System.currentTimeMillis()
-        }
+        fun isValid(snapshot: ActiveSessionSnapshot?): Boolean =
+            snapshot != null && snapshot.sessionId.isNotEmpty() && snapshot.plannedEndAtMillis > System.currentTimeMillis()
     }
 }

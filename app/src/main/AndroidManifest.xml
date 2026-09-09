@@ -50,13 +50,19 @@
             android:launchMode="singleInstance" />
 
         <receiver android:name="app.focus.service.focus.PackageChangeReceiver"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_CHANGED" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name="app.focus.service.focus.AddPackageToProfileReceiver"
+            android:exported="false" />
 
         <!-- Device Admin receiver per FR-38 spec -->
         <receiver

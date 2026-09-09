@@ -34,6 +34,7 @@ protobuf {
 
 dependencies {
     implementation(libs.androidx.datastore)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.protobuf.javalite)
     implementation(project(":core:domain"))
     implementation(libs.kotlinx.coroutines.core)

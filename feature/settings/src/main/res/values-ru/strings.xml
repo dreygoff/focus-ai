@@ -32,7 +32,14 @@
     <string name="settings_delete_all">Удалить все данные</string>
     <string name="settings_delete_all_confirm">Удалить профили, расписания, статистику и записи белого списка? Профили по умолчанию будут восстановлены. Это нельзя отменить.</string>
     <string name="settings_stats_cleared">Статистика очищена.</string>
+    <string name="settings_stats_cleared_title">Статистика очищена</string>
     <string name="settings_data_deleted">Все данные удалены. Профили по умолчанию восстановлены.</string>
+    <string name="settings_data_deleted_title">Данные удалены</string>
+    <string name="settings_error_title">Ошибка</string>
+    <string name="settings_switch_on">Включено</string>
+    <string name="settings_switch_off">Выключено</string>
+    <string name="settings_cd_switch">%1$s, %2$s</string>
+    <string name="settings_cd_version">Версия %1$s</string>
     <string name="settings_section_about">О приложении</string>
     <string name="settings_version">Версия</string>
     <string name="settings_privacy_title">Политика конфиденциальности</string>
@@ -44,5 +51,14 @@
     <string name="protection_info_body">Hard lock добавляет Настройки, установщики и другие лаунчеры в список блокировки на время сессии. Focus использует специальные возможности и статистику использования, чтобы быстро показывать экран блокировки.</string>
     <string name="protection_info_limitations_title">Что нельзя заблокировать</string>
     <string name="protection_info_limitations_body">Безопасный режим, ADB, сброс к заводским настройкам и второй пользователь могут обойти любое не-системное приложение. Focus честно сообщает об этих ограничениях Android.</string>
+    <string name="protection_device_admin_title">Администратор устройства</string>
+    <string name="protection_device_admin_active">Администратор устройства активен. Это помогает защитить hard lock сессии от обхода через лаунчеры и настройки.</string>
+    <string name="protection_device_admin_inactive">Администратор устройства не активен.</string>
+    <string name="protection_device_admin_deactivate">Отключить администратора</string>
+    <string name="protection_device_admin_open_settings">Открыть настройки администратора</string>
     <string name="settings_protection_link">Как работает защита</string>
+    <string name="settings_diagnostics_title">Диагностика</string>
+    <string name="settings_diagnostics_hint">Задержка блокировки (detect → shown) за последние сессии. Скрытый экран TR-03.</string>
+    <string name="settings_diagnostics_empty">Событий латентности пока нет.</string>
+    <string name="settings_diagnostics_row">%1$s — %2$d мс</string>
 </resources>

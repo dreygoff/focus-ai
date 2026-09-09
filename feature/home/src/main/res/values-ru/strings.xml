@@ -24,4 +24,7 @@
     <string name="home_start">Старт</string>
     <string name="home_quick_start">Быстрый старт</string>
     <string name="home_quick_start_profile">Старт: %1$s</string>
+    <string name="home_cd_session_timer">Осталось %1$s</string>
+    <string name="home_cd_session_timer_paused">Осталось %1$s, на паузе</string>
+    <string name="home_cd_session_no_limit">Без лимита времени</string>
 </resources>

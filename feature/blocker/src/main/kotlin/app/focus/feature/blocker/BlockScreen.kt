@@ -29,6 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +42,7 @@ import app.focus.domain.model.BreathingPhase
 import app.focus.domain.model.BypassState
 import app.focus.domain.model.EmergencyExitStep
 import app.focus.domain.model.LockMode
+import app.focus.domain.model.SettingsShortcut
 import java.util.concurrent.TimeUnit
 
 @Composable
@@ -67,53 +73,6 @@ fun BlockScreen(
             TextButton(onClick = { onAction(BlockAction.OpenFocus) }) {
                 Text(stringResource(R.string.block_open_focus))
             }
-        }
-    }
-}
-
-@Composable
-private fun BlockHeader(state: BlockUiState) {
-    val remainingMinutes = TimeUnit.MILLISECONDS.toMinutes(state.remainingMillis.coerceAtLeast(0))
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            Icons.Default.Block,
-            contentDescription = stringResource(R.string.block_cd_blocked),
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.error,
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            stringResource(R.string.block_title),
-            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(state.appName, style = MaterialTheme.typography.titleLarge)
-        Text(
-            stringResource(R.string.block_profile_active, state.profileName),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        if (state.remainingMillis > 0) {
-            Text(
-                stringResource(R.string.block_time_remaining, remainingMinutes),
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
-        if (state.attemptNumber > 0) {
-            Text(
-                stringResource(R.string.block_attempt_count, state.attemptNumber),
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-
-        if (state.tamperMessage != null) {
-            Text(
-                state.tamperMessage,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
         }
     }
 }
@@ -168,7 +127,49 @@ private fun BlockMainActions(
                 Text(stringResource(R.string.block_emergency_exit))
             }
         }
+
+        if (isHardLock && state.allowedSettingsShortcuts.isNotEmpty()) {
+            HardLockSettingsShortcuts(
+                shortcuts = state.allowedSettingsShortcuts,
+                onShortcut = { onAction(BlockAction.OpenSettingsShortcut(it)) },
+            )
+        }
     }
+}
+
+@Composable
+private fun HardLockSettingsShortcuts(
+    shortcuts: Set<SettingsShortcut>,
+    onShortcut: (SettingsShortcut) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            stringResource(R.string.block_allowed_settings),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+        )
+        shortcuts.sortedBy { it.ordinal }.forEach { shortcut ->
+            OutlinedButton(
+                onClick = { onShortcut(shortcut) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(settingsShortcutLabel(shortcut))
+            }
+        }
+    }
+}
+
+@Composable
+private fun settingsShortcutLabel(shortcut: SettingsShortcut): String = when (shortcut) {
+    SettingsShortcut.WIFI -> stringResource(R.string.block_shortcut_wifi)
+    SettingsShortcut.BLUETOOTH -> stringResource(R.string.block_shortcut_bluetooth)
+    SettingsShortcut.SOUND -> stringResource(R.string.block_shortcut_sound)
+    SettingsShortcut.NOTIFICATIONS -> stringResource(R.string.block_shortcut_notifications)
+    SettingsShortcut.CELLULAR -> stringResource(R.string.block_shortcut_cellular)
 }
 
 @Composable
@@ -223,6 +224,7 @@ private fun EmergencyRetypeStep(
             }
         },
         modifier = Modifier.fillMaxWidth(),
+        label = { Text(stringResource(R.string.block_emergency_retype_title)) },
         keyboardOptions = KeyboardOptions(autoCorrect = false),
     )
     TextButton(onClick = { onAction(BlockAction.CancelEmergencyExit) }) {
@@ -241,6 +243,10 @@ private fun BypassStepContent(
     ) {
         when (step) {
             is BypassState.Delay -> {
+                val bypassDelayDescription = stringResource(
+                    R.string.block_cd_bypass_delay,
+                    step.remainingSeconds,
+                )
                 Text(
                     stringResource(R.string.block_bypass_delay, step.remainingSeconds),
                     style = MaterialTheme.typography.headlineMedium,
@@ -252,9 +258,23 @@ private fun BypassStepContent(
                 } else {
                     0f
                 }
-                LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            progressBarRangeInfo = ProgressBarRangeInfo(progress, 0f..1f)
+                            contentDescription = bypassDelayDescription
+                        },
+                )
             }
             is BypassState.Breathing -> {
+                val phaseLabel = breathingPhaseLabel(step.phaseInCycle)
+                val breathingDescription = stringResource(
+                    R.string.block_cd_breathing,
+                    step.currentCycle + 1,
+                    phaseLabel,
+                )
                 Text(
                     stringResource(R.string.block_bypass_breathing, step.currentCycle + 1),
                     style = MaterialTheme.typography.titleLarge,
@@ -262,12 +282,18 @@ private fun BypassStepContent(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Text(
-                    breathingPhaseLabel(step.phaseInCycle),
+                    phaseLabel,
                     style = MaterialTheme.typography.headlineMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .clearAndSetSemantics {
+                            contentDescription = breathingDescription
+                        },
+                )
             }
             is BypassState.Reason -> ReasonStep(step, onAction)
             is BypassState.Phrase -> PhraseStep(step, onAction)
@@ -334,6 +360,7 @@ private fun PhraseStep(
             }
         },
         modifier = Modifier.fillMaxWidth(),
+        label = { Text(stringResource(R.string.block_bypass_phrase_title)) },
         keyboardOptions = KeyboardOptions(
             autoCorrect = false,
             capitalization = KeyboardCapitalization.Sentences,

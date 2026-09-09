@@ -53,19 +53,19 @@ class HardLockEnforcer(private val context: Context) {
     /** Check if this event should be blocked in hard lock mode. */
     fun shouldBlockEvent(intent: Intent): Boolean {
         val action = intent.action ?: return false
-        
+
         // Block Settings actions
         if (HARD_LOCK_INTENTS.contains(action)) {
             Log.d(TAG, "Blocking Settings intent: $action")
             return true
         }
-        
+
         // Block Play Store / Package actions during hard lock
         if (intent.`package` != null && HARD_LOCK_PACKAGES.contains(intent.`package`)) {
             Log.d(TAG, "Blocking app: ${intent.`package`}")
             return true
         }
-        
+
         return false
     }
 
@@ -75,7 +75,7 @@ class HardLockEnforcer(private val context: Context) {
         if (packageName == context.packageName || packageName.startsWith("app.focus.")) {
             return false
         }
-        
+
         if (HARD_LOCK_PACKAGES.contains(packageName)) {
             Log.d(TAG, "Blocking hard lock package: $packageName")
             return true
@@ -90,17 +90,17 @@ class HardLockEnforcer(private val context: Context) {
         try {
             val devicePolicyManager = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
                 ?: return false
-            
+
             val componentName = ComponentName(context, app.focus.system.internal.DummyAdminReceiver::class.java)
             if (!devicePolicyManager.isAdminActive(componentName)) {
                 Log.w(TAG, "Device admin not active for hard lock")
                 return false
             }
-            
+
             // Attempt to set launcher restriction
             devicePolicyManager.setLockTaskPackages(componentName, emptyArray<String>())
             return true
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Error blocking launcher switching", e)
             return false
@@ -112,7 +112,7 @@ class HardLockEnforcer(private val context: Context) {
         try {
             val devicePolicyManager = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
                 ?: return
-            
+
             val componentName = ComponentName(context, app.focus.system.internal.DummyAdminReceiver::class.java)
             if (devicePolicyManager.isAdminActive(componentName)) {
                 devicePolicyManager.setLockTaskPackages(componentName, emptyArray())
@@ -127,7 +127,7 @@ class HardLockEnforcer(private val context: Context) {
         return try {
             val devicePolicyManager = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
                 ?: return false
-            
+
             val componentName = ComponentName(context, app.focus.system.internal.DummyAdminReceiver::class.java)
             devicePolicyManager.isAdminActive(componentName)
         } catch (_: Exception) {
@@ -135,17 +135,34 @@ class HardLockEnforcer(private val context: Context) {
         }
     }
 
+    /** Remove device admin when protection is no longer needed (FR-38). */
+    fun deactivateDeviceAdmin() {
+        try {
+            val devicePolicyManager = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+                ?: return
+            val componentName = ComponentName(context, app.focus.system.internal.DummyAdminReceiver::class.java)
+            if (devicePolicyManager.isAdminActive(componentName)) {
+                devicePolicyManager.removeActiveAdmin(componentName)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deactivating device admin", e)
+        }
+    }
+
+    /** Opens system UI where the user can disable device admin. */
+    fun getDeviceAdminSettingsIntent(): Intent =
+        Intent("android.settings.DEVICE_ADMIN_SETTINGS")
+
     /** Build intent to enable device admin */
-    fun getDeviceAdminPermissionIntent(): Intent {
-        return Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+    fun getDeviceAdminPermissionIntent(): Intent =
+        Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
             val componentName = ComponentName(context, app.focus.system.internal.DummyAdminReceiver::class.java)
             putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
             putExtra(
                 DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                "Required to protect hard lock sessions from being bypassed"
+                "Required to protect hard lock sessions from being bypassed",
             )
         }
-    }
 
     /** Check if accessibility service is enabled */
     fun isAccessibilityEnabled(): Boolean {
@@ -223,14 +240,14 @@ class HardLockEnforcer(private val context: Context) {
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             ) ?: ""
-            
+
             val serviceId = "${context.packageName}/app.focus.service.accessibility.FocusAccessibilityService"
-            enabledServices.contains(serviceId) && 
+            enabledServices.contains(serviceId) &&
                 Settings.Secure.getInt(
                     context.contentResolver,
                     Settings.Secure.ACCESSIBILITY_ENABLED, 0
                 ) == 1
-                
+
         } catch (_: Exception) {
             false
         }
@@ -242,7 +259,7 @@ class HardLockEnforcer(private val context: Context) {
             val pm = context.packageManager
             val name = pm.getNameForUid(android.os.Process.myUid())
             if (name == null) return false
-            
+
             val policy = pm.getApplicationInfo(name, 0)?.let { info ->
                 Settings.Global.getInt(
                     context.contentResolver,
@@ -260,9 +277,9 @@ class HardLockEnforcer(private val context: Context) {
         return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             val pm = context.packageManager
             when {
-                pm.checkPermission(permission.SCHEDULE_EXACT_ALARM, context.packageName) == 
+                pm.checkPermission(permission.SCHEDULE_EXACT_ALARM, context.packageName) ==
                     android.content.pm.PackageManager.PERMISSION_GRANTED -> true
-                pm.checkPermission(permission.USE_EXACT_ALARM, context.packageName) == 
+                pm.checkPermission(permission.USE_EXACT_ALARM, context.packageName) ==
                     android.content.pm.PackageManager.PERMISSION_GRANTED -> true
                 else -> false
             }
@@ -291,7 +308,7 @@ class HardLockEnforcer(private val context: Context) {
         return try {
             val pm = context.packageManager
             val apps = pm.getInstalledApplications(android.content.pm.PackageManager.GET_META_DATA)
-            
+
             apps.filter { app ->
                 // Focus-related packages
                 app.packageName.startsWith("app.focus") ||
@@ -312,7 +329,7 @@ class HardLockEnforcer(private val context: Context) {
         return try {
             val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? android.app.ActivityManager
                 ?: return false
-            
+
             am.getRunningServices(Integer.MAX_VALUE)?.any { service ->
                 service.service.packageName == context.packageName && service.foreground
             } ?: false
@@ -353,7 +370,7 @@ class HardLockEnforcer(private val context: Context) {
             }
             val resolver = context.packageManager
             val resolveInfo = resolver.resolveActivity(intent, android.content.pm.PackageManager.MATCH_DEFAULT_ONLY)
-            
+
             resolveInfo?.activityInfo?.packageName
         } catch (_: Exception) {
             null
@@ -388,14 +405,14 @@ class HardLockEnforcer(private val context: Context) {
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             ) ?: ""
-            
+
             val serviceId = "${context.packageName}/app.focus.service.accessibility.FocusAccessibilityService"
-            enabledServices.contains(serviceId) && 
+            enabledServices.contains(serviceId) &&
                 Settings.Secure.getInt(
                     context.contentResolver,
                     Settings.Secure.ACCESSIBILITY_ENABLED, 0
                 ) == 1
-                
+
         } catch (_: Exception) {
             false
         }
@@ -408,17 +425,17 @@ class HardLockEnforcer(private val context: Context) {
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             ) ?: ""
-            
+
             val colonSeparatedServices = enabledServices.split(":")
             val serviceId = "${context.packageName}/app.focus.service.accessibility.FocusAccessibilityService"
-            
-            colonSeparatedServices.any { service -> 
-                service == serviceId || service.contains(context.packageName) 
+
+            colonSeparatedServices.any { service ->
+                service == serviceId || service.contains(context.packageName)
             } && Settings.Secure.getInt(
                 context.contentResolver,
                 Settings.Secure.ACCESSIBILITY_ENABLED, 0
             ) == 1
-            
+
         } catch (_: Exception) {
             false
         }

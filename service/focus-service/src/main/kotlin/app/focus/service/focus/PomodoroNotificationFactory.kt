@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import app.focus.notifications.FocusNotificationPoster
 
 object PomodoroNotificationFactory {
 
@@ -27,7 +28,7 @@ object PomodoroNotificationFactory {
                 }
             }
             .build()
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+        FocusNotificationPoster.notify(context, NOTIFICATION_ID, notification)
     }
 
     fun showBreakEndingSoon(context: android.content.Context) {
@@ -39,12 +40,12 @@ object PomodoroNotificationFactory {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .build()
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID + 1, notification)
+        FocusNotificationPoster.notify(context, NOTIFICATION_ID + 1, notification)
     }
 
     fun cancelBreakNotifications(context: android.content.Context) {
-        NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID)
-        NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID + 1)
+        FocusNotificationPoster.cancel(context, NOTIFICATION_ID)
+        FocusNotificationPoster.cancel(context, NOTIFICATION_ID + 1)
     }
 
     private fun ensureChannel(context: android.content.Context) {

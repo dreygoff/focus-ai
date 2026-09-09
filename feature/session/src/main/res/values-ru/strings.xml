@@ -5,8 +5,18 @@
     <string name="session_profile_option">%1$s %2$s</string>
     <string name="session_duration">Длительность (мин)</string>
     <string name="session_duration_min">%1$d мин</string>
+    <string name="session_duration_custom">Своя длительность</string>
+    <string name="session_duration_custom_value">%1$d минут</string>
+    <string name="session_duration_until">До времени</string>
+    <string name="session_until_hour">Час</string>
+    <string name="session_until_minute">Минута</string>
+    <string name="session_apply_until_time">Применить время окончания</string>
+    <string name="session_duration_infinite">Без лимита (soft lock)</string>
     <string name="session_goal_optional">Цель (необязательно)</string>
     <string name="session_hard_lock_warning">Hard lock заблокирует Настройки и другие системные приложения.</string>
+    <string name="session_hard_lock_dialog_title">Запустить hard lock?</string>
+    <string name="session_hard_lock_dialog_body">Настройки и системные приложения будут заблокированы до конца сессии или аварийного выхода.</string>
+    <string name="session_hard_lock_dialog_confirm">Всё равно начать</string>
     <string name="session_start">Старт</string>
     <string name="session_back">Назад</string>
     <string name="session_pause">Пауза</string>
@@ -18,6 +28,8 @@
     <string name="session_bypasses_used">Использовано пропусков: %1$d</string>
     <string name="session_back_home">На главную</string>
     <string name="session_cd_timer">Оставшееся время</string>
+    <string name="session_cd_timer_remaining">%1$s: %2$s</string>
+    <string name="session_cd_loading">Загрузка итогов сессии</string>
     <plurals name="session_streak_days">
         <item quantity="one">Серия: %1$d день</item>
         <item quantity="few">Серия: %1$d дня</item>

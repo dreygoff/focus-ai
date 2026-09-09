@@ -16,7 +16,7 @@ android {
         targetSdk = 36
         versionCode = 10000
         versionName = "1.0.0"
-        
+
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
@@ -29,6 +29,7 @@ android {
         }
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -100,6 +101,7 @@ dependencies {
     implementation(project(":service:accessibility"))
 
     implementation(libs.androidx.work.ktx)
+    implementation(libs.androidx.profileinstaller)
 
     testImplementation(libs.junit)
 }

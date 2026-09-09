@@ -4,53 +4,72 @@ package app.focus.common
  * Sealed interface representing the result of an asynchronous operation.
  */
 sealed interface Result<out T> {
-    data class Success<T>(val data: T) : Result<T>
-    data class Error(val throwable: Throwable, val data: Nothing? = null) : Result<Nothing>
+    data class Success<T>(
+        val data: T,
+    ) : Result<T>
+
+    data class Error(
+        val throwable: Throwable,
+        val data: Nothing? = null,
+    ) : Result<Nothing>
 
     val isSuccess: Boolean get() = this is Success<*>
     val isError: Boolean get() = this is Error
 
-    fun getOrNull(): T? = when (this) {
-        is Success -> data as T
-        is Error -> null
-    }
+    fun getOrNull(): T? =
+        when (this) {
+            is Success -> data as T
+            is Error -> null
+        }
 
-    fun exceptionOrNull(): Throwable? = when (this) {
-        is Error -> throwable
-        is Success -> null
-    }
+    fun exceptionOrNull(): Throwable? =
+        when (this) {
+            is Error -> throwable
+            is Success -> null
+        }
 
     /** Maps the success data to a new value, returning `Error` if this is an error. */
     @Suppress("UNCHECKED_CAST", "UNCERTAIN_CAST")
-    suspend fun map(transform: suspend (T) -> Any?): Result<Any?> = when (this) {
-        is Success -> try {
-            val mapped = transform(data)
-            Success(mapped as T) as Result<Any?>
-        } catch (e: Exception) {
-            Error(e) as Result<Any?>
+    suspend fun map(transform: suspend (T) -> Any?): Result<Any?> =
+        when (this) {
+            is Success -> {
+                try {
+                    val mapped = transform(data)
+                    Success(mapped as T) as Result<Any?>
+                } catch (e: Exception) {
+                    Error(e) as Result<Any?>
+                }
+            }
+
+            is Error -> {
+                this as Result<Any?>
+            }
         }
-        is Error -> this as Result<Any?>
-    }
 
     /** Maps the success data to another `Result`, enabling flatMap-like behavior. */
-    suspend fun <R> mapCatching(transform: suspend (T) -> R): Result<R> = when (this) {
-        is Success -> try {
-            Success(transform(data))
-        } catch (e: Exception) {
-            Error(e) as Result<R>
+    suspend fun <R> mapCatching(transform: suspend (T) -> R): Result<R> =
+        when (this) {
+            is Success -> {
+                try {
+                    Success(transform(data))
+                } catch (e: Exception) {
+                    Error(e) as Result<R>
+                }
+            }
+
+            is Error -> {
+                throw this.throwable
+            }
         }
-        is Error -> throw this.throwable
-    }
 }
 
 /** Creates a success result. */
 fun <T> Result(success: T): Result<T> = Result.Success(success)
 
 /** Runs the [block] and returns [Result.Success] on success or [Result.Error] on exception. */
-suspend fun <T> runCatching(block: suspend () -> T): Result<T> {
-    return try {
+suspend fun <T> runCatching(block: suspend () -> T): Result<T> =
+    try {
         Result.Success(block())
     } catch (e: Exception) {
         Result.Error(e)
     }
-}

@@ -26,38 +26,47 @@ val md_theme_dark_tertiary = Color(0xFFFFD767)
 val md_theme_dark_background = Color(0xFF1C1B1F)
 val md_theme_dark_surface = Color(0xFF1C1B1F)
 
-fun lightScheme() = lightColorScheme(
-    primary = md_theme_light_primary,
-    onPrimary = md_theme_light_onPrimary,
-    secondary = md_theme_light_secondary,
-    tertiary = md_theme_light_tertiary,
-    background = md_theme_light_background,
-    surface = md_theme_light_surface,
-)
+fun lightScheme() =
+    lightColorScheme(
+        primary = md_theme_light_primary,
+        onPrimary = md_theme_light_onPrimary,
+        secondary = md_theme_light_secondary,
+        tertiary = md_theme_light_tertiary,
+        background = md_theme_light_background,
+        surface = md_theme_light_surface,
+    )
 
-fun darkScheme() = darkColorScheme(
-    primary = md_theme_dark_primary,
-    onPrimary = md_theme_dark_onPrimary,
-    secondary = md_theme_dark_secondary,
-    tertiary = md_theme_dark_tertiary,
-    background = md_theme_dark_background,
-    surface = md_theme_dark_surface,
-)
+fun darkScheme() =
+    darkColorScheme(
+        primary = md_theme_dark_primary,
+        onPrimary = md_theme_dark_onPrimary,
+        secondary = md_theme_dark_secondary,
+        tertiary = md_theme_dark_tertiary,
+        background = md_theme_dark_background,
+        surface = md_theme_dark_surface,
+    )
 
 @Composable
 fun FocusTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    val colorScheme =
+        when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val context = LocalContext.current
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
+
+            darkTheme -> {
+                darkScheme()
+            }
+
+            else -> {
+                lightScheme()
+            }
         }
-        darkTheme -> darkScheme()
-        else -> lightScheme()
-    }
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography.material(),

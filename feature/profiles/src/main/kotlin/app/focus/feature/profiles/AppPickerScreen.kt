@@ -2,6 +2,7 @@ package app.focus.feature.profiles
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -31,8 +33,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.focus.feature.profiles.icon.AppPackageIcon
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -167,23 +173,38 @@ private fun AppPickerRow(
     app: AppPickerViewModel.AppRow,
     onToggle: () -> Unit,
 ) {
+    val rowDescription = stringResource(
+        if (app.isSelected) R.string.app_picker_cd_app_selected else R.string.app_picker_cd_app_not_selected,
+        app.appName,
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = !app.isAllowlisted, onClick = onToggle)
+            .toggleable(
+                value = app.isSelected,
+                onValueChange = { if (!app.isAllowlisted) onToggle() },
+                enabled = !app.isAllowlisted,
+                role = Role.Checkbox,
+            )
+            .semantics { contentDescription = rowDescription }
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(
             checked = app.isSelected,
-            onCheckedChange = { if (!app.isAllowlisted) onToggle() },
+            onCheckedChange = null,
             enabled = !app.isAllowlisted,
+        )
+        AppPackageIcon(
+            packageName = app.packageName,
+            contentDescription = app.appName,
+            modifier = Modifier.size(40.dp).padding(end = 12.dp),
         )
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 app.appName,
                 style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
             if (app.isAllowlisted) {

@@ -32,4 +32,20 @@
     <string name="app_picker_back">Назад</string>
     <string name="app_picker_cd_expand_system">Показать системные приложения</string>
     <string name="app_picker_cd_collapse_system">Скрыть системные приложения</string>
+    <string name="app_picker_cd_app_selected">%1$s, выбрано</string>
+    <string name="app_picker_cd_app_not_selected">%1$s, не выбрано</string>
+    <string name="profile_editor_hard_options">Параметры hard lock</string>
+    <string name="profile_editor_device_admin">Защита через администратора устройства</string>
+    <string name="profile_editor_device_admin_hint">Во время hard lock требует права администратора, чтобы снизить обход через лаунчеры и настройки.</string>
+    <string name="profile_editor_block_new_apps">Блокировать новые приложения</string>
+    <string name="profile_editor_block_new_apps_hint">Автоматически добавлять новые установки в профиль во время активной hard lock сессии.</string>
+    <string name="profile_editor_settings_shortcuts">Разрешённые быстрые настройки</string>
+    <string name="profile_shortcut_wifi">Wi‑Fi</string>
+    <string name="profile_shortcut_bluetooth">Bluetooth</string>
+    <string name="profile_shortcut_sound">Звук</string>
+    <string name="profile_shortcut_notifications">Уведомления</string>
+    <string name="profile_shortcut_cellular">Мобильные данные</string>
+    <string name="profile_editor_switch_on">Включено</string>
+    <string name="profile_editor_switch_off">Выключено</string>
+    <string name="profile_editor_cd_switch">%1$s, %2$s</string>
 </resources>

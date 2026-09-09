@@ -8,12 +8,13 @@ import app.focus.domain.usecase.ActiveSessionSnapshotStorage
 import app.focus.domain.usecase.AlarmSchedulerService
 import app.focus.domain.usecase.AllowlistRepository
 import app.focus.domain.usecase.Clock
-import app.focus.domain.usecase.DecideBlockUseCase
 import app.focus.domain.usecase.ProfileRepository
 import app.focus.domain.usecase.SessionRepository
 import app.focus.domain.usecase.StartSessionUseCase
 import app.focus.domain.usecase.StopSessionUseCase
 import app.focus.feature.blocker.DefaultBlockerLauncher
+import app.focus.domain.usecase.DecideBlockUseCase
+import app.focus.system.DefaultAppsResolver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,19 +41,6 @@ object UseCaseModule {
     fun provideBlockLauncher(
         launcher: DefaultBlockerLauncher,
     ): app.focus.domain.usecase.BlockLauncher = launcher
-
-    @Provides
-    fun provideDecideBlockUseCase(
-        @SystemAllowlistQualifier systemAllowlist: Set<String>,
-        allowlistRepository: AllowlistRepository,
-        accessWindowRepository: AccessWindowRepository,
-        activeSessionBlockState: ActiveSessionBlockState,
-    ): DecideBlockUseCase = DecideBlockUseCase(
-        systemAllowlist = { systemAllowlist },
-        userAllowlistRepo = allowlistRepository,
-        accessWindowRepo = accessWindowRepository,
-        sessionState = { activeSessionBlockState.sessionState },
-    )
 
     @Provides
     @Singleton
@@ -123,4 +111,18 @@ object UseCaseModule {
         clock: Clock,
     ): app.focus.domain.usecase.CreateProfileUseCase =
         app.focus.domain.usecase.CreateProfileUseCase(profileRepo, clock)
+
+    @Provides
+    fun provideHandlePackageAddedUseCase(
+        sessionRepository: SessionRepository,
+        profileRepository: ProfileRepository,
+        snapshotStore: ActiveSessionSnapshotStorage,
+        blockState: ActiveSessionBlockState,
+    ): app.focus.domain.usecase.HandlePackageAddedUseCase =
+        app.focus.domain.usecase.HandlePackageAddedUseCase(
+            sessionRepository = sessionRepository,
+            profileRepository = profileRepository,
+            snapshotStore = snapshotStore,
+            blockState = blockState,
+        )
 }

@@ -245,6 +245,7 @@
     <string name="nav_cd_profiles">Profiles</string>
     <string name="nav_cd_schedules">Schedules</string>
     <string name="nav_cd_stats">Statistics</string>
+    <string name="cd_loading">Loading</string>
 
     <!-- Session dialogs -->
     <string name="dialog_stop_session_title">End session?</string>

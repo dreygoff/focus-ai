@@ -29,6 +29,7 @@ internal data class SessionBlockDependencies(
     val blockLauncher: BlockLauncher,
     val eventLogRepository: EventLogRepository,
     val sessionRepository: SessionRepository,
+    val accessWindowRepository: app.focus.domain.usecase.AccessWindowRepository,
     val blockState: app.focus.domain.usecase.ActiveSessionBlockState,
     val clock: Clock,
     val appPackageName: String,
@@ -44,10 +45,11 @@ internal class SessionBlockCoordinator(
         detectedAtMillis: Long,
         profileName: String,
         plannedEndAtMillis: Long,
+        activityClassName: String? = null,
     ) {
         if (packageName.isBlank() || packageName == deps.appPackageName) return
 
-        val tamperMessage = tamperMessageIfNeeded(packageName)
+        val tamperMessage = tamperMessageIfNeeded(packageName, activityClassName)
         if (tamperMessage != null) {
             handleTamperAttempt(
                 packageName = packageName,
@@ -80,10 +82,25 @@ internal class SessionBlockCoordinator(
         deps.blockState.clear()
     }
 
-    private fun tamperMessageIfNeeded(packageName: String): String? {
+    private suspend fun tamperMessageIfNeeded(
+        packageName: String,
+        activityClassName: String?,
+    ): String? {
         val state = deps.blockState.sessionState
         if (!state.isHardLock) return null
-        if (HardLockExtrasResolver.isSettingsPackage(packageName)) return TAMPER_MESSAGE
+        if (!HardLockExtrasResolver.isSettingsPackage(packageName)) return null
+
+        val sessionId = state.sessionId ?: return TAMPER_MESSAGE
+        val window = deps.accessWindowRepository.observeActiveWindows(sessionId).first()[packageName]
+            ?: return TAMPER_MESSAGE
+
+        val restricted = window.restrictedToActivity
+        if (restricted != null && !activityClassName.isNullOrBlank()) {
+            val allowed = activityClassName == restricted ||
+                activityClassName.startsWith("$restricted$") ||
+                restricted.endsWith(activityClassName.substringAfterLast('.'))
+            if (!allowed) return TAMPER_MESSAGE
+        }
         return null
     }
 

@@ -7,4 +7,5 @@ object SettingsRoutes {
     const val PROTECTION_INFO = "settings/protection"
     const val PRIVACY = "settings/privacy"
     const val LICENSES = "settings/licenses"
+    const val DIAGNOSTICS = "settings/diagnostics"
 }

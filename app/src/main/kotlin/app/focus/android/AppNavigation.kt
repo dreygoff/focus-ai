@@ -23,11 +23,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -42,43 +45,38 @@ import app.focus.feature.home.HomeScreenCallbacks
 import app.focus.feature.home.HomeUiState
 import app.focus.feature.home.HomeViewModel
 import app.focus.feature.onboarding.OnboardingRoutes
-import app.focus.feature.onboarding.onboardingGraph
 import app.focus.feature.profiles.AppPickerRoute
 import app.focus.feature.profiles.ProfileEditorScreen
 import app.focus.feature.profiles.ProfilesRoute
 import app.focus.feature.schedules.ScheduleEditorScreen
 import app.focus.feature.schedules.SchedulesScreen
 import app.focus.feature.schedules.SchedulesViewModel
-import app.focus.feature.settings.AllowlistSettingsScreen
-import app.focus.feature.settings.LicensesScreen
-import app.focus.feature.settings.PrivacyPolicyScreen
-import app.focus.feature.settings.ProtectionInfoScreen
 import app.focus.feature.settings.SettingsRoutes
-import app.focus.feature.settings.SettingsScreen
+import app.focus.feature.session.routes.SessionRoutes
+import app.focus.feature.session.start.StartSessionRoute
+import app.focus.feature.session.SessionSummaryRoute
 import app.focus.feature.stats.StatsRoutes
-import app.focus.feature.stats.StatsScreen
-
-private object AppRoutes {
-    const val HOME = "home"
-    const val PROFILES = "profiles"
-    const val PROFILES_EDITOR = "profiles/editor"
-    const val PROFILES_EDITOR_WITH_ID = "profiles/editor/{profileId}"
-    const val PROFILES_APPS = "profiles/{profileId}/apps"
-    const val SCHEDULES = "schedules"
-    const val SCHEDULE_EDITOR = "schedules/editor"
-    const val SCHEDULE_EDITOR_WITH_ID = "schedules/editor/{scheduleId}"
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(
     navController: NavHostController,
     startDestination: String,
+    mainViewModel: MainViewModel = hiltViewModel(),
     versionName: String = "1.0.0",
-    onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -> Unit = { _, _ -> },
     onOnboardingComplete: () -> Unit = {},
     onLanguageChanged: (String) -> Unit = {},
 ) {
+    val pendingSessionSummaryId by mainViewModel.pendingSessionSummaryId.collectAsStateWithLifecycle()
+    LaunchedEffect(pendingSessionSummaryId) {
+        val sessionId = pendingSessionSummaryId ?: return@LaunchedEffect
+        mainViewModel.consumeSessionSummaryNavigation()
+        navController.navigate(SessionRoutes.sessionSummary(sessionId)) {
+            popUpTo(AppRoutes.HOME) { saveState = true }
+            launchSingleTop = true
+        }
+    }
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val currentSelectedIndex = remember(currentRoute ?: AppRoutes.HOME) {
@@ -120,55 +118,16 @@ fun AppNavigation(
             modifier = Modifier.padding(paddingValues),
         ) {
             homeRoute(navController)
-            profilesRoute(onNavigateToStartSession, navController)
+            startSessionRoute(navController)
+            sessionSummaryRoute(navController)
+            profilesRoute(navController)
             profileEditorRoutes(navController)
             schedulesRoute(navController)
-            composable(StatsRoutes.ROUTE) {
-                StatsScreen()
-            }
-            composable(SettingsRoutes.SETTINGS) {
-                SettingsScreen(
-                    versionName = versionName,
-                    onBack = { navController.popBackStack() },
-                    onOpenPermissions = { navController.navigate(SettingsRoutes.PERMISSIONS) },
-                    onOpenAllowlist = { navController.navigate(SettingsRoutes.ALLOWLIST) },
-                    onOpenProtectionInfo = { navController.navigate(SettingsRoutes.PROTECTION_INFO) },
-                    onOpenPrivacy = { navController.navigate(SettingsRoutes.PRIVACY) },
-                    onOpenLicenses = { navController.navigate(SettingsRoutes.LICENSES) },
-                    onLanguageChanged = onLanguageChanged,
-                )
-            }
-            composable(SettingsRoutes.PERMISSIONS) {
-                app.focus.feature.permissions.PermissionsRoute(
-                    onBack = { navController.popBackStack() },
-                )
-            }
-            composable(SettingsRoutes.ALLOWLIST) {
-                AllowlistSettingsScreen(onBack = { navController.popBackStack() })
-            }
-            composable(SettingsRoutes.PROTECTION_INFO) {
-                ProtectionInfoScreen(onBack = { navController.popBackStack() })
-            }
-            composable(SettingsRoutes.PRIVACY) {
-                PrivacyPolicyScreen(onBack = { navController.popBackStack() })
-            }
-            composable(SettingsRoutes.LICENSES) {
-                LicensesScreen(onBack = { navController.popBackStack() })
-            }
-            onboardingGraph(
+            appSettingsAndOnboardingRoutes(
                 navController = navController,
-                onComplete = {
-                    onOnboardingComplete()
-                    navController.navigate(AppRoutes.HOME) {
-                        popUpTo(OnboardingRoutes.WELCOME) { inclusive = true }
-                    }
-                },
-                onSkip = {
-                    onOnboardingComplete()
-                    navController.navigate(AppRoutes.HOME) {
-                        popUpTo(OnboardingRoutes.WELCOME) { inclusive = true }
-                    }
-                },
+                versionName = versionName,
+                onOnboardingComplete = onOnboardingComplete,
+                onLanguageChanged = onLanguageChanged,
             )
         }
     }
@@ -192,10 +151,11 @@ private fun AppBottomBar(
                 icon = {
                     Icon(
                         item.icon,
-                        contentDescription = stringResource(item.contentDescriptionRes),
+                        contentDescription = null,
                     )
                 },
-                label = {},
+                label = { Text(stringResource(item.contentDescriptionRes)) },
+                alwaysShowLabel = false,
                 selected = selected,
                 onClick = { if (!selected) onNavigate(item.route) },
             )
@@ -255,6 +215,7 @@ private fun NavGraphBuilder.homeRoute(
     composable(AppRoutes.HOME) {
         val viewModel: HomeViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsStateWithLifecycle()
+        val loadingDescription = stringResource(R.string.cd_loading)
 
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedContent(
@@ -265,7 +226,11 @@ private fun NavGraphBuilder.homeRoute(
                 modifier = Modifier.fillMaxSize(),
             ) { isLoading ->
                 if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.semantics { contentDescription = loadingDescription },
+                        )
+                    }
                 } else {
                     HomeScreen(
                         uiState = HomeUiState(
@@ -278,10 +243,9 @@ private fun NavGraphBuilder.homeRoute(
                         ),
                         callbacks = HomeScreenCallbacks(
                             onStartSession = { profileId, durationMinutes ->
-                                val resolvedProfileId = profileId
-                                    ?: state.profiles.firstOrNull()?.id
-                                    ?: return@HomeScreenCallbacks
-                                viewModel.startSession(resolvedProfileId, durationMinutes)
+                                navController.navigate(
+                                    SessionRoutes.start(profileId, durationMinutes),
+                                )
                             },
                             onStartPomodoro = { profileId ->
                                 val resolvedProfileId = profileId
@@ -338,13 +302,52 @@ private fun NavGraphBuilder.homeRoute(
     }
 }
 
+private fun NavGraphBuilder.sessionSummaryRoute(navController: NavHostController) {
+    composable(
+        route = SessionRoutes.SESSION_SUMMARY,
+        arguments = listOf(navArgument("sessionId") { type = NavType.StringType }),
+    ) { entry ->
+        val sessionId = entry.arguments?.getString("sessionId") ?: return@composable
+        SessionSummaryRoute(
+            sessionId = sessionId,
+            onBackToHome = {
+                navController.popBackStack(AppRoutes.HOME, inclusive = false)
+            },
+        )
+    }
+}
+
+private fun NavGraphBuilder.startSessionRoute(navController: NavHostController) {
+    composable(
+        route = SessionRoutes.START_SESSION,
+        arguments = listOf(
+            navArgument(SessionRoutes.ARG_PROFILE_ID) {
+                type = NavType.StringType
+                defaultValue = ""
+            },
+            navArgument(SessionRoutes.ARG_DURATION_MINUTES) {
+                type = NavType.IntType
+                defaultValue = DEFAULT_START_DURATION_MINUTES
+            },
+        ),
+    ) {
+        StartSessionRoute(
+            onBack = { navController.popBackStack() },
+            onSessionStarted = {
+                navController.popBackStack(AppRoutes.HOME, inclusive = false)
+            },
+        )
+    }
+}
+
 private fun NavGraphBuilder.profilesRoute(
-    onNavigateToStartSession: (profileId: String?, durationMinutes: Int) -> Unit,
     navController: NavHostController,
 ) {
     composable(AppRoutes.PROFILES) {
         ProfilesRoute(
-            onNavigateToStartSession = onNavigateToStartSession,
+            onNavigateToStartSession = { profileId, durationMinutes ->
+                navController.navigate(SessionRoutes.start(profileId, durationMinutes))
+            },
             onEditProfile = { profileId ->
                 val route = if (profileId == null) {
                     AppRoutes.PROFILES_EDITOR

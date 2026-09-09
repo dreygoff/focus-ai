@@ -13,7 +13,7 @@ import app.focus.database.dao.ProfileAppDao
 import app.focus.database.dao.ScheduleDao
 import app.focus.database.dao.SessionDao
 import app.focus.data.SystemAllowlistQualifier
-import app.focus.data.SharedPrefsScheduleSkipRepository
+import app.focus.datastore.DataStoreScheduleSkipRepository
 import app.focus.domain.usecase.Clock
 import app.focus.domain.usecase.RealClock
 import app.focus.domain.usecase.ScheduleSkipRepository
@@ -79,6 +79,7 @@ object DataModule {
     @Provides
     @Singleton
     fun provideScheduleSkipRepository(
-        repository: SharedPrefsScheduleSkipRepository,
-    ): ScheduleSkipRepository = repository
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
+        clock: Clock,
+    ): ScheduleSkipRepository = DataStoreScheduleSkipRepository(context, clock)
 }

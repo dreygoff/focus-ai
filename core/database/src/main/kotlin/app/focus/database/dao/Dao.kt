@@ -78,6 +78,9 @@ interface SessionDao {
     @Query("UPDATE sessions SET status = :status, actualEndAt = CURRENT_TIMESTAMP WHERE id = :id")
     suspend fun updateStatus(id: String, status: String)
 
+    @Query("SELECT * FROM sessions WHERE id = :id LIMIT 1")
+    suspend fun getSessionById(id: String): SessionEntity?
+
     @Query("SELECT * FROM sessions WHERE startedAt >= :startMillis AND startedAt < :endMillis")
     suspend fun getSessionsStartedInRange(startMillis: Long, endMillis: Long): List<SessionEntity>
 

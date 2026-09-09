@@ -26,13 +26,16 @@ jobs:
         run: ./gradlew :app:assembleDebug
 
       - name: Run unit tests
-        run: ./gradlew testDebugUnitTest
+        run: ./gradlew testDebugUnitTest :core:domain:test
 
       - name: Run lint
         run: ./gradlew lintDebug
 
       - name: Run detekt
         run: ./gradlew detekt
+
+      - name: Run spotless
+        run: ./gradlew spotlessCheck
 
       - name: Build AAB (unsigned)
         if: startsWith(github.ref, 'refs/tags/v')

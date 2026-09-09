@@ -2,6 +2,8 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>MaxLineLength:Models.kt$ActiveSessionSnapshot.Companion$return snapshot != null &amp;&amp; snapshot.sessionId.isNotEmpty() &amp;&amp; snapshot.plannedEndAtMillis &gt; System.currentTimeMillis()</ID>
+    <ID>MaxLineLength:Models.kt$ActiveSessionSnapshot.Companion$snapshot != null &amp;&amp; snapshot.sessionId.isNotEmpty() &amp;&amp; snapshot.plannedEndAtMillis &gt; System.currentTimeMillis()</ID>
+    <ID>MaxLineLength:ProtoActiveSessionSnapshotStorage.kt$ActiveSessionSnapshotSerializer$override suspend fun readFrom(input: InputStream): ActiveSessionSnapshotProto</ID>
+    <ID>MaxLineLength:ProtoUserSettingsRepository.kt$ProtoUserSettingsRepository$override suspend fun isAccessibilityDisclosureAccepted(): Boolean</ID>
   </CurrentIssues>
 </SmellBaseline>

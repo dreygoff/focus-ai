@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import app.focus.notifications.FocusNotificationPoster
 
 object ScheduleNotificationFactory {
 
@@ -36,11 +37,11 @@ object ScheduleNotificationFactory {
             .setAutoCancel(true)
             .build()
 
-        NotificationManagerCompat.from(context).notify(NOTIFICATION_BASE_ID + scheduleId.hashCode(), notification)
+        FocusNotificationPoster.notify(context, NOTIFICATION_BASE_ID + scheduleId.hashCode(), notification)
     }
 
     fun cancelWarning(context: Context, scheduleId: String) {
-        NotificationManagerCompat.from(context).cancel(NOTIFICATION_BASE_ID + scheduleId.hashCode())
+        FocusNotificationPoster.cancel(context, NOTIFICATION_BASE_ID + scheduleId.hashCode())
     }
 
     private fun ensureChannel(context: Context) {

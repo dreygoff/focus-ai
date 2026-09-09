@@ -164,9 +164,9 @@ class SessionEngine(
     /** Check if a package should be blocked. */
     fun checkBlockDecision(packageName: String): BlockDecision {
         val currentState = stateMachine.getState()
-        
+
         // No active session
-        if (currentState !is app.focus.domain.model.SessionStatus.Running && 
+        if (currentState !is app.focus.domain.model.SessionStatus.Running &&
             currentState !is app.focus.domain.model.SessionStatus.Paused) {
             return BlockDecision.Allow
         }
@@ -193,7 +193,7 @@ class SessionEngine(
     /** Handle pomodoro phase end. */
     fun onPomodoroPhaseEnd(phaseName: String): Boolean {
         val planner = pomodoroPlanner ?: return false
-        
+
         val result = stateMachine.execute(SessionEvent.PomodoroPhaseEnd(phaseName))
         return result.newState is app.focus.domain.model.SessionStatus.Running
     }
@@ -255,17 +255,17 @@ class SessionEngine(
         timerJob?.cancel()
         timerJob = engineScope.launch {
             val durationMs = if (durationMinutes > 0) durationMinutes * 60_000L else Long.MAX_VALUE
-            
+
             while (isActive) {
                 delay(1000) // Tick every second
-                
+
                 val remaining = stateMachine.getState()
                 if (remaining !is app.focus.domain.model.SessionStatus.Running) {
                     break
                 }
 
-                val elapsedMs = clock.nowMillis() - (activeSessionId?.let { 
-                    snapshotStore.load()?.plannedEndAtMillis ?: Long.MAX_VALUE 
+                val elapsedMs = clock.nowMillis() - (activeSessionId?.let {
+                    snapshotStore.load()?.plannedEndAtMillis ?: Long.MAX_VALUE
                 } ?: Long.MAX_VALUE - durationMs)
 
                 if (elapsedMs >= durationMs) {
@@ -283,12 +283,12 @@ class SessionEngine(
             engineScope.launch {
                 while (isActive && !planner.isComplete()) {
                     delay(1000) // Tick every second
-                    
+
                     val newPhase = planner.tick()
                     if (newPhase != null) {
                         // Phase changed - notify state machine
                         onPomodoroPhaseEnd(newPhase)
-                        
+
                         // Restart timer for new phase
                         when (newPhase) {
                             "SHORT_BREAK" -> {} // Break timer doesn't block apps

@@ -20,6 +20,10 @@ data class StartSessionRequest(
     val pomodoroConfig: app.focus.domain.model.PomodoroConfig? = null,
     val scheduleId: String? = null,
     val targetPackagesOverride: List<String>? = null,
+    /** Absolute end time; overrides [durationMinutes] when set (FR-21 «до времени»). */
+    val plannedEndAtMillis: Long? = null,
+    /** Soft lock only — session runs until manually stopped (FR-21 «бесконечно»). */
+    val infinite: Boolean = false,
 )
 
 class StartSessionUseCase(
@@ -37,7 +41,7 @@ class StartSessionUseCase(
             ?: throw IllegalArgumentException("Profile not found: ${request.profileId}")
 
         val startedAt = clock.nowMillis()
-        val plannedEndAt = startedAt + request.durationMinutes * 60L * 1000L
+        val plannedEndAt = resolvePlannedEndAt(startedAt, request, profile)
         val targetPackages = request.targetPackagesOverride ?: profile.targetPackageNames
 
         val session = buildSession(request, profile, startedAt, plannedEndAt, targetPackages)
@@ -63,12 +67,12 @@ class StartSessionUseCase(
         }
 
         schedulePomodoroPhaseAlarm(session.id, request.pomodoroConfig, phaseEndAt)
-        val alarmScheduled = scheduleSessionEndAlarm(session.id, plannedEndAt)
+        val alarmScheduled = plannedEndAt?.let { endAt -> scheduleSessionEndAlarm(session.id, endAt) } ?: false
 
         sessionRuntime.onSessionStarted(
             sessionId = session.id,
             profileName = profile.name,
-            plannedEndAtMillis = plannedEndAt,
+            plannedEndAtMillis = plannedEndAt ?: 0L,
         )
 
         StartSessionResult(session, alarmScheduled)
@@ -78,7 +82,7 @@ class StartSessionUseCase(
         request: StartSessionRequest,
         profile: app.focus.domain.model.Profile,
         startedAt: Long,
-        plannedEndAt: Long,
+        plannedEndAt: Long?,
         targetPackages: List<String>,
     ): app.focus.domain.model.Session = app.focus.domain.model.Session(
         id = UUID.randomUUID().toString(),
@@ -99,14 +103,24 @@ class StartSessionUseCase(
         scheduleId = request.scheduleId,
     )
 
+    private fun resolvePlannedEndAt(
+        startedAt: Long,
+        request: StartSessionRequest,
+        profile: app.focus.domain.model.Profile,
+    ): Long? = when {
+        request.infinite && profile.lockMode is app.focus.domain.model.LockMode.Soft -> null
+        request.plannedEndAtMillis != null -> request.plannedEndAtMillis
+        else -> startedAt + request.durationMinutes * 60L * 1000L
+    }
+
     private fun pomodoroPhaseEndAt(
         startedAt: Long,
         pomodoroConfig: app.focus.domain.model.PomodoroConfig?,
-        plannedEndAt: Long,
+        plannedEndAt: Long?,
     ): Long = if (pomodoroConfig != null) {
         startedAt + pomodoroConfig.focusMinutes * 60L * 1000L
     } else {
-        plannedEndAt
+        plannedEndAt ?: 0L
     }
 
     private data class SnapshotWrite(
@@ -240,7 +254,7 @@ class GetStatsUseCase(
             val endDate = clock.nowMillis()
 
             val dailyStats = sessionRepo.getStatsDaily(startDate, days)
-            
+
             val summary = StatsSummary(
                 sessionsCompleted = dailyStats.sumOf { it.sessionsCompleted },
                 totalFocusMinutes = dailyStats.sumOf { it.focusMinutes },
@@ -294,7 +308,8 @@ class DecideBlockUseCase(
     private val systemAllowlist: () -> Set<String>,
     private val userAllowlistRepo: AllowlistRepository,
     private val accessWindowRepo: AccessWindowRepository,
-    private val sessionState: () -> SessionCheckState
+    private val sessionState: () -> SessionCheckState,
+    private val inCallDialerPackage: () -> String? = { null },
 ) {
     data class SessionCheckState(
         val hasActiveSession: Boolean,
@@ -315,13 +330,18 @@ class DecideBlockUseCase(
         val fullAllowlist = systemAllowlist() + userAllowlistRepo.observeAllowlist().first()
         if (fullAllowlist.contains(packageName)) return app.focus.domain.model.BlockDecision.Allow
 
-        // 3. Active access window for this package
+        // 3. Active phone call — allow default dialer (US-08 / TR-06)
+        inCallDialerPackage()?.let { dialer ->
+            if (packageName == dialer) return app.focus.domain.model.BlockDecision.Allow
+        }
+
+        // 4. Active access window for this package
         sessionState().sessionId?.let { sid ->
             val windows = accessWindowRepo.observeActiveWindows(sid).first()
             if (windows.containsKey(packageName)) return app.focus.domain.model.BlockDecision.Allow
         }
 
-        // 4. Package is a target of active session OR hard lock extra
+        // 5. Package is a target of active session OR hard lock extra
         if (state.targetPackages.contains(packageName) ||
             (state.isHardLock && state.hardLockExtraPackages.contains(packageName))) {
             return app.focus.domain.model.BlockDecision.Block(
@@ -334,7 +354,7 @@ class DecideBlockUseCase(
             )
         }
 
-        // 5. Otherwise allow
+        // 6. Otherwise allow
         return app.focus.domain.model.BlockDecision.Allow
     }
 }

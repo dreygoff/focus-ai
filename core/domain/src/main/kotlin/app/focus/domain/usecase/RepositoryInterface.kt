@@ -7,6 +7,7 @@ interface SessionRepository {
     suspend fun update(session: app.focus.domain.model.Session)
     fun observeActiveSession(): Flow<app.focus.domain.model.Session?>
     fun observeSessions(startDate: Long, endDate: Long): Flow<List<app.focus.domain.model.Session>>
+    suspend fun getSession(id: String): app.focus.domain.model.Session?
     suspend fun getStatsDaily(startDate: Long, days: Int): List<app.focus.domain.model.DailyStats>
     suspend fun cancelOldEvents(beforeMillis: Long)
     suspend fun exportStatsCsv(startDate: Long, endDate: Long): String
@@ -44,6 +45,7 @@ interface AccessWindowRepository {
         packageName: String,
         reason: String?,
         durationMinutes: Int,
+        restrictedToActivity: String? = null,
     ): Long
     suspend fun revoke(packageName: String)
     fun observeActiveWindows(sessionId: String): Flow<Map<String, app.focus.domain.model.AccessWindow>>

@@ -26,7 +26,7 @@ class DefaultUsageStatsPollingDetector(
 
     private var running = false
     private var lastPkg: String? = null
-    
+
     // Adaptive interval: 300ms initially, then 700-1000ms
     private var pollIntervalMs: Long = 1000
 
@@ -34,18 +34,18 @@ class DefaultUsageStatsPollingDetector(
     override fun start() {
         if (running) return
         running = true
-        
+
         android.os.Handler(android.os.Looper.getMainLooper()).post(object : Runnable {
             override fun run() {
                 if (!running) return
-                
+
                 try {
                     val now = System.currentTimeMillis()
                     val statsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return
-                    
+
                     // Query events from last 2000ms
                     val eventsList = statsManager.queryEvents(now - 2000, now)
-                    
+
                     var foundPkg: String? = null
                     val usageEvent = UsageEvents.Event()
                     while (eventsList.hasNextEvent()) {
@@ -59,7 +59,7 @@ class DefaultUsageStatsPollingDetector(
                             }
                         }
                     }
-                    
+
                     if (foundPkg != null && foundPkg != lastPkg) {
                         lastPkg = foundPkg
                         _events.tryEmit(FocusEvent(
@@ -73,9 +73,9 @@ class DefaultUsageStatsPollingDetector(
                         // Slow down polling
                         pollIntervalMs = kotlin.math.min(pollIntervalMs + 200, 1000)
                     }
-                    
+
                 } catch (_: Exception) {}
-                
+
                 if (running) {
                     android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(this, pollIntervalMs)
                 }
@@ -92,6 +92,6 @@ class DefaultUsageStatsPollingDetector(
         running = false
     }
 
-    private fun isFocusProcess(pkg: String): Boolean = 
+    private fun isFocusProcess(pkg: String): Boolean =
         pkg == context.packageName || pkg.contains("com.android.systemui")
 }

@@ -6,12 +6,26 @@
     <string name="onboarding_start">Get started</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_cd_next">Continue</string>
+    <string name="onboarding_cd_hero">Focus app illustration</string>
     <string name="onboarding_back">Back</string>
     <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_step">Step %1$d of %2$d</string>
+    <string name="onboarding_cd_step">Onboarding step %1$d of %2$d</string>
 
     <string name="onboarding_pick_apps_title">Choose apps to block</string>
-    <string name="onboarding_pick_apps_search">Search apps…</string>
+    <string name="onboarding_pick_apps_search">Search apps</string>
     <string name="onboarding_pick_apps_recommended">Recommended</string>
+    <string name="onboarding_pick_apps_sort_alpha">A–Z</string>
+    <string name="onboarding_pick_apps_sort_usage">By usage</string>
+    <string name="onboarding_pick_apps_selected_count">Selected: %1$d</string>
+    <string name="onboarding_pick_apps_system_section">System apps</string>
+    <string name="onboarding_pick_apps_allowlisted">Always allowed — cannot block</string>
+    <string name="onboarding_pick_apps_empty">No apps found. Try another search.</string>
+    <string name="onboarding_pick_apps_cd_selected">%1$s, selected</string>
+    <string name="onboarding_pick_apps_cd_not_selected">%1$s, not selected</string>
+    <string name="onboarding_pick_apps_cd_expand_system">Show system apps</string>
+    <string name="onboarding_pick_apps_cd_collapse_system">Hide system apps</string>
+    <string name="onboarding_cd_loading_apps">Loading installed apps</string>
 
     <string name="onboarding_permissions_title">Enable permissions</string>
     <string name="onboarding_permissions_body">Focus needs several permissions to work properly. We\'ll guide you through them.</string>
@@ -20,7 +34,8 @@
     <string name="onboarding_cd_permissions">Permissions</string>
 
     <string name="onboarding_first_profile_title">Create your first profile</string>
-    <string name="onboarding_first_profile_body">A profile groups blocking rules. Start with \"Deep Work\" or customize your own.</string>
+    <string name="onboarding_first_profile_body">We\'ll set up the \"Deep Work\" profile with the apps you selected. You can customize it later in Profiles.</string>
+    <string name="onboarding_first_profile_selected">%1$d apps will be blocked in this profile</string>
     <string name="onboarding_create_deep_work">Create Deep Work profile</string>
     <string name="onboarding_skip_for_now">Skip for now</string>
 </resources>

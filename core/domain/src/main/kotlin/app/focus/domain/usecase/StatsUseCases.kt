@@ -72,6 +72,22 @@ class PruneEventLogUseCase(
     }
 }
 
+class GetCurrentStreakUseCase(
+    private val statsRepository: StatsRepository,
+    private val clock: Clock,
+) {
+    suspend fun execute(): Int = withContext(Dispatchers.IO) {
+        val today = EpochDays.fromMillis(clock.nowMillis())
+        val lookbackStart = today - STREAK_LOOKBACK_DAYS
+        val stats = statsRepository.getDailyStats(lookbackStart, today)
+        StatsAggregator.computeStreaks(stats, today).current
+    }
+
+    companion object {
+        private const val STREAK_LOOKBACK_DAYS = 90L
+    }
+}
+
 class GetStatsDashboardUseCase(
     private val statsRepository: StatsRepository,
     private val clock: Clock,

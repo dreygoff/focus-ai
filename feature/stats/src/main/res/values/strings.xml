@@ -28,4 +28,6 @@
     <string name="stats_filter_bypasses">Bypasses</string>
     <string name="stats_no_events">No events</string>
     <string name="stats_cd_kpi">Statistics summary</string>
+    <string name="stats_cd_kpi_card">%1$s: %2$s</string>
+    <string name="stats_cd_loading">Loading statistics</string>
 </resources>

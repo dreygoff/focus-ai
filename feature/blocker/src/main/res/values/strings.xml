@@ -22,8 +22,16 @@
     <string name="block_open_app">Open app</string>
     <string name="block_open_focus">Open Focus</string>
     <string name="block_emergency_exit">Emergency exit</string>
+    <string name="block_allowed_settings">Allowed settings (60 s)</string>
+    <string name="block_shortcut_wifi">Wi‑Fi</string>
+    <string name="block_shortcut_bluetooth">Bluetooth</string>
+    <string name="block_shortcut_sound">Sound</string>
+    <string name="block_shortcut_notifications">Notifications</string>
+    <string name="block_shortcut_cellular">Mobile data</string>
     <string name="block_emergency_delay">Session ends in %1$d min</string>
     <string name="block_emergency_cancel">Cancel emergency exit</string>
     <string name="block_emergency_retype_title">Retype the text exactly to end session</string>
     <string name="block_cd_blocked">App blocked</string>
+    <string name="block_cd_bypass_delay">Bypass wait, %1$d seconds remaining</string>
+    <string name="block_cd_breathing">Breathing exercise, cycle %1$d, %2$s</string>
 </resources>

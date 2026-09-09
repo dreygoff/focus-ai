@@ -32,33 +32,36 @@ class FocusNotificationChannelManager(
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Session channel — low importance, ongoing during focus
-        val sessionChannel = NotificationChannel(
-            NotificationChannels.SESSION,
-            "Focus Session",
-            NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            description = "Notifications for active focus sessions"
-            setShowBadge(false)
-            enableVibration(false)
-        }
+        val sessionChannel =
+            NotificationChannel(
+                NotificationChannels.SESSION,
+                "Focus Session",
+                NotificationManager.IMPORTANCE_LOW,
+            ).apply {
+                description = "Notifications for active focus sessions"
+                setShowBadge(false)
+                enableVibration(false)
+            }
 
         // Alerts channel — for countdown warnings and access window expiry
-        val alertsChannel = NotificationChannel(
-            NotificationChannels.ALERTS,
-            "Focus Alerts",
-            NotificationManager.IMPORTANCE_DEFAULT
-        ).apply {
-            description = "Alerts about focus sessions (access window expiry, pomodoro breaks)"
-        }
+        val alertsChannel =
+            NotificationChannel(
+                NotificationChannels.ALERTS,
+                "Focus Alerts",
+                NotificationManager.IMPORTANCE_DEFAULT,
+            ).apply {
+                description = "Alerts about focus sessions (access window expiry, pomodoro breaks)"
+            }
 
         // Summary channel — for session completion summaries
-        val summaryChannel = NotificationChannel(
-            NotificationChannels.SUMMARY,
-            "Focus Summary",
-            NotificationManager.IMPORTANCE_DEFAULT
-        ).apply {
-            description = "Session completion summaries"
-        }
+        val summaryChannel =
+            NotificationChannel(
+                NotificationChannels.SUMMARY,
+                "Focus Summary",
+                NotificationManager.IMPORTANCE_DEFAULT,
+            ).apply {
+                description = "Session completion summaries"
+            }
 
         manager.createNotificationChannel(sessionChannel)
         manager.createNotificationChannel(alertsChannel)
@@ -75,22 +78,29 @@ class SessionNotificationBuilder(
     private val context: Context,
     private val channelName: String = NotificationChannels.SESSION,
 ) {
-    private val builder = NotificationCompat.Builder(context, channelName)
-        .setSmallIcon(android.R.drawable.ic_menu_recent_history) // TODO: Replace with actual app icon
-        .setOngoing(true)
-        .setOnlyAlertOnce(true)
-        .setShowWhen(false)
+    private val builder =
+        NotificationCompat
+            .Builder(context, channelName)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_lock)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setShowWhen(false)
 
     /** Set the session profile name. */
     fun setProfileName(name: String): SessionNotificationBuilder {
-        builder.setContentTitle(name)
+        builder
+            .setContentTitle(name)
             .setContentText("Focus session active")
         return this
     }
 
     /** Set remaining time as chronometer. */
-    fun setChronometer(whenMills: Long, counter: Boolean = true): SessionNotificationBuilder {
-        builder.setWhen(whenMills)
+    fun setChronometer(
+        whenMills: Long,
+        counter: Boolean = true,
+    ): SessionNotificationBuilder {
+        builder
+            .setWhen(whenMills)
             .setShowWhen(counter)
             .setUsesChronometer(counter)
         return this
@@ -108,7 +118,7 @@ class SessionNotificationBuilder(
             builder.addAction(
                 android.R.drawable.ic_menu_close_clear_cancel,
                 "Complete",
-                it
+                it,
             )
         }
         return this
@@ -120,7 +130,7 @@ class SessionNotificationBuilder(
             builder.addAction(
                 android.R.drawable.ic_menu_info_details,
                 "Open",
-                it
+                it,
             )
         }
         return this

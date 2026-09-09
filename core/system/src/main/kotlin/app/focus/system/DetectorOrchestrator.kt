@@ -19,7 +19,8 @@ import kotlinx.coroutines.launch
 data class FocusEvent(
     val packageName: String,
     val appName: String,
-    val timestampMillis: Long = System.currentTimeMillis()
+    val activityClassName: String? = null,
+    val timestampMillis: Long = System.currentTimeMillis(),
 ) {
     enum class EventType { APP_FOREGROUND, APP_BACKGROUND }
 }

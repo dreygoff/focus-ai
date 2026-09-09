@@ -57,6 +57,13 @@ object StatsModule {
     )
 
     @Provides
+    fun provideGetCurrentStreakUseCase(
+        statsRepository: StatsRepository,
+        clock: Clock,
+    ): app.focus.domain.usecase.GetCurrentStreakUseCase =
+        app.focus.domain.usecase.GetCurrentStreakUseCase(statsRepository, clock)
+
+    @Provides
     fun provideGetStatsDashboardUseCase(
         statsRepository: StatsRepository,
         clock: Clock,

@@ -14,6 +14,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import app.focus.notifications.FocusNotificationPoster
 
 @AndroidEntryPoint
 class FocusForegroundService : Service() {
@@ -42,6 +43,7 @@ class FocusForegroundService : Service() {
                 blockLauncher = deps.blockLauncher,
                 eventLogRepository = deps.eventLogRepository,
                 sessionRepository = deps.sessionRepository,
+                accessWindowRepository = deps.accessWindowRepository,
                 blockState = deps.activeSessionBlockState,
                 clock = deps.clock,
                 appPackageName = packageName,
@@ -185,8 +187,7 @@ class FocusForegroundService : Service() {
                     phaseEndAtMillis = snapshot?.phaseEndAtMillis ?: 0L,
                 ),
             ).build()
-            androidx.core.app.NotificationManagerCompat.from(this@FocusForegroundService)
-                .notify(NOTIF_ID, notification)
+            FocusNotificationPoster.notify(this@FocusForegroundService, NOTIF_ID, notification)
 
             if (snapshot?.isPomodoro == true) {
                 val phase = snapshot.currentPhase
@@ -212,6 +213,7 @@ class FocusForegroundService : Service() {
                     detectedAtMillis = event.timestampMillis,
                     profileName = profileName,
                     plannedEndAtMillis = plannedEndAtMillis,
+                    activityClassName = event.activityClassName,
                 )
             }
         }

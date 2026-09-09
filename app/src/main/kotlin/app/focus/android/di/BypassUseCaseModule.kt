@@ -6,10 +6,12 @@ import app.focus.domain.usecase.AlarmSchedulerService
 import app.focus.domain.usecase.Clock
 import app.focus.domain.usecase.EventLogRepository
 import app.focus.domain.usecase.GrantBypassUseCase
+import app.focus.domain.usecase.GrantSettingsShortcutUseCase
 import app.focus.domain.usecase.PauseSessionUseCase
 import app.focus.domain.usecase.ProfileRepository
 import app.focus.domain.usecase.ResumeSessionUseCase
 import app.focus.domain.usecase.SessionRepository
+import app.focus.domain.usecase.SettingsShortcutGateway
 import app.focus.domain.usecase.StopSessionUseCase
 import dagger.Module
 import dagger.Provides
@@ -31,6 +33,23 @@ object BypassUseCaseModule {
         accessWindowRepo = accessWindowRepository,
         sessionRepo = sessionRepository,
         eventLogRepo = eventLogRepository,
+        alarmScheduler = alarmScheduler,
+        clock = clock,
+    )
+
+    @Provides
+    fun provideGrantSettingsShortcutUseCase(
+        accessWindowRepository: AccessWindowRepository,
+        sessionRepository: SessionRepository,
+        profileRepository: ProfileRepository,
+        shortcutGateway: SettingsShortcutGateway,
+        alarmScheduler: AlarmSchedulerService,
+        clock: Clock,
+    ): GrantSettingsShortcutUseCase = GrantSettingsShortcutUseCase(
+        accessWindowRepo = accessWindowRepository,
+        sessionRepo = sessionRepository,
+        profileRepo = profileRepository,
+        shortcutGateway = shortcutGateway,
         alarmScheduler = alarmScheduler,
         clock = clock,
     )

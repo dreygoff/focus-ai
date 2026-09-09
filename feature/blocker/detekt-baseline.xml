@@ -4,16 +4,19 @@
   <CurrentIssues>
     <ID>FunctionNaming:BlockActivity.kt$@Composable private fun BlockActivityContent(viewModel: BlockViewModel)</ID>
     <ID>FunctionNaming:BlockScreen.kt$@Composable fun BlockScreen( state: BlockUiState, onAction: (BlockAction) -&gt; Unit, )</ID>
-    <ID>FunctionNaming:BlockScreen.kt$@Composable private fun BlockHeader(state: BlockUiState)</ID>
     <ID>FunctionNaming:BlockScreen.kt$@Composable private fun BlockMainActions( state: BlockUiState, onAction: (BlockAction) -&gt; Unit, )</ID>
     <ID>FunctionNaming:BlockScreen.kt$@Composable private fun BypassGrantedContent(onAction: (BlockAction) -&gt; Unit)</ID>
     <ID>FunctionNaming:BlockScreen.kt$@Composable private fun BypassStepContent( step: BypassState, onAction: (BlockAction) -&gt; Unit, )</ID>
     <ID>FunctionNaming:BlockScreen.kt$@Composable private fun EmergencyExitContent( step: EmergencyExitStep, onAction: (BlockAction) -&gt; Unit, )</ID>
     <ID>FunctionNaming:BlockScreen.kt$@Composable private fun EmergencyRetypeStep( step: EmergencyExitStep.Retype, onAction: (BlockAction) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:BlockScreen.kt$@Composable private fun HardLockSettingsShortcuts( shortcuts: Set&lt;SettingsShortcut&gt;, onShortcut: (SettingsShortcut) -&gt; Unit, )</ID>
     <ID>FunctionNaming:BlockScreen.kt$@Composable private fun PhraseStep( step: BypassState.Phrase, onAction: (BlockAction) -&gt; Unit, )</ID>
     <ID>FunctionNaming:BlockScreen.kt$@Composable private fun ReasonStep( step: BypassState.Reason, onAction: (BlockAction) -&gt; Unit, )</ID>
-    <ID>LongParameterList:BlockViewModel.kt$BlockViewModel$( @ApplicationContext private val context: Context, private val profileRepository: ProfileRepository, private val sessionRepository: SessionRepository, private val grantBypassUseCase: GrantBypassUseCase, private val requestEmergencyExitUseCase: RequestEmergencyExitUseCase, private val cancelEmergencyExitUseCase: CancelEmergencyExitUseCase, private val completeEmergencyExitUseCase: CompleteEmergencyExitUseCase, private val eventLogRepository: EventLogRepository, private val clock: Clock, )</ID>
+    <ID>FunctionNaming:BlockScreenHeader.kt$@Composable internal fun BlockHeader(state: BlockUiState)</ID>
+    <ID>FunctionNaming:BlockScreenHeader.kt$@Composable private fun BlockHeaderDetails(state: BlockUiState, remainingMinutes: Long)</ID>
+    <ID>LongParameterList:BlockViewModel.kt$BlockViewModel$( @ApplicationContext private val context: Context, private val profileRepository: ProfileRepository, private val sessionRepository: SessionRepository, private val grantBypassUseCase: GrantBypassUseCase, private val grantSettingsShortcutUseCase: GrantSettingsShortcutUseCase, private val requestEmergencyExitUseCase: RequestEmergencyExitUseCase, private val cancelEmergencyExitUseCase: CancelEmergencyExitUseCase, private val completeEmergencyExitUseCase: CompleteEmergencyExitUseCase, private val eventLogRepository: EventLogRepository, private val userSettingsRepository: UserSettingsRepository, private val clock: Clock, )</ID>
     <ID>TooGenericExceptionCaught:OverlayBlocker.kt$OverlayBlocker$e: Exception</ID>
+    <ID>TooManyFunctions:BlockScreen.kt$app.focus.feature.blocker.BlockScreen.kt</ID>
     <ID>TooManyFunctions:BlockViewModel.kt$BlockViewModel : ViewModel</ID>
   </CurrentIssues>
 </SmellBaseline>

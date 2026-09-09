@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.focus.domain.model.LockMode
 import app.focus.domain.model.Profile
+import app.focus.domain.model.SettingsShortcut
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +55,15 @@ fun ProfileEditorScreen(
     }
     var duration by remember(loadedProfile?.id) {
         mutableIntStateOf(loadedProfile?.defaultDurationMinutes ?: 25)
+    }
+    var deviceAdminProtection by remember(loadedProfile?.id) {
+        mutableStateOf(loadedProfile?.deviceAdminProtection ?: (lockMode is LockMode.Hard))
+    }
+    var blockNewApps by remember(loadedProfile?.id) {
+        mutableStateOf(loadedProfile?.blockNewApps ?: (lockMode is LockMode.Hard))
+    }
+    var allowedShortcuts by remember(loadedProfile?.id) {
+        mutableStateOf(loadedProfile?.allowedSettingsShortcuts ?: emptySet())
     }
 
     Scaffold(
@@ -144,6 +154,22 @@ fun ProfileEditorScreen(
                 )
             }
 
+            if (lockMode is LockMode.Hard) {
+                ProfileHardLockOptionsSection(
+                    deviceAdminProtection = deviceAdminProtection,
+                    blockNewApps = blockNewApps,
+                    allowedShortcuts = allowedShortcuts,
+                    editingLocked = editingLocked,
+                    onDeviceAdminProtectionChange = { deviceAdminProtection = it },
+                    onBlockNewAppsChange = { blockNewApps = it },
+                    onToggleShortcut = { shortcut ->
+                        allowedShortcuts = allowedShortcuts.toMutableSet().apply {
+                            if (contains(shortcut)) remove(shortcut) else add(shortcut)
+                        }
+                    },
+                )
+            }
+
             Spacer(Modifier.weight(1f))
 
             Button(
@@ -153,6 +179,9 @@ fun ProfileEditorScreen(
                         name = name,
                         lockMode = lockMode,
                         duration = duration,
+                        deviceAdminProtection = deviceAdminProtection,
+                        blockNewApps = blockNewApps,
+                        allowedShortcuts = allowedShortcuts,
                         loadedProfile = loadedProfile,
                     )
                     viewModel.save(profile)
@@ -172,6 +201,9 @@ private fun buildProfile(
     name: String,
     lockMode: LockMode,
     duration: Int,
+    deviceAdminProtection: Boolean,
+    blockNewApps: Boolean,
+    allowedShortcuts: Set<SettingsShortcut>,
     loadedProfile: Profile?,
 ): Profile = Profile(
     id = profileId,
@@ -188,9 +220,9 @@ private fun buildProfile(
     accessWindowMinutes = loadedProfile?.accessWindowMinutes ?: 5,
     bypassAppliesToAllApps = loadedProfile?.bypassAppliesToAllApps ?: false,
     emergencyExitMode = loadedProfile?.emergencyExitMode ?: app.focus.domain.model.EmergencyExitMode.NONE,
-    blockNewApps = loadedProfile?.blockNewApps ?: (lockMode is LockMode.Hard),
-    deviceAdminProtection = loadedProfile?.deviceAdminProtection ?: (lockMode is LockMode.Hard),
-    allowedSettingsShortcuts = loadedProfile?.allowedSettingsShortcuts ?: emptySet(),
+    blockNewApps = if (lockMode is LockMode.Hard) blockNewApps else loadedProfile?.blockNewApps ?: false,
+    deviceAdminProtection = if (lockMode is LockMode.Hard) deviceAdminProtection else false,
+    allowedSettingsShortcuts = if (lockMode is LockMode.Hard) allowedShortcuts else emptySet(),
     hideTargetNotifications = loadedProfile?.hideTargetNotifications ?: false,
     targetPackageNames = loadedProfile?.targetPackageNames ?: emptyList(),
 )

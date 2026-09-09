@@ -32,7 +32,14 @@
     <string name="settings_delete_all">Delete all data</string>
     <string name="settings_delete_all_confirm">Delete profiles, schedules, statistics, and allowlist entries? Default profiles will be restored. This cannot be undone.</string>
     <string name="settings_stats_cleared">Statistics cleared.</string>
+    <string name="settings_stats_cleared_title">Statistics cleared</string>
     <string name="settings_data_deleted">All data deleted. Default profiles restored.</string>
+    <string name="settings_data_deleted_title">Data deleted</string>
+    <string name="settings_error_title">Error</string>
+    <string name="settings_switch_on">On</string>
+    <string name="settings_switch_off">Off</string>
+    <string name="settings_cd_switch">%1$s, %2$s</string>
+    <string name="settings_cd_version">Version %1$s</string>
     <string name="settings_section_about">About</string>
     <string name="settings_version">Version</string>
     <string name="settings_privacy_title">Privacy policy</string>
@@ -44,5 +51,14 @@
     <string name="protection_info_body">Hard lock adds Settings, installers, and other launchers to the block list for the session. Focus uses accessibility and usage stats to detect foreground apps and show the block screen quickly.</string>
     <string name="protection_info_limitations_title">What cannot be blocked</string>
     <string name="protection_info_limitations_body">Safe mode, ADB, factory reset, and secondary users can bypass any non-system app. Focus does not claim otherwise — these limits are by design on standard Android.</string>
+    <string name="protection_device_admin_title">Device admin</string>
+    <string name="protection_device_admin_active">Device admin is active. It helps protect hard lock sessions from launcher and settings bypass.</string>
+    <string name="protection_device_admin_inactive">Device admin is not active.</string>
+    <string name="protection_device_admin_deactivate">Deactivate device admin</string>
+    <string name="protection_device_admin_open_settings">Open device admin settings</string>
     <string name="settings_protection_link">How protection works</string>
+    <string name="settings_diagnostics_title">Diagnostics</string>
+    <string name="settings_diagnostics_hint">Block latency (detect → shown) from recent sessions. TR-03 hidden screen.</string>
+    <string name="settings_diagnostics_empty">No latency events recorded yet.</string>
+    <string name="settings_diagnostics_row">%1$s — %2$d ms</string>
 </resources>

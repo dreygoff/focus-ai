@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         minSdk = 26
-        
+
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
@@ -28,10 +28,10 @@ android {
 dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:common"))
-    
+
     api(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    
+
     implementation(libs.com.google.dagger.hilt.android)
     ksp(libs.com.google.dagger.hilt.compiler)
     implementation(libs.kotlinx.coroutines.core)

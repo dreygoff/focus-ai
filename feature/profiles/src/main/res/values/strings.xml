@@ -32,4 +32,20 @@
     <string name="app_picker_back">Back</string>
     <string name="app_picker_cd_expand_system">Show system apps</string>
     <string name="app_picker_cd_collapse_system">Hide system apps</string>
+    <string name="app_picker_cd_app_selected">%1$s, selected</string>
+    <string name="app_picker_cd_app_not_selected">%1$s, not selected</string>
+    <string name="profile_editor_hard_options">Hard lock options</string>
+    <string name="profile_editor_device_admin">Device admin protection</string>
+    <string name="profile_editor_device_admin_hint">Requires device admin during hard lock sessions to reduce bypass via launchers and settings.</string>
+    <string name="profile_editor_block_new_apps">Block newly installed apps</string>
+    <string name="profile_editor_block_new_apps_hint">Automatically add new installs to this profile while a hard lock session is active.</string>
+    <string name="profile_editor_settings_shortcuts">Allowed quick settings</string>
+    <string name="profile_shortcut_wifi">Wi‑Fi</string>
+    <string name="profile_shortcut_bluetooth">Bluetooth</string>
+    <string name="profile_shortcut_sound">Sound</string>
+    <string name="profile_shortcut_notifications">Notifications</string>
+    <string name="profile_shortcut_cellular">Mobile data</string>
+    <string name="profile_editor_switch_on">On</string>
+    <string name="profile_editor_switch_off">Off</string>
+    <string name="profile_editor_cd_switch">%1$s, %2$s</string>
 </resources>

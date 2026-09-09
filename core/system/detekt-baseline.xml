@@ -23,6 +23,7 @@
     <ID>MaxLineLength:PermissionChecker.kt$PermissionChecker$permissionState(ID_NOTIFICATIONS, PermissionGrantChecks.notificationsGranted(context), PermissionType.RECOMMENDED)</ID>
     <ID>MaxLineLength:UsageStatsPollingDetector.kt$DefaultUsageStatsPollingDetector.&lt;no name provided&gt;$val statsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return</ID>
     <ID>MaxLineLength:VendorHintsProvider.kt$VendorHintsProvider$"HUAWEI" -&gt; "To allow Focus to work correctly, please add it to the Protected apps list in Huawei battery optimization settings."</ID>
+    <ID>ReturnCount:AndroidSettingsShortcutGateway.kt$AndroidSettingsShortcutGateway$override fun resolve(shortcut: SettingsShortcut): SettingsShortcutTarget?</ID>
     <ID>ReturnCount:HardLockEnforcer.kt$HardLockEnforcer$@SuppressLint("WrongConstant") fun canBlockLauncherSwitching(): Boolean</ID>
     <ID>ReturnCount:HardLockEnforcer.kt$HardLockEnforcer$fun shouldBlockEvent(intent: Intent): Boolean</ID>
     <ID>ReturnCount:HardLockEnforcer.kt$HardLockEnforcer$fun shouldBlockPackage(packageName: String): Boolean</ID>

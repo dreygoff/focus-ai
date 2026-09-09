@@ -9,7 +9,7 @@ import app.focus.domain.model.PomodoroConfig
 /**
  * Pure Kotlin session state machine implementing Section 10 of the spec.
  * Handles all transitions between session statuses with side effects.
- * 
+ *
  * Invariants:
  * - Only one RUNNING/PAUSED at a time
  * - HARD mode cannot have Pause or StopRequested transitions

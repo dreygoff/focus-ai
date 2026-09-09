@@ -10,6 +10,7 @@ internal class ForegroundEventBusAccessibilityDetector : AccessibilityDetector {
         FocusEvent(
             packageName = event.packageName,
             appName = event.className.orEmpty(),
+            activityClassName = event.className,
             timestampMillis = System.currentTimeMillis(),
         )
     }

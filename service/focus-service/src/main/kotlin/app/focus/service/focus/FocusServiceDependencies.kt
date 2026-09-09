@@ -1,5 +1,6 @@
 package app.focus.service.focus
 
+import app.focus.domain.usecase.AccessWindowRepository
 import app.focus.domain.usecase.ActiveSessionBlockState
 import app.focus.domain.usecase.ActiveSessionSnapshotStorage
 import app.focus.domain.usecase.AlarmSchedulerService
@@ -25,5 +26,6 @@ class FocusServiceDependencies(
     val decideBlockUseCase: DecideBlockUseCase,
     val blockLauncher: BlockLauncher,
     val eventLogRepository: EventLogRepository,
+    val accessWindowRepository: AccessWindowRepository,
     val activeSessionBlockState: ActiveSessionBlockState,
 )

@@ -5,12 +5,14 @@ import android.content.Intent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.focus.datastore.UserSettingsRepository
 import app.focus.domain.model.BypassState
 import app.focus.domain.model.EmergencyExitStep
 import app.focus.domain.model.EventLog
 import app.focus.domain.model.EventType
 import app.focus.domain.model.LockMode
 import app.focus.domain.model.Profile
+import app.focus.domain.model.SettingsShortcut
 import app.focus.domain.model.SessionStatus
 import app.focus.domain.model.bypassflow.BypassFlow
 import app.focus.domain.usecase.CancelEmergencyExitUseCase
@@ -18,6 +20,7 @@ import app.focus.domain.usecase.Clock
 import app.focus.domain.usecase.CompleteEmergencyExitUseCase
 import app.focus.domain.usecase.EventLogRepository
 import app.focus.domain.usecase.GrantBypassUseCase
+import app.focus.domain.usecase.GrantSettingsShortcutUseCase
 import app.focus.domain.usecase.ProfileRepository
 import app.focus.domain.usecase.RequestEmergencyExitUseCase
 import app.focus.domain.usecase.SessionRepository
@@ -39,10 +42,12 @@ class BlockViewModel @Inject constructor(
     private val profileRepository: ProfileRepository,
     private val sessionRepository: SessionRepository,
     private val grantBypassUseCase: GrantBypassUseCase,
+    private val grantSettingsShortcutUseCase: GrantSettingsShortcutUseCase,
     private val requestEmergencyExitUseCase: RequestEmergencyExitUseCase,
     private val cancelEmergencyExitUseCase: CancelEmergencyExitUseCase,
     private val completeEmergencyExitUseCase: CompleteEmergencyExitUseCase,
     private val eventLogRepository: EventLogRepository,
+    private val userSettingsRepository: UserSettingsRepository,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -64,6 +69,8 @@ class BlockViewModel @Inject constructor(
             targetPackages = session?.targetPackagesSnapshot ?: emptyList()
             val bypassConfig = loadedProfile?.toBypassFlowConfig()
             val remaining = loadedProfile?.let { bypassesRemaining(it, args.bypassesUsed) } ?: 0
+            val quotesEnabled = userSettingsRepository.getQuotesEnabled().firstOrNull() ?: true
+            val quote = if (quotesEnabled) BlockQuotes.quoteForCurrentMinute(context.resources) else null
 
             _uiState.value = BlockUiState(
                 sessionId = args.sessionId,
@@ -71,6 +78,7 @@ class BlockViewModel @Inject constructor(
                 blockedPackage = args.blockedPackage,
                 appName = args.blockedAppName,
                 profileName = args.profileName,
+                profileEmoji = loadedProfile?.emoji,
                 remainingMillis = args.remainingMillis,
                 attemptNumber = args.attemptNumber,
                 lockMode = args.lockMode,
@@ -79,6 +87,13 @@ class BlockViewModel @Inject constructor(
                 tamperMessage = args.tamperMessage,
                 emergencyExitMode = loadedProfile?.emergencyExitMode
                     ?: app.focus.domain.model.EmergencyExitMode.NONE,
+                goalText = session?.goalText?.takeIf { it.isNotBlank() },
+                motivationalQuote = quote,
+                allowedSettingsShortcuts = if (args.lockMode is LockMode.Hard) {
+                    loadedProfile?.allowedSettingsShortcuts.orEmpty()
+                } else {
+                    emptySet()
+                },
             )
 
             when (val status = session?.status) {
@@ -117,6 +132,7 @@ class BlockViewModel @Inject constructor(
             BlockAction.StartEmergencyExit -> startEmergencyExit()
             BlockAction.CancelEmergencyExit -> cancelEmergencyExit()
             is BlockAction.InputEmergencyExitChar -> inputEmergencyExitChar(action.char)
+            is BlockAction.OpenSettingsShortcut -> openSettingsShortcut(action.shortcut)
         }
     }
 
@@ -347,14 +363,39 @@ class BlockViewModel @Inject constructor(
         }.getOrNull()
     }
 
-    private fun notifyAccessWindowGranted(expiresAt: Long) {
+    fun buildSettingsShortcutIntent(action: String): Intent =
+        Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    private fun openSettingsShortcut(shortcut: SettingsShortcut) {
+        val state = _uiState.value
+        viewModelScope.launch {
+            runCatching {
+                grantSettingsShortcutUseCase.execute(state.sessionId, shortcut)
+            }.onSuccess { result ->
+                notifyAccessWindowGranted(
+                    expiresAt = result.expiresAt,
+                    packageName = result.settingsPackage,
+                    appName = result.settingsPackage,
+                )
+                _uiState.update {
+                    it.copy(settingsShortcutIntentAction = result.intentAction)
+                }
+            }
+        }
+    }
+
+    private fun notifyAccessWindowGranted(
+        expiresAt: Long,
+        packageName: String = _uiState.value.blockedPackage,
+        appName: String = _uiState.value.appName,
+    ) {
         val state = _uiState.value
         val intent = Intent().apply {
             setClassName(context.packageName, "app.focus.service.focus.FocusForegroundService")
             action = "app.focus.service.ACCESS_WINDOW_GRANTED"
             putExtra("sessionId", state.sessionId)
-            putExtra("blockedPackage", state.blockedPackage)
-            putExtra("blockedAppName", state.appName)
+            putExtra("blockedPackage", packageName)
+            putExtra("blockedAppName", appName)
             putExtra("expiresAt", expiresAt)
         }
         ContextCompat.startForegroundService(context, intent)

@@ -33,6 +33,21 @@ subprojects {
             config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
             baseline = file("${layout.projectDirectory.asFile}/detekt-baseline.xml")
         }
+        apply(plugin = "com.diffplug.spotless")
+        extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+            kotlin {
+                target("src/**/*.kt")
+                trimTrailingWhitespace()
+                endWithNewline()
+                lineEndings = com.diffplug.spotless.LineEnding.UNIX
+            }
+            kotlinGradle {
+                target("*.gradle.kts")
+                trimTrailingWhitespace()
+                endWithNewline()
+                lineEndings = com.diffplug.spotless.LineEnding.UNIX
+            }
+        }
     }
     plugins.withId("org.jetbrains.kotlin.jvm") {
         apply(plugin = "io.gitlab.arturbosch.detekt")
@@ -41,6 +56,21 @@ subprojects {
             allRules = false
             config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
             baseline = file("${layout.projectDirectory.asFile}/detekt-baseline.xml")
+        }
+        apply(plugin = "com.diffplug.spotless")
+        extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+            kotlin {
+                target("src/**/*.kt")
+                trimTrailingWhitespace()
+                endWithNewline()
+                lineEndings = com.diffplug.spotless.LineEnding.UNIX
+            }
+            kotlinGradle {
+                target("*.gradle.kts")
+                trimTrailingWhitespace()
+                endWithNewline()
+                lineEndings = com.diffplug.spotless.LineEnding.UNIX
+            }
         }
     }
 }

@@ -3,8 +3,11 @@ package app.focus.core.testing
 import app.focus.domain.usecase.Clock
 import kotlinx.coroutines.flow.asSharedFlow
 
-class TestClock(private val currentTimeMillis: () -> Long) : Clock {
+class TestClock(
+    private val currentTimeMillis: () -> Long,
+) : Clock {
     override fun nowMillis(): Long = currentTimeMillis()
+
     override fun nowInstant(): java.time.Instant = java.time.Instant.ofEpochMilli(nowMillis())
 }
 
@@ -25,15 +28,27 @@ class FakeSessionRepository : app.focus.domain.usecase.SessionRepository {
         sessions[session.id] = session
     }
 
-    override fun observeActiveSession(): kotlinx.coroutines.flow.Flow<app.focus.domain.model.Session?> =
-        currentFlow.asSharedFlow()
+    override fun observeActiveSession(): kotlinx.coroutines.flow.Flow<app.focus.domain.model.Session?> = currentFlow.asSharedFlow()
 
-    override fun observeSessions(startDate: Long, endDate: Long): kotlinx.coroutines.flow.Flow<List<app.focus.domain.model.Session>> =
+    override fun observeSessions(
+        startDate: Long,
+        endDate: Long,
+    ): kotlinx.coroutines.flow.Flow<List<app.focus.domain.model.Session>> =
         kotlinx.coroutines.flow.flowOf(sessions.values.filter { it.startedAt in startDate..endDate }.toList())
 
-    override suspend fun getStatsDaily(startDate: Long, days: Int): List<app.focus.domain.model.DailyStats> = emptyList()
+    override suspend fun getSession(id: String): app.focus.domain.model.Session? = sessions[id]
+
+    override suspend fun getStatsDaily(
+        startDate: Long,
+        days: Int,
+    ): List<app.focus.domain.model.DailyStats> = emptyList()
+
     override suspend fun cancelOldEvents(beforeMillis: Long) {}
-    override suspend fun exportStatsCsv(startDate: Long, endDate: Long): String = "date,sessions,focus_minutes"
+
+    override suspend fun exportStatsCsv(
+        startDate: Long,
+        endDate: Long,
+    ): String = "date,sessions,focus_minutes"
 }
 
 class FakeProfileRepository : app.focus.domain.usecase.ProfileRepository {
@@ -42,26 +57,27 @@ class FakeProfileRepository : app.focus.domain.usecase.ProfileRepository {
         kotlinx.coroutines.flow.MutableStateFlow<List<app.focus.domain.model.Profile>>(emptyList())
 
     init {
-        profiles["seed-work"] = app.focus.domain.model.Profile(
-            id = "seed-work",
-            name = "Work",
-            emoji = "\uD83D\uDE80",
-            colorArgb = 0xFF2F6F6D.toInt(),
-            lockMode = app.focus.domain.model.LockMode.Soft,
-            defaultDurationMinutes = 50,
-            bypassDelaySeconds = 30,
-            bypassBreathingEnabled = true,
-            bypassReasonRequired = true,
-            bypassPhrase = null,
-            bypassLimitPerSession = 3,
-            accessWindowMinutes = 5,
-            bypassAppliesToAllApps = false,
-            emergencyExitMode = app.focus.domain.model.EmergencyExitMode.NONE,
-            blockNewApps = true,
-            deviceAdminProtection = false,
-            allowedSettingsShortcuts = emptySet(),
-            hideTargetNotifications = false,
-        )
+        profiles["seed-work"] =
+            app.focus.domain.model.Profile(
+                id = "seed-work",
+                name = "Work",
+                emoji = "\uD83D\uDE80",
+                colorArgb = 0xFF2F6F6D.toInt(),
+                lockMode = app.focus.domain.model.LockMode.Soft,
+                defaultDurationMinutes = 50,
+                bypassDelaySeconds = 30,
+                bypassBreathingEnabled = true,
+                bypassReasonRequired = true,
+                bypassPhrase = null,
+                bypassLimitPerSession = 3,
+                accessWindowMinutes = 5,
+                bypassAppliesToAllApps = false,
+                emergencyExitMode = app.focus.domain.model.EmergencyExitMode.NONE,
+                blockNewApps = true,
+                deviceAdminProtection = false,
+                allowedSettingsShortcuts = emptySet(),
+                hideTargetNotifications = false,
+            )
         emitProfiles()
     }
 
@@ -85,13 +101,18 @@ class FakeProfileRepository : app.focus.domain.usecase.ProfileRepository {
         emitProfiles()
     }
 
-    override fun observeProfiles(): kotlinx.coroutines.flow.Flow<List<app.focus.domain.model.Profile>> =
-        profilesFlow
+    override fun observeProfiles(): kotlinx.coroutines.flow.Flow<List<app.focus.domain.model.Profile>> = profilesFlow
 
     override suspend fun getProfile(id: String): app.focus.domain.model.Profile? = profiles[id]
+
     override suspend fun getDefaultProfileId(): String? = "seed-work"
+
     override suspend fun setDefaultProfileId(id: String) {}
-    override suspend fun updateTargetApps(profileId: String, packageNames: List<String>) {
+
+    override suspend fun updateTargetApps(
+        profileId: String,
+        packageNames: List<String>,
+    ) {
         profiles[profileId]?.let { profile ->
             profiles[profileId] = profile.copy(targetPackageNames = packageNames)
             emitProfiles()
@@ -108,6 +129,7 @@ class FakeScheduleRepository : app.focus.domain.usecase.ScheduleRepository {
     }
 
     override suspend fun update(schedule: app.focus.domain.model.Schedule) {}
+
     override suspend fun delete(id: String) {
         schedules.removeAll { it.id == id }
     }
@@ -115,8 +137,7 @@ class FakeScheduleRepository : app.focus.domain.usecase.ScheduleRepository {
     override fun observeSchedules(): kotlinx.coroutines.flow.Flow<List<app.focus.domain.model.Schedule>> =
         kotlinx.coroutines.flow.flowOf(schedules)
 
-    override suspend fun getScheduleById(id: String): app.focus.domain.model.Schedule? =
-        schedules.find { it.id == id }
+    override suspend fun getScheduleById(id: String): app.focus.domain.model.Schedule? = schedules.find { it.id == id }
 }
 
 class FakeAllowlistRepository : app.focus.domain.usecase.AllowlistRepository {
@@ -130,8 +151,7 @@ class FakeAllowlistRepository : app.focus.domain.usecase.AllowlistRepository {
         allowlist.remove(packageName)
     }
 
-    override fun observeAllowlist(): kotlinx.coroutines.flow.Flow<Set<String>> =
-        kotlinx.coroutines.flow.flowOf(allowlist)
+    override fun observeAllowlist(): kotlinx.coroutines.flow.Flow<Set<String>> = kotlinx.coroutines.flow.flowOf(allowlist)
 
     override fun isAllowed(packageName: String): Boolean = allowlist.contains(packageName)
 }
@@ -144,15 +164,17 @@ class FakeAccessWindowRepository : app.focus.domain.usecase.AccessWindowReposito
         packageName: String,
         reason: String?,
         durationMinutes: Int,
+        restrictedToActivity: String?,
     ): Long {
-        val window = app.focus.domain.model.AccessWindow(
-            sessionId = sessionId,
-            packageName = packageName,
-            grantedAt = System.currentTimeMillis(),
-            expiresAt = System.currentTimeMillis() + durationMinutes * 60_000L,
-            reason = reason,
-            restrictedToActivity = null,
-        )
+        val window =
+            app.focus.domain.model.AccessWindow(
+                sessionId = sessionId,
+                packageName = packageName,
+                grantedAt = System.currentTimeMillis(),
+                expiresAt = System.currentTimeMillis() + durationMinutes * 60_000L,
+                reason = reason,
+                restrictedToActivity = restrictedToActivity,
+            )
         windows[packageName] = window
         return window.expiresAt
     }

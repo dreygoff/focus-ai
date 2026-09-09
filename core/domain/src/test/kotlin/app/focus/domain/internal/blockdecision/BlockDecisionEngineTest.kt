@@ -19,6 +19,7 @@ class BlockDecisionEngineTest {
         isHardLock: Boolean = false,
         hardLockExtraPackages: Set<String> = emptySet(),
         inPomodoroBreak: Boolean = false,
+        inCallPackage: String? = null,
     ): BlockDecisionEngine = BlockDecisionEngine(
         systemAllowlist = systemAllowlist,
         userAllowlistProvider = { userAllowlist },
@@ -30,6 +31,7 @@ class BlockDecisionEngineTest {
             targetPackages = targetPackages,
             hardLockExtraPackages = hardLockExtraPackages,
             inPomodoroBreak = inPomodoroBreak,
+            inCallPackage = inCallPackage,
         ),
     )
 
@@ -156,6 +158,146 @@ class BlockDecisionEngineTest {
     fun `pomodoro break allows all packages`() {
         val eng = engine(inPomodoroBreak = true)
         assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android"))
+    }
+
+    @Test
+    fun `dialer allowed during active phone call`() {
+        val eng = engine(
+            inCallPackage = "com.google.android.dialer",
+            targetPackages = setOf("com.google.android.dialer"),
+        )
+        assertEquals(BlockDecision.Allow, eng.decide("com.google.android.dialer"))
+    }
+
+    @Test
+    fun `non-dialer still blocked during phone call`() {
+        val eng = engine(
+            inCallPackage = "com.google.android.dialer",
+            targetPackages = setOf("com.instagram.android"),
+        )
+        assertTrue(eng.decide("com.instagram.android") is BlockDecision.Block)
+    }
+
+    @Test
+    fun `dialer blocked when not in call`() {
+        val eng = engine(
+            inCallPackage = null,
+            targetPackages = setOf("com.google.android.dialer"),
+        )
+        assertTrue(eng.decide("com.google.android.dialer") is BlockDecision.Block)
+    }
+
+    @Test
+    fun `empty target packages allows all non-extras`() {
+        val eng = engine(targetPackages = emptySet(), hardLockExtraPackages = emptySet())
+        assertEquals(BlockDecision.Allow, eng.decide("com.instagram.android"))
+    }
+
+    @Test
+    fun `hard lock blocks extra even when not in targets`() {
+        val eng = engine(
+            isHardLock = true,
+            targetPackages = setOf("com.instagram.android"),
+            hardLockExtraPackages = setOf("com.android.vending"),
+        )
+        assertTrue(eng.decide("com.android.vending") is BlockDecision.Block)
+    }
+
+    @Test
+    fun `target in both lists blocked as target app`() {
+        val eng = engine(
+            isHardLock = true,
+            targetPackages = setOf("com.android.settings"),
+            hardLockExtraPackages = setOf("com.android.settings"),
+        )
+        val result = eng.decide("com.android.settings") as BlockDecision.Block
+        assertEquals(BlockReason.TARGET_APP, result.reason)
+    }
+
+    @Test
+    fun `system and user allowlist both apply`() {
+        val eng = engine(
+            systemAllowlist = setOf("com.android.systemui"),
+            userAllowlist = setOf("com.bank.app"),
+            targetPackages = setOf("com.bank.app", "com.instagram.android"),
+        )
+        assertEquals(BlockDecision.Allow, eng.decide("com.android.systemui"))
+        assertEquals(BlockDecision.Allow, eng.decide("com.bank.app"))
+        assertTrue(eng.decide("com.instagram.android") is BlockDecision.Block)
+    }
+
+    @Test
+    fun `access window only applies to matching package`() {
+        val windowEnd = now + 300_000L
+        val eng = engine(
+            accessWindowPkgLookup = mapOf("com.whatsapp" to windowEnd),
+            targetPackages = setOf("com.whatsapp", "com.instagram.android"),
+        )
+        assertEquals(BlockDecision.Allow, eng.decide("com.whatsapp"))
+        assertTrue(eng.decide("com.instagram.android") is BlockDecision.Block)
+    }
+
+    @Test
+    fun `pomodoro break allows hard lock extras`() {
+        val eng = engine(
+            inPomodoroBreak = true,
+            isHardLock = true,
+            hardLockExtraPackages = setOf("com.android.settings"),
+        )
+        assertEquals(BlockDecision.Allow, eng.decide("com.android.settings"))
+    }
+
+    @Test
+    fun `block decision includes package name`() {
+        val eng = engine(targetPackages = setOf("com.twitter.android"))
+        val result = eng.decide("com.twitter.android") as BlockDecision.Block
+        assertEquals("com.twitter.android", result.packageName)
+    }
+
+    @Test
+    fun `focus app in system allowlist is always allowed`() {
+        val eng = engine(
+            systemAllowlist = setOf("app.focus.android"),
+            targetPackages = setOf("app.focus.android"),
+        )
+        assertEquals(BlockDecision.Allow, eng.decide("app.focus.android"))
+    }
+
+    @Test
+    fun `hard lock extra reason when only in extras set`() {
+        val eng = engine(
+            isHardLock = true,
+            targetPackages = setOf("com.instagram.android"),
+            hardLockExtraPackages = setOf("com.other.launcher"),
+        )
+        val result = eng.decide("com.other.launcher") as BlockDecision.Block
+        assertEquals(BlockReason.HARD_LOCK_EXTRA, result.reason)
+    }
+
+    @Test
+    fun `no session allows hard lock extras package`() {
+        val eng = engine(
+            hasActiveSession = false,
+            hardLockExtraPackages = setOf("com.android.settings"),
+        )
+        assertEquals(BlockDecision.Allow, eng.decide("com.android.settings"))
+    }
+
+    @Test
+    fun `access window with zero expiry blocks package`() {
+        val eng = engine(
+            accessWindowPkgLookup = mapOf("com.instagram.android" to now - 1L),
+            targetPackages = setOf("com.instagram.android"),
+        )
+        assertTrue(eng.decide("com.instagram.android") is BlockDecision.Block)
+    }
+
+    @Test
+    fun `multiple targets block independently`() {
+        val eng = engine(targetPackages = setOf("com.app.a", "com.app.b"))
+        assertTrue(eng.decide("com.app.a") is BlockDecision.Block)
+        assertTrue(eng.decide("com.app.b") is BlockDecision.Block)
+        assertEquals(BlockDecision.Allow, eng.decide("com.app.c"))
     }
 
     companion object {

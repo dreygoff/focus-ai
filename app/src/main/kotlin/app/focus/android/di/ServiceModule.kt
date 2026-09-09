@@ -6,7 +6,10 @@ import android.content.Context
 import app.focus.domain.internal.pomodoro.PomodoroPlanner
 import app.focus.domain.internal.schedule.ScheduleAlarmPlanner
 import app.focus.domain.model.PomodoroConfig
+import app.focus.data.SystemAllowlistQualifier
+import app.focus.domain.usecase.AccessWindowRepository
 import app.focus.domain.usecase.ActiveSessionBlockState
+import app.focus.domain.usecase.AllowlistRepository
 import app.focus.domain.usecase.ActiveSessionSnapshotStorage
 import app.focus.domain.usecase.AlarmSchedulerService
 import app.focus.domain.usecase.BlockLauncher
@@ -17,10 +20,12 @@ import app.focus.domain.usecase.SessionRepository
 import app.focus.domain.usecase.StopSessionUseCase
 import app.focus.service.focus.FocusServiceDependencies
 import app.focus.service.focus.AlarmReceiver
+import app.focus.system.DefaultAppsResolver
 import app.focus.system.DefaultUsageStatsPollingDetector
 import app.focus.system.DetectorOrchestrator
 import app.focus.system.HardLockEnforcer
 import app.focus.system.PermissionChecker
+import app.focus.system.PhoneCallMonitor
 import app.focus.system.timer.SessionTimerManager
 import dagger.Module
 import dagger.Provides
@@ -71,6 +76,27 @@ object ServiceModule {
 
     @Provides
     @Singleton
+    fun providePhoneCallMonitor(
+        @ApplicationContext context: Context,
+    ): PhoneCallMonitor = PhoneCallMonitor(context, DefaultAppsResolver(context))
+
+    @Provides
+    fun provideDecideBlockUseCase(
+        @SystemAllowlistQualifier systemAllowlist: Set<String>,
+        allowlistRepository: AllowlistRepository,
+        accessWindowRepository: AccessWindowRepository,
+        activeSessionBlockState: ActiveSessionBlockState,
+        phoneCallMonitor: PhoneCallMonitor,
+    ): DecideBlockUseCase = DecideBlockUseCase(
+        systemAllowlist = { systemAllowlist },
+        userAllowlistRepo = allowlistRepository,
+        accessWindowRepo = accessWindowRepository,
+        sessionState = { activeSessionBlockState.sessionState },
+        inCallDialerPackage = { phoneCallMonitor.dialerPackageIfInCall() },
+    )
+
+    @Provides
+    @Singleton
     fun provideSessionTimerManager(
         @ApplicationContext context: Context,
         snapshotStore: ActiveSessionSnapshotStorage
@@ -92,6 +118,7 @@ object ServiceModule {
         decideBlockUseCase: DecideBlockUseCase,
         blockLauncher: BlockLauncher,
         eventLogRepository: EventLogRepository,
+        accessWindowRepository: AccessWindowRepository,
         activeSessionBlockState: ActiveSessionBlockState,
     ): FocusServiceDependencies = FocusServiceDependencies(
         stopSessionUseCase = stopSessionUseCase,
@@ -105,8 +132,16 @@ object ServiceModule {
         decideBlockUseCase = decideBlockUseCase,
         blockLauncher = blockLauncher,
         eventLogRepository = eventLogRepository,
+        accessWindowRepository = accessWindowRepository,
         activeSessionBlockState = activeSessionBlockState,
     )
+
+    @Provides
+    @Singleton
+    fun provideSettingsShortcutGateway(
+        @ApplicationContext context: Context,
+    ): app.focus.domain.usecase.SettingsShortcutGateway =
+        app.focus.system.AndroidSettingsShortcutGateway(context)
 }
 
 @Module

@@ -8,9 +8,11 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -135,14 +137,19 @@ class BlockActivity : ComponentActivity() {
 @Composable
 private fun BlockActivityContent(viewModel: BlockViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    val activity = androidx.compose.ui.platform.LocalContext.current as BlockActivity
-    FocusTheme(darkTheme = false, dynamicColor = false) {
+    val activity = LocalActivity.current as? BlockActivity ?: return
+    FocusTheme(darkTheme = isSystemInDarkTheme(), dynamicColor = true) {
         LaunchedEffect(uiState.bypassGranted) {
             if (uiState.bypassGranted) {
                 viewModel.launchBlockedAppIntent()?.let { launchIntent ->
                     runCatching { activity.startActivity(launchIntent) }
                 }
             }
+        }
+        LaunchedEffect(uiState.settingsShortcutIntentAction) {
+            val action = uiState.settingsShortcutIntentAction ?: return@LaunchedEffect
+            runCatching { activity.startActivity(viewModel.buildSettingsShortcutIntent(action)) }
+            activity.finish()
         }
         LaunchedEffect(uiState.sessionEnded) {
             if (uiState.sessionEnded) {

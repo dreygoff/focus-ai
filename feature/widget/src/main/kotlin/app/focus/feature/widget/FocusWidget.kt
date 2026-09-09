@@ -3,6 +3,7 @@ package app.focus.feature.widget
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.LocalContext
 import androidx.glance.GlanceId
@@ -32,6 +33,13 @@ import androidx.glance.unit.ColorProvider
 import app.focus.domain.usecase.WidgetMode
 import app.focus.domain.usecase.WidgetSessionState
 
+private const val WIDGET_BACKGROUND_COLOR = 0xFF2F6F6D
+private const val WIDGET_SUBTITLE_COLOR = 0xFFE0F2F1
+
+private val WidgetBackgroundColor = ColorProvider(Color(WIDGET_BACKGROUND_COLOR))
+private val WidgetTextColor = ColorProvider(Color.White)
+private val WidgetSubtitleColor = ColorProvider(Color(WIDGET_SUBTITLE_COLOR))
+
 class FocusWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -55,25 +63,25 @@ private fun FocusWidgetContent(state: WidgetSessionState) {
         modifier = GlanceModifier
             .fillMaxSize()
             .cornerRadius(16.dp)
-            .background(ColorProvider(android.graphics.Color.parseColor("#2F6F6D")))
+            .background(WidgetBackgroundColor)
             .padding(12.dp),
         verticalAlignment = Alignment.Vertical.CenterVertically,
     ) {
         Text(
             text = state.profileName ?: context.getString(R.string.widget_title),
-            style = TextStyle(color = ColorProvider(android.graphics.Color.WHITE)),
+            style = TextStyle(color = WidgetTextColor),
         )
         Spacer(GlanceModifier.height(4.dp))
         Text(
             text = statusText(context, state),
-            style = TextStyle(color = ColorProvider(android.graphics.Color.parseColor("#E0F2F1"))),
+            style = TextStyle(color = WidgetSubtitleColor),
         )
         val remainingMillis = state.remainingMillis
         if (remainingMillis != null) {
             Spacer(GlanceModifier.height(4.dp))
             Text(
                 text = formatRemaining(remainingMillis),
-                style = TextStyle(color = ColorProvider(android.graphics.Color.WHITE)),
+                style = TextStyle(color = WidgetTextColor),
             )
         }
         Spacer(GlanceModifier.height(8.dp))
@@ -87,7 +95,7 @@ private fun FocusWidgetContent(state: WidgetSessionState) {
                     modifier = GlanceModifier
                         .clickable(actionRunCallback<StartSessionActionCallback>())
                         .padding(horizontal = 8.dp, vertical = 4.dp),
-                    style = TextStyle(color = ColorProvider(android.graphics.Color.WHITE)),
+                    style = TextStyle(color = WidgetTextColor),
                 )
             } else if (state.canStop) {
                 Text(
@@ -95,7 +103,7 @@ private fun FocusWidgetContent(state: WidgetSessionState) {
                     modifier = GlanceModifier
                         .clickable(actionRunCallback<StopSessionActionCallback>())
                         .padding(end = 12.dp),
-                    style = TextStyle(color = ColorProvider(android.graphics.Color.WHITE)),
+                    style = TextStyle(color = WidgetTextColor),
                 )
             }
             Text(
@@ -103,7 +111,7 @@ private fun FocusWidgetContent(state: WidgetSessionState) {
                 modifier = GlanceModifier
                     .clickable(actionStartActivity(openAppIntent()))
                     .padding(horizontal = 8.dp, vertical = 4.dp),
-                style = TextStyle(color = ColorProvider(android.graphics.Color.WHITE)),
+                style = TextStyle(color = WidgetTextColor),
             )
         }
     }

@@ -6,6 +6,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -61,6 +64,7 @@ fun SettingsScreen(
     onOpenProtectionInfo: () -> Unit = {},
     onOpenPrivacy: () -> Unit = {},
     onOpenLicenses: () -> Unit = {},
+    onOpenDiagnostics: () -> Unit = {},
     onLanguageChanged: (String) -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
@@ -69,6 +73,7 @@ fun SettingsScreen(
     var pendingExport by remember { mutableStateOf<String?>(null) }
     var showClearConfirm by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var versionTapCount by remember { mutableStateOf(0) }
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/csv"),
     ) { uri ->
@@ -88,13 +93,14 @@ fun SettingsScreen(
     }
 
     uiState.messageKey?.let { key ->
-        val text = when (key) {
-            "stats_cleared" -> stringResource(R.string.settings_stats_cleared)
-            "data_deleted" -> stringResource(R.string.settings_data_deleted)
-            else -> key
+        val (titleRes, text) = when (key) {
+            "stats_cleared" -> R.string.settings_stats_cleared_title to stringResource(R.string.settings_stats_cleared)
+            "data_deleted" -> R.string.settings_data_deleted_title to stringResource(R.string.settings_data_deleted)
+            else -> R.string.settings_title to key
         }
         AlertDialog(
             onDismissRequest = viewModel::dismissMessage,
+            title = { Text(stringResource(titleRes)) },
             confirmButton = {
                 TextButton(onClick = viewModel::dismissMessage) {
                     Text(stringResource(R.string.settings_ok))
@@ -107,6 +113,7 @@ fun SettingsScreen(
     uiState.errorMessage?.let { message ->
         AlertDialog(
             onDismissRequest = viewModel::dismissMessage,
+            title = { Text(stringResource(R.string.settings_error_title)) },
             confirmButton = {
                 TextButton(onClick = viewModel::dismissMessage) {
                     Text(stringResource(R.string.settings_ok))
@@ -264,8 +271,18 @@ fun SettingsScreen(
                 label = stringResource(R.string.settings_licenses_title),
                 onClick = onOpenLicenses,
             )
+            val versionDescription = stringResource(R.string.settings_cd_version, versionName)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        versionTapCount++
+                        if (versionTapCount >= VERSION_TAPS_FOR_DIAGNOSTICS) {
+                            versionTapCount = 0
+                            onOpenDiagnostics()
+                        }
+                    }
+                    .semantics { contentDescription = versionDescription },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -293,10 +310,15 @@ private fun ThemeOption(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onSelect(value) },
+            .selectable(
+                selected = selected == value,
+                onClick = { onSelect(value) },
+                role = Role.RadioButton,
+            )
+            .semantics { contentDescription = label },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RadioButton(selected = selected == value, onClick = { onSelect(value) })
+        RadioButton(selected = selected == value, onClick = null)
         Text(label, modifier = Modifier.padding(start = 8.dp))
     }
 }
@@ -310,14 +332,20 @@ private fun LanguageSelector(
     Column {
         Text(stringResource(R.string.settings_language))
         languages.forEach { (tag, labelRes) ->
+            val label = stringResource(labelRes)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onSelect(tag) },
+                    .selectable(
+                        selected = currentTag == tag,
+                        onClick = { onSelect(tag) },
+                        role = Role.RadioButton,
+                    )
+                    .semantics { contentDescription = label },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RadioButton(selected = currentTag == tag, onClick = { onSelect(tag) })
-                Text(stringResource(labelRes), modifier = Modifier.padding(start = 8.dp))
+                RadioButton(selected = currentTag == tag, onClick = null)
+                Text(label, modifier = Modifier.padding(start = 8.dp))
             }
         }
     }
@@ -329,13 +357,24 @@ private fun SettingsSwitchRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
+    val stateLabel = stringResource(
+        if (checked) R.string.settings_switch_on else R.string.settings_switch_off,
+    )
+    val switchDescription = stringResource(R.string.settings_cd_switch, label, stateLabel)
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .toggleable(
+                value = checked,
+                onValueChange = onCheckedChange,
+                role = Role.Switch,
+            )
+            .semantics { contentDescription = switchDescription },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(label, modifier = Modifier.weight(1f))
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Switch(checked = checked, onCheckedChange = null)
     }
 }
 
@@ -390,3 +429,5 @@ private fun writeCsv(context: Context, uri: Uri, csv: String) {
         stream.write(csv.toByteArray(Charsets.UTF_8))
     }
 }
+
+private const val VERSION_TAPS_FOR_DIAGNOSTICS = 7

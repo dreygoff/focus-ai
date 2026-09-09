@@ -33,6 +33,9 @@ class RealSessionRepository(
     override fun observeSessions(startDate: Long, endDate: Long): Flow<List<app.focus.domain.model.Session>> =
         sessionDao.observeSessionsInRange(startDate, endDate).map { sessions -> sessions.map { it.toDomain() } }
 
+    override suspend fun getSession(id: String): app.focus.domain.model.Session? =
+        sessionDao.getSessionById(id)?.toDomain()
+
     override suspend fun getStatsDaily(startDate: Long, days: Int): List<DailyStats> {
         val startEpochDay = EpochDays.fromMillis(startDate)
         val endEpochDay = startEpochDay + days - 1
@@ -97,6 +100,7 @@ class RealAccessWindowRepository(
         packageName: String,
         reason: String?,
         durationMinutes: Int,
+        restrictedToActivity: String?,
     ): Long {
         val now = System.currentTimeMillis()
         val expiresAt = now + durationMinutes * 60_000L
@@ -107,7 +111,7 @@ class RealAccessWindowRepository(
             grantedAt = now,
             expiresAt = expiresAt,
             reason = reason,
-            restrictedToActivity = null,
+            restrictedToActivity = restrictedToActivity,
         )
         accessWindowDao.insert(entity)
         return expiresAt

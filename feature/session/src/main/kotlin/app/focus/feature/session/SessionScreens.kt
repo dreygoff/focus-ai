@@ -24,8 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.util.concurrent.TimeUnit
 
-private const val STREAK_PLACEHOLDER_DAYS = 7
-
 @Composable
 fun ActiveSessionScreen(
     session: app.focus.domain.model.Session,
@@ -87,11 +85,12 @@ private fun TimerDialBig(secondsRemaining: Int, totalSeconds: Int) {
     val secs = secondsRemaining % 60
     val formatted = "%02d:%02d".format(minutes, secs)
     val timerLabel = stringResource(R.string.session_cd_timer)
+    val timerDescription = stringResource(R.string.session_cd_timer_remaining, timerLabel, formatted)
     Text(
         formatted,
         style = MaterialTheme.typography.displayMedium,
         modifier = Modifier.semantics {
-            contentDescription = "$timerLabel: $formatted"
+            contentDescription = timerDescription
         },
     )
 }
@@ -99,11 +98,12 @@ private fun TimerDialBig(secondsRemaining: Int, totalSeconds: Int) {
 @Composable
 fun SessionSummaryScreen(
     session: app.focus.domain.model.Session,
+    currentStreakDays: Int = 0,
     remainingSessionMinutes: Int? = null,
     onBackToHome: () -> Unit,
 ) {
     val focusMinutes = sessionFocusMinutes(session)
-    val streakDays = if (session.actualEndAt != null) STREAK_PLACEHOLDER_DAYS else 0
+    val streakDays = currentStreakDays
 
     Column(Modifier.fillMaxSize().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.height(32.dp))
@@ -136,14 +136,4 @@ private fun sessionFocusMinutes(session: app.focus.domain.model.Session): Int {
     val endAt = session.actualEndAt ?: session.plannedEndAt ?: return 0
     val durationMs = (endAt - session.startedAt).coerceAtLeast(0)
     return TimeUnit.MILLISECONDS.toMinutes(durationMs).toInt()
-}
-
-object SessionRoutes {
-    const val START = "session/start"
-    const val ACTIVE = "session/active/{sessionId}"
-    const val SUMMARY = "session/summary/{sessionId}"
-    const val POMODORO_CONFIG = "$START/pomodoro"
-
-    fun activeRoute(sessionId: String) = "session/active/$sessionId"
-    fun summaryRoute(sessionId: String) = "session/summary/$sessionId"
 }

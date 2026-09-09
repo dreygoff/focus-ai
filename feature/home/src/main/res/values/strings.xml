@@ -24,4 +24,7 @@
     <string name="home_start">Start</string>
     <string name="home_quick_start">Quick start</string>
     <string name="home_quick_start_profile">Start %1$s</string>
+    <string name="home_cd_session_timer">%1$s remaining</string>
+    <string name="home_cd_session_timer_paused">%1$s remaining, paused</string>
+    <string name="home_cd_session_no_limit">No time limit</string>
 </resources>

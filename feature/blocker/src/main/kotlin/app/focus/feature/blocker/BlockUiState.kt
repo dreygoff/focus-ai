@@ -4,6 +4,7 @@ import app.focus.domain.model.BypassState
 import app.focus.domain.model.EmergencyExitMode
 import app.focus.domain.model.EmergencyExitStep
 import app.focus.domain.model.LockMode
+import app.focus.domain.model.SettingsShortcut
 
 data class BlockUiState(
     val sessionId: String = "",
@@ -22,6 +23,11 @@ data class BlockUiState(
     val emergencyExitMode: EmergencyExitMode = EmergencyExitMode.NONE,
     val emergencyExitStep: EmergencyExitStep? = null,
     val sessionEnded: Boolean = false,
+    val goalText: String? = null,
+    val motivationalQuote: String? = null,
+    val profileEmoji: String? = null,
+    val allowedSettingsShortcuts: Set<SettingsShortcut> = emptySet(),
+    val settingsShortcutIntentAction: String? = null,
 )
 
 sealed interface BlockAction {
@@ -34,4 +40,5 @@ sealed interface BlockAction {
     data object StartEmergencyExit : BlockAction
     data object CancelEmergencyExit : BlockAction
     data class InputEmergencyExitChar(val char: Char) : BlockAction
+    data class OpenSettingsShortcut(val shortcut: SettingsShortcut) : BlockAction
 }

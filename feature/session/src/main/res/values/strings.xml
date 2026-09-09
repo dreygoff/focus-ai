@@ -5,8 +5,18 @@
     <string name="session_profile_option">%1$s %2$s</string>
     <string name="session_duration">Duration (min)</string>
     <string name="session_duration_min">%1$d min</string>
+    <string name="session_duration_custom">Custom duration</string>
+    <string name="session_duration_custom_value">%1$d minutes</string>
+    <string name="session_duration_until">Until time</string>
+    <string name="session_until_hour">Hour</string>
+    <string name="session_until_minute">Minute</string>
+    <string name="session_apply_until_time">Apply end time</string>
+    <string name="session_duration_infinite">No time limit (soft lock)</string>
     <string name="session_goal_optional">Goal (optional)</string>
     <string name="session_hard_lock_warning">Hard lock will block Settings and other system apps.</string>
+    <string name="session_hard_lock_dialog_title">Start hard lock?</string>
+    <string name="session_hard_lock_dialog_body">Settings and system apps will be blocked until the session ends or you use emergency exit.</string>
+    <string name="session_hard_lock_dialog_confirm">Start anyway</string>
     <string name="session_start">Start</string>
     <string name="session_back">Back</string>
     <string name="session_pause">Pause</string>
@@ -18,6 +28,8 @@
     <string name="session_bypasses_used">Bypasses used: %1$d</string>
     <string name="session_back_home">Back to home</string>
     <string name="session_cd_timer">Time remaining</string>
+    <string name="session_cd_timer_remaining">%1$s: %2$s</string>
+    <string name="session_cd_loading">Loading session summary</string>
     <plurals name="session_streak_days">
         <item quantity="one">Streak: %1$d day</item>
         <item quantity="other">Streak: %1$d days</item>

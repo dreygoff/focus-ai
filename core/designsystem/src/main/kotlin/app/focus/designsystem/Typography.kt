@@ -1,9 +1,9 @@
 package app.focus.designsystem
 
-import androidx.compose.material3.Typography as M3Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Typography as M3Typography
 
 object Typography {
     val headlineLarge = TextStyle(fontWeight = FontWeight.Bold, fontSize = 32.sp)

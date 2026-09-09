@@ -2,7 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FunctionNaming:Color.kt$@Composable fun FocusTheme( darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = true, content: @Composable () -&gt; Unit )</ID>
+    <ID>FunctionNaming:Color.kt$@Composable fun FocusTheme( darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = true, content: @Composable () -&gt; Unit, )</ID>
     <ID>MagicNumber:Color.kt$0xFF003635</ID>
     <ID>MagicNumber:Color.kt$0xFF1C1B1F</ID>
     <ID>MagicNumber:Color.kt$0xFF2F6F6D</ID>

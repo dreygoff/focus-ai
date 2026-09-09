@@ -22,8 +22,16 @@
     <string name="block_open_app">Открыть приложение</string>
     <string name="block_open_focus">Открыть Focus</string>
     <string name="block_emergency_exit">Аварийный выход</string>
+    <string name="block_allowed_settings">Разрешённые настройки (60 с)</string>
+    <string name="block_shortcut_wifi">Wi‑Fi</string>
+    <string name="block_shortcut_bluetooth">Bluetooth</string>
+    <string name="block_shortcut_sound">Звук</string>
+    <string name="block_shortcut_notifications">Уведомления</string>
+    <string name="block_shortcut_cellular">Мобильные данные</string>
     <string name="block_emergency_delay">Сессия завершится через %1$d мин</string>
     <string name="block_emergency_cancel">Отменить аварийный выход</string>
     <string name="block_emergency_retype_title">Перепечатайте текст точно, чтобы завершить сессию</string>
     <string name="block_cd_blocked">Приложение заблокировано</string>
+    <string name="block_cd_bypass_delay">Ожидание пропуска, осталось %1$d с</string>
+    <string name="block_cd_breathing">Дыхательное упражнение, цикл %1$d, %2$s</string>
 </resources>

@@ -6,22 +6,20 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,9 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,7 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.focus.domain.usecase.StatsPeriod
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 object StatsRoutes {
     const val ROUTE = "stats"
@@ -100,12 +101,15 @@ fun StatsScreen(
 
 @Composable
 private fun StatsLoadingState(modifier: Modifier) {
+    val loadingDescription = stringResource(R.string.stats_cd_loading)
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(
+            modifier = Modifier.semantics { contentDescription = loadingDescription },
+        )
     }
 }
 
@@ -144,14 +148,16 @@ private fun FocusChartCard(dailyStats: List<app.focus.domain.model.DailyStats>) 
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PeriodSelector(
     selected: StatsPeriod,
     onSelect: (StatsPeriod) -> Unit,
 ) {
-    Row(
+    FlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         StatsPeriod.entries.forEach { period ->
             FilterChip(
@@ -172,40 +178,39 @@ private fun periodLabel(period: StatsPeriod): String = when (period) {
 
 @Composable
 private fun SummaryCards(dashboard: app.focus.domain.usecase.StatsDashboard) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        StatSummaryCard(
-            stringResource(R.string.stats_kpi_sessions),
-            "${dashboard.sessionsCompleted}",
-            Modifier.weight(1f),
-        )
-        StatSummaryCard(
-            stringResource(R.string.stats_kpi_focus),
+    val useStackedLayout = LocalConfiguration.current.fontScale >= LARGE_FONT_SCALE_THRESHOLD
+    val cards = listOf(
+        stringResource(R.string.stats_kpi_sessions) to "${dashboard.sessionsCompleted}",
+        stringResource(R.string.stats_kpi_focus) to
             stringResource(R.string.stats_focus_minutes_value, dashboard.totalFocusMinutes),
-            Modifier.weight(1f),
-        )
-        StatSummaryCard(
-            stringResource(R.string.stats_kpi_blocks),
-            "${dashboard.blockAttempts}",
-            Modifier.weight(1f),
-        )
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        StatSummaryCard(
-            stringResource(R.string.stats_kpi_bypasses),
-            "${dashboard.bypasses}",
-            Modifier.weight(1f),
-        )
-        StatSummaryCard(
-            stringResource(R.string.stats_kpi_completed),
+        stringResource(R.string.stats_kpi_blocks) to "${dashboard.blockAttempts}",
+        stringResource(R.string.stats_kpi_bypasses) to "${dashboard.bypasses}",
+        stringResource(R.string.stats_kpi_completed) to
             stringResource(R.string.stats_completed_percent, dashboard.completionRatePercent),
-            Modifier.weight(1f),
-        )
+    )
+    if (useStackedLayout) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            cards.forEach { (label, value) ->
+                StatSummaryCard(label, value, Modifier.fillMaxWidth())
+            }
+        }
+    } else {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            cards.take(3).forEach { (label, value) ->
+                StatSummaryCard(label, value, Modifier.weight(1f))
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            cards.drop(3).forEach { (label, value) ->
+                StatSummaryCard(label, value, Modifier.weight(1f))
+            }
+        }
     }
 }
 
@@ -261,6 +266,7 @@ private fun TopBlockedAppsCard(apps: List<app.focus.domain.usecase.BlockedAppSta
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun EventLogSection(
     events: List<app.focus.domain.model.EventLog>,
@@ -271,7 +277,10 @@ private fun EventLogSection(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(stringResource(R.string.stats_event_log), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 StatsViewModel.EventFilter.entries.forEach { entry ->
                     FilterChip(
                         selected = filter == entry,
@@ -306,7 +315,8 @@ private fun eventFilterLabel(filter: StatsViewModel.EventFilter): String = when 
 
 @Composable
 private fun EventLogRow(event: app.focus.domain.model.EventLog) {
-    val time = SimpleDateFormat("MMM d, HH:mm", Locale.getDefault()).format(Date(event.timestamp))
+    val locale = LocalLocale.current.platformLocale
+    val time = SimpleDateFormat("MMM d, HH:mm", locale).format(Date(event.timestamp))
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         Text("$time · ${event.type.name}", style = MaterialTheme.typography.bodyMedium)
         event.packageName?.let { pkg ->
@@ -324,17 +334,16 @@ private fun StatSummaryCard(
     value: String,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier) {
+    val cardDescription = stringResource(R.string.stats_cd_kpi_card, label, value)
+    Card(
+        modifier = modifier.semantics(mergeDescendants = true) {
+            contentDescription = cardDescription
+        },
+    ) {
         Column(
             modifier = Modifier.padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(
-                Icons.Default.Equalizer,
-                contentDescription = stringResource(R.string.stats_cd_kpi),
-                modifier = Modifier.size(24.dp),
-            )
-            Spacer(Modifier.height(4.dp))
             Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text(label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         }
@@ -348,3 +357,4 @@ private fun writeCsv(context: Context, uri: Uri, content: String) {
 }
 
 private const val EVENT_LOG_PREVIEW_LIMIT = 50
+private const val LARGE_FONT_SCALE_THRESHOLD = 1.3f

@@ -2,6 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FunctionNaming:ObserveAsEvents.kt$@Composable fun &lt;T&gt; ObserveAsEvents(flow: Flow&lt;T&gt;, onEvent: (T) -&gt; Unit)</ID>
+    <ID>FunctionNaming:ObserveAsEvents.kt$@Composable fun &lt;T&gt; ObserveAsEvents( flow: Flow&lt;T&gt;, onEvent: (T) -&gt; Unit, )</ID>
   </CurrentIssues>
 </SmellBaseline>

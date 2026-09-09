@@ -103,6 +103,7 @@ class OverlayBlocker(private val context: Context) {
                                 BlockAction.StartEmergencyExit, BlockAction.CancelEmergencyExit,
                                 is BlockAction.SubmitBypassReason, is BlockAction.InputPhraseChar,
                                 is BlockAction.InputEmergencyExitChar,
+                                is BlockAction.OpenSettingsShortcut,
                                 -> Unit
                             }
                         },
