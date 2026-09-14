@@ -1,2 +1,2 @@
 # focus-ai
-Focus app (AI Created)
+Focus app
